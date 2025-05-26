@@ -5,7 +5,7 @@ WORKDIR /app
 COPY .npmrc ./
 COPY pnpm-workspace.yaml ./
 COPY package.json ./
-COPY apps/frontend/package.json ./apps/frontend/package.json
+COPY package.json ./apps/frontend/package.json
 
 RUN npm install -g pnpm
 
