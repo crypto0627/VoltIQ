@@ -40,4 +40,3 @@ jobs:
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.REPO }}/${{ env.IMAGE_NAME }}:latest
 
-      # Optional: Auto-sync with ArgoCD CLI or let ArgoCD auto-sync on commit

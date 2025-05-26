@@ -9,7 +9,10 @@
     "check-types": "turbo run check-types",
     "create-k3d": "k3d cluster create --config ./infra/k8s/k3d-cluster.yaml",
     "dev:k3d": "k3d cluster create --config ./infra/k8s/k3d-cluster.yaml && kubectl apply -k ./infra/k8s/overlays/dev",
-    "build-frontend": "docker build -t jakekuo/frontend:latest -f ./apps/frontend/Dockerfile ."
+    "deploy:image": "docker build -t jake0627a1/voltiq:latest -f ./apps/frontend/Dockerfile . && docker push jake0627a1/voltiq:latest",
+    "dev:argocd" : "kubectl create namespace argocd && kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml && kubectl port-forward svc/argocd-server -n argocd 8080:443",
+    "deploy:argocd" : "kubectl apply -f infra/k8s/argocd/root-app.yaml -n argocd",
+    "get:argocd-password": "kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath='{.data.password}' | base64 -d"
   },
   "devDependencies": {
     "prettier": "^3.5.3",
