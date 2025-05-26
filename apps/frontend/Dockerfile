@@ -3,8 +3,8 @@ FROM node:20-bullseye
 WORKDIR /app
 
 COPY .npmrc ./
-COPY pnpm-workspace.yaml ./
-COPY package.json ./
+COPY ../pnpm-workspace.yaml ./
+COPY ../package.json ./
 COPY package.json ./apps/frontend/package.json
 
 RUN npm install -g pnpm
