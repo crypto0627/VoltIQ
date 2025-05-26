@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: frontend
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/crypto0627/VoltIQ.git
+    targetRevision: HEAD
+    path: infra/helm/frontend
+    helm:
+      values: |
+        image.repository: jake0627a1/frontend
+        image.tag: latest
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

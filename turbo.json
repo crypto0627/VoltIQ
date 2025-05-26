@@ -16,12 +16,6 @@
     "dev": {
       "cache": false,
       "persistent": true
-    },
-    "pipeline": {
-      "dev:k3d": {
-        "cache": false,
-        "outputs": []
-      }
     }
   }
 }

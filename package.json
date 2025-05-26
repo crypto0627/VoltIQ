@@ -7,7 +7,9 @@
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
-    "dev:k3d": "k3d cluster create --config ./k8s/k3d-cluster.yaml && kubectl apply -k ./k8s/overlays/dev"
+    "create-k3d": "k3d cluster create --config ./infra/k8s/k3d-cluster.yaml",
+    "dev:k3d": "k3d cluster create --config ./infra/k8s/k3d-cluster.yaml && kubectl apply -k ./infra/k8s/overlays/dev",
+    "build-frontend": "docker build -t jakekuo/frontend:latest -f ./apps/frontend/Dockerfile ."
   },
   "devDependencies": {
     "prettier": "^3.5.3",

@@ -1,0 +1,8 @@
+image:
+  repository: voltiq/frontend
+  tag: latest
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 3000
