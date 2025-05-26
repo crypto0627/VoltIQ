@@ -40,3 +40,23 @@ jobs:
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.REPO }}/${{ env.IMAGE_NAME }}:latest
 
+      - name: Set up Kind Cluster
+        uses: helm/kind-action@v1.1.0
+
+      - name: Create ArgoCD Namespace
+        run: kubectl create namespace argocd || true
+
+      - name: Install ArgoCD
+        run: kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+      - name: Wait for ArgoCD to be ready
+        run: |
+          kubectl wait --for=condition=available --timeout=600s deployment/argocd-server -n argocd
+          kubectl wait --for=condition=available --timeout=600s deployment/argocd-applicationset-controller -n argocd
+          kubectl wait --for=condition=available --timeout=600s deployment/argocd-repo-server -n argocd
+          kubectl wait --for=condition=available --timeout=600s deployment/argocd-dex-server -n argocd
+          kubectl wait --for=condition=available --timeout=600s deployment/argocd-redis -n argocd
+
+      - name: Deploy Root App
+        run: kubectl apply -f infra/k8s/argocd/root-app.yaml -n argocd
+
