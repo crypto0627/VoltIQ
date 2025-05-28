@@ -1,20 +1,23 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: root-app
+  name: postgres
   namespace: argocd
 spec:
   project: default
   source:
     repoURL: https://github.com/crypto0627/VoltIQ.git
     targetRevision: HEAD
-    path: infra/k8s/overlays/dev
-    directory:
-      recurse: true
+    path: infra/helm/postgres
+    helm:
+      valueFiles:
+        - values.yaml
   destination:
     server: https://kubernetes.default.svc
-    namespace: argocd
+    namespace: postgres
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
