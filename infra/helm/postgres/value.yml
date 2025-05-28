@@ -1,7 +1,0 @@
-auth:
-  username: admin
-  password: password123
-  database: auth_db
-primary:
-  persistence:
-    enabled: false

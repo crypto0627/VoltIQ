@@ -42,6 +42,18 @@ export function Hero() {
   const [displayedText, setDisplayedText] = useState("")
   const [isTyping, setIsTyping] = useState(true)
   const [charIndex, setCharIndex] = useState(0)
+  const [particleAnimations, setParticleAnimations] = useState<{
+    animationDelay: string;
+    animationDuration: string;
+  }[]>([]);
+
+  useEffect(() => {
+    const generatedAnimations = particlePositions.map(() => ({
+      animationDelay: `${Math.random() * 3}s`,
+      animationDuration: `${2 + Math.random() * 3}s`,
+    }));
+    setParticleAnimations(generatedAnimations);
+  }, []);
 
   useEffect(() => {
     const currentText = slogans[currentSlogan]
@@ -96,8 +108,7 @@ export function Hero() {
             style={{
               left: pos.left,
               top: pos.top,
-              animationDelay: `${Math.random() * 3}s`,
-              animationDuration: `${2 + Math.random() * 3}s`,
+              ...particleAnimations[i],
             }}
           />
         ))}

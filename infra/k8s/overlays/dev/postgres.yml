@@ -6,12 +6,18 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/crypto0627/VoltIQ.git
-    targetRevision: HEAD
-    path: infra/helm/postgres
+    repoURL: https://charts.bitnami.com/bitnami
+    chart: postgresql
+    targetRevision: 14.1.0
     helm:
-      valueFiles:
-        - values.yaml
+      values: |
+        auth:
+          username: admin
+          password: password123
+          database: auth_db
+        primary:
+          persistence:
+            enabled: false
   destination:
     server: https://kubernetes.default.svc
     namespace: postgres

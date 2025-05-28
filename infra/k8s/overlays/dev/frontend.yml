@@ -11,7 +11,7 @@ spec:
     path: infra/helm/frontend
     helm:
       values: |
-        image.repository: jake0627a1/frontend
+        image.repository: jake0627a1/voltiq-frontend
         image.tag: latest
   destination:
     server: https://kubernetes.default.svc
