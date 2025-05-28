@@ -1,3 +1,3 @@
 resources:
-  - frontend.yml
-  - postgres.yml
+  - frontend.yaml
+  - postgres.yaml
