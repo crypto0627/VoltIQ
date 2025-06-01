@@ -1,6 +1,14 @@
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Cloud, Database, Layers, Monitor, Server, Smartphone, Cpu } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  Cloud,
+  Database,
+  Layers,
+  Monitor,
+  Server,
+  Smartphone,
+  Cpu,
+} from "lucide-react";
 
 const techStack = [
   {
@@ -45,7 +53,7 @@ const techStack = [
     color: "from-indigo-500 to-purple-500",
     description: "Observability and automation",
   },
-]
+];
 
 export function TechnicalStack() {
   return (
@@ -64,8 +72,8 @@ export function TechnicalStack() {
             </span>
           </h2>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-            Our platform leverages the latest technologies to deliver unmatched performance, scalability, and
-            reliability.
+            Our platform leverages the latest technologies to deliver unmatched
+            performance, scalability, and reliability.
           </p>
         </div>
 
@@ -112,10 +120,13 @@ export function TechnicalStack() {
                 <Layers className="w-8 h-8 text-white" />
               </div>
             </div>
-            <h3 className="text-2xl font-bold text-white mb-4">Microservices Architecture</h3>
+            <h3 className="text-2xl font-bold text-white mb-4">
+              Microservices Architecture
+            </h3>
             <p className="text-gray-300 max-w-2xl mx-auto mb-8">
-              Our distributed architecture ensures 99.99% uptime, horizontal scalability, and seamless global deployment
-              across multiple regions.
+              Our distributed architecture ensures 99.99% uptime, horizontal
+              scalability, and seamless global deployment across multiple
+              regions.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20 transition-all duration-300">
@@ -135,5 +146,5 @@ export function TechnicalStack() {
         </Card>
       </div>
     </section>
-  )
+  );
 }

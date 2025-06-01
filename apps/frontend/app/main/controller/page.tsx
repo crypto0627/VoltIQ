@@ -1,16 +1,24 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Switch } from "@/components/ui/switch"
-import { Slider } from "@/components/ui/slider"
-import { Label } from "@/components/ui/label"
-import { Power, Settings, Zap, Thermometer } from "lucide-react"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Slider } from "@/components/ui/slider";
+import { Label } from "@/components/ui/label";
+import { Power, Settings, Zap, Thermometer } from "lucide-react";
 
 export default function ControllerPage() {
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Controller</h1>
-        <p className="text-muted-foreground">Manage system controls and configurations.</p>
+        <p className="text-muted-foreground">
+          Manage system controls and configurations.
+        </p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -44,7 +52,9 @@ export default function ControllerPage() {
               <Thermometer className="h-5 w-5" />
               Temperature Control
             </CardTitle>
-            <CardDescription>Adjust system temperature settings</CardDescription>
+            <CardDescription>
+              Adjust system temperature settings
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
@@ -55,7 +65,9 @@ export default function ControllerPage() {
               <Label htmlFor="auto-temp">Auto Adjust</Label>
               <Switch id="auto-temp" defaultChecked />
             </div>
-            <div className="text-sm text-muted-foreground">Current: 21°C | Humidity: 45%</div>
+            <div className="text-sm text-muted-foreground">
+              Current: 21°C | Humidity: 45%
+            </div>
           </CardContent>
         </Card>
 
@@ -111,7 +123,9 @@ export default function ControllerPage() {
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-sm">System Health</span>
-              <span className="text-sm font-medium text-green-600">Excellent</span>
+              <span className="text-sm font-medium text-green-600">
+                Excellent
+              </span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm">Last Maintenance</span>
@@ -119,7 +133,9 @@ export default function ControllerPage() {
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm">Uptime</span>
-              <span className="text-sm text-muted-foreground">15 days, 4 hours</span>
+              <span className="text-sm text-muted-foreground">
+                15 days, 4 hours
+              </span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm">Next Scheduled Maintenance</span>
@@ -129,5 +145,5 @@ export default function ControllerPage() {
         </Card>
       </div>
     </div>
-  )
+  );
 }

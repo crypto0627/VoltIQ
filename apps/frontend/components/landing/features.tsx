@@ -1,51 +1,57 @@
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Cpu, LineChart, Shield, Zap, Globe, Smartphone } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Cpu, LineChart, Shield, Zap, Globe, Smartphone } from "lucide-react";
 
 const features = [
   {
     icon: Globe,
     title: "Global Infrastructure",
-    description: "Deploy energy solutions across 50+ countries with our distributed network",
+    description:
+      "Deploy energy solutions across 50+ countries with our distributed network",
     badge: "Enterprise",
     color: "from-emerald-500 to-green-500",
   },
   {
     icon: Cpu,
     title: "AI-Powered Optimization",
-    description: "Machine learning algorithms that optimize energy distribution in real-time",
+    description:
+      "Machine learning algorithms that optimize energy distribution in real-time",
     badge: "AI",
     color: "from-blue-500 to-cyan-500",
   },
   {
     icon: Zap,
     title: "Instant Deployment",
-    description: "Go from concept to production in minutes with our automated infrastructure",
+    description:
+      "Go from concept to production in minutes with our automated infrastructure",
     badge: "Fast",
     color: "from-purple-500 to-pink-500",
   },
   {
     icon: Shield,
     title: "Enterprise Security",
-    description: "Bank-grade security with end-to-end encryption and compliance certifications",
+    description:
+      "Bank-grade security with end-to-end encryption and compliance certifications",
     badge: "Secure",
     color: "from-orange-500 to-red-500",
   },
   {
     icon: LineChart,
     title: "Real-time Analytics",
-    description: "Monitor performance, predict maintenance, and optimize efficiency with live data",
+    description:
+      "Monitor performance, predict maintenance, and optimize efficiency with live data",
     badge: "Analytics",
     color: "from-teal-500 to-emerald-500",
   },
   {
     icon: Smartphone,
     title: "Developer-First API",
-    description: "RESTful APIs and SDKs that integrate seamlessly with your existing systems",
+    description:
+      "RESTful APIs and SDKs that integrate seamlessly with your existing systems",
     badge: "API",
     color: "from-indigo-500 to-purple-500",
   },
-]
+];
 
 export function Features() {
   return (
@@ -64,8 +70,8 @@ export function Features() {
             </span>
           </h2>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-            Our platform provides all the tools and infrastructure you need to create, deploy, and scale renewable
-            energy solutions globally.
+            Our platform provides all the tools and infrastructure you need to
+            create, deploy, and scale renewable energy solutions globally.
           </p>
         </div>
 
@@ -115,5 +121,5 @@ export function Features() {
         </div>
       </div>
     </section>
-  )
+  );
 }

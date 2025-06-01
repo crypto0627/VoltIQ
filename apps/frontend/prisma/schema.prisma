@@ -1,0 +1,56 @@
+// Prisma schema configuration for the frontend application
+// Learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  password  String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime @default(now())
+  powerData PowerData[]
+}
+
+model PowerData {
+  id        String   @id @default(uuid())
+  timestamp DateTime
+  voltage   Float
+  current   Float
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Chat {
+  id          String    @id @default(cuid())
+  title       String?
+  messages    Message[] 
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  userId      String?   // Optional: For multi-user system
+}
+
+model Message {
+  id          String    @id @default(cuid())
+  chat        Chat      @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  chatId      String
+  role        Role      // user | assistant | system
+  content     String
+  createdAt   DateTime  @default(now())
+  streaming   Boolean   @default(false) // if content is streamed
+  error       String?   // optional error handling
+}
+
+enum Role {
+  user
+  assistant
+  system
+}

@@ -1,9 +1,16 @@
-"use client"
+"use client";
 
-import { Calendar, Home, Settings, Sliders, User, FileText } from "lucide-react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import Image from "next/image"
+import {
+  Calendar,
+  Home,
+  Settings,
+  Sliders,
+  User,
+  FileText,
+} from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import Image from "next/image";
 import {
   Sidebar,
   SidebarContent,
@@ -15,7 +22,7 @@ import {
   SidebarMenuItem,
   SidebarHeader,
   SidebarFooter,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
 
 const menuItems = [
   {
@@ -38,7 +45,7 @@ const menuItems = [
     url: "/main/controller",
     icon: Sliders,
   },
-]
+];
 
 const accountItems = [
   {
@@ -51,15 +58,15 @@ const accountItems = [
     url: "/main/settings",
     icon: Settings,
   },
-]
+];
 
 export function AppSidebar() {
-  const pathname = usePathname()
+  const pathname = usePathname();
   return (
     <Sidebar>
       <SidebarHeader>
         <div className="flex justify-start p-2 rounded-lg">
-          <Link href={'/'} className="w-[200px] h-[50px] relative">
+          <Link href={"/"} className="w-[200px] h-[50px] relative">
             <Image src="/logo.png" alt="Logo" fill className="object-contain" />
           </Link>
         </div>
@@ -105,15 +112,15 @@ export function AppSidebar() {
 
       <SidebarFooter>
         <div className="flex flex-row item-center justify-center p-2 gap-4 absolute bottom-0">
-        <div className="text-xs text-muted-foreground">© 2025 VoltIQ</div>
-          <Link 
-            href="/privacy-policy" 
+          <div className="text-xs text-muted-foreground">© 2025 VoltIQ</div>
+          <Link
+            href="/privacy-policy"
             className="text-xs text-muted-foreground hover:underline"
           >
             Privacy Policy
           </Link>
-          </div>
+        </div>
       </SidebarFooter>
     </Sidebar>
-  )
+  );
 }

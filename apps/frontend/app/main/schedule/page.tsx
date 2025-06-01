@@ -1,6 +1,12 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Calendar, Clock, Plus } from "lucide-react"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Calendar, Clock, Plus } from "lucide-react";
 
 export default function SchedulePage() {
   return (
@@ -8,7 +14,9 @@ export default function SchedulePage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Schedule</h1>
-          <p className="text-muted-foreground">Manage your appointments and events.</p>
+          <p className="text-muted-foreground">
+            Manage your appointments and events.
+          </p>
         </div>
         <Button>
           <Plus className="mr-2 h-4 w-4" />
@@ -33,7 +41,9 @@ export default function SchedulePage() {
               </div>
               <div className="flex-1">
                 <p className="font-medium">Team Meeting</p>
-                <p className="text-sm text-muted-foreground">Conference Room A</p>
+                <p className="text-sm text-muted-foreground">
+                  Conference Room A
+                </p>
               </div>
             </div>
 
@@ -85,7 +95,9 @@ export default function SchedulePage() {
               </div>
               <div className="flex-1">
                 <p className="font-medium">Holiday Party</p>
-                <p className="text-sm text-muted-foreground">6:00 PM - 10:00 PM</p>
+                <p className="text-sm text-muted-foreground">
+                  6:00 PM - 10:00 PM
+                </p>
               </div>
             </div>
 
@@ -96,7 +108,9 @@ export default function SchedulePage() {
               </div>
               <div className="flex-1">
                 <p className="font-medium">Q1 Planning</p>
-                <p className="text-sm text-muted-foreground">9:00 AM - 12:00 PM</p>
+                <p className="text-sm text-muted-foreground">
+                  9:00 AM - 12:00 PM
+                </p>
               </div>
             </div>
           </CardContent>
@@ -110,10 +124,11 @@ export default function SchedulePage() {
         </CardHeader>
         <CardContent>
           <div className="h-[400px] flex items-center justify-center text-muted-foreground border rounded-lg">
-            Calendar component placeholder - Integrate with your preferred calendar library
+            Calendar component placeholder - Integrate with your preferred
+            calendar library
           </div>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

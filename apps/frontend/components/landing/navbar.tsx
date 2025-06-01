@@ -1,20 +1,20 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Menu, X } from "lucide-react"
-import Image from "next/image"
+import { useState } from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Menu, X } from "lucide-react";
+import Image from "next/image";
 
 export function Navbar() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [isSignedIn, setIsSignedIn] = useState(false)
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSignedIn, setIsSignedIn] = useState(false);
 
   const navItems = [
     { name: "Product", href: "#features" },
     { name: "Solution", href: "#tech-stack" },
     { name: "About us", href: "#about" },
-  ]
+  ];
 
   return (
     <>
@@ -26,7 +26,7 @@ export function Navbar() {
           variant="link"
           className="text-white underline ml-2 p-0 h-auto hover:text-emerald-200 transition-colors"
         >
-          <Link href='#subscribe'>Learn More</Link>
+          <Link href="#subscribe">Learn More</Link>
         </Button>
       </div>
 
@@ -96,7 +96,11 @@ export function Navbar() {
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
                 className="text-white hover:bg-emerald-500/10 hover:text-emerald-400 transition-all duration-300"
               >
-                {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                {isMenuOpen ? (
+                  <X className="h-5 w-5" />
+                ) : (
+                  <Menu className="h-5 w-5" />
+                )}
               </Button>
             </div>
           </div>
@@ -146,5 +150,5 @@ export function Navbar() {
         </div>
       </nav>
     </>
-  )
+  );
 }

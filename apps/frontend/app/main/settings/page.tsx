@@ -1,18 +1,32 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Switch } from "@/components/ui/switch"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Separator } from "@/components/ui/separator"
-import { Bell, Shield, Palette, Database } from "lucide-react"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
+import { Bell, Shield, Palette, Database } from "lucide-react";
 
 export default function SettingsPage() {
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
-        <p className="text-muted-foreground">Manage your application preferences and account settings.</p>
+        <p className="text-muted-foreground">
+          Manage your application preferences and account settings.
+        </p>
       </div>
 
       <div className="grid gap-6">
@@ -22,13 +36,17 @@ export default function SettingsPage() {
               <Bell className="h-5 w-5" />
               Notifications
             </CardTitle>
-            <CardDescription>Configure how you receive notifications</CardDescription>
+            <CardDescription>
+              Configure how you receive notifications
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <Label>Email Notifications</Label>
-                <p className="text-sm text-muted-foreground">Receive notifications via email</p>
+                <p className="text-sm text-muted-foreground">
+                  Receive notifications via email
+                </p>
               </div>
               <Switch defaultChecked />
             </div>
@@ -36,7 +54,9 @@ export default function SettingsPage() {
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <Label>Push Notifications</Label>
-                <p className="text-sm text-muted-foreground">Receive push notifications in your browser</p>
+                <p className="text-sm text-muted-foreground">
+                  Receive push notifications in your browser
+                </p>
               </div>
               <Switch />
             </div>
@@ -44,7 +64,9 @@ export default function SettingsPage() {
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <Label>SMS Notifications</Label>
-                <p className="text-sm text-muted-foreground">Receive important updates via SMS</p>
+                <p className="text-sm text-muted-foreground">
+                  Receive important updates via SMS
+                </p>
               </div>
               <Switch />
             </div>
@@ -57,7 +79,9 @@ export default function SettingsPage() {
               <Palette className="h-5 w-5" />
               Appearance
             </CardTitle>
-            <CardDescription>Customize the look and feel of your dashboard</CardDescription>
+            <CardDescription>
+              Customize the look and feel of your dashboard
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
@@ -90,7 +114,9 @@ export default function SettingsPage() {
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <Label>Compact Mode</Label>
-                <p className="text-sm text-muted-foreground">Use a more compact layout</p>
+                <p className="text-sm text-muted-foreground">
+                  Use a more compact layout
+                </p>
               </div>
               <Switch />
             </div>
@@ -103,7 +129,9 @@ export default function SettingsPage() {
               <Shield className="h-5 w-5" />
               Security
             </CardTitle>
-            <CardDescription>Manage your account security settings</CardDescription>
+            <CardDescription>
+              Manage your account security settings
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
@@ -123,7 +151,9 @@ export default function SettingsPage() {
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <Label>Two-Factor Authentication</Label>
-                <p className="text-sm text-muted-foreground">Add an extra layer of security to your account</p>
+                <p className="text-sm text-muted-foreground">
+                  Add an extra layer of security to your account
+                </p>
               </div>
               <Button variant="outline">Enable</Button>
             </div>
@@ -136,13 +166,17 @@ export default function SettingsPage() {
               <Database className="h-5 w-5" />
               Data & Privacy
             </CardTitle>
-            <CardDescription>Control your data and privacy settings</CardDescription>
+            <CardDescription>
+              Control your data and privacy settings
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <Label>Data Collection</Label>
-                <p className="text-sm text-muted-foreground">Allow collection of usage data to improve the service</p>
+                <p className="text-sm text-muted-foreground">
+                  Allow collection of usage data to improve the service
+                </p>
               </div>
               <Switch defaultChecked />
             </div>
@@ -150,7 +184,9 @@ export default function SettingsPage() {
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <Label>Marketing Communications</Label>
-                <p className="text-sm text-muted-foreground">Receive marketing emails and promotional content</p>
+                <p className="text-sm text-muted-foreground">
+                  Receive marketing emails and promotional content
+                </p>
               </div>
               <Switch />
             </div>
@@ -167,5 +203,5 @@ export default function SettingsPage() {
         </Card>
       </div>
     </div>
-  )
+  );
 }

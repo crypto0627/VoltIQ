@@ -1,7 +1,7 @@
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Check, TrendingDown, TrendingUp, DollarSign, Zap } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Check, TrendingDown, TrendingUp, DollarSign, Zap } from "lucide-react";
 
 const metrics = [
   {
@@ -32,7 +32,7 @@ const metrics = [
     description: "System reliability guarantee",
     color: "from-orange-500 to-red-500",
   },
-]
+];
 
 const plans = [
   {
@@ -82,7 +82,7 @@ const plans = [
     popular: false,
     cta: "Contact Sales",
   },
-]
+];
 
 export function Discount() {
   return (
@@ -101,8 +101,8 @@ export function Discount() {
             </span>
           </h2>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-12">
-            Our clients achieve significant environmental and financial benefits through our innovative energy
-            solutions.
+            Our clients achieve significant environmental and financial benefits
+            through our innovative energy solutions.
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -142,7 +142,8 @@ export function Discount() {
             </span>
           </h2>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-            Choose the plan that fits your needs. All plans include our core features with no hidden fees.
+            Choose the plan that fits your needs. All plans include our core
+            features with no hidden fees.
           </p>
         </div>
 
@@ -216,5 +217,5 @@ export function Discount() {
         </div>
       </div>
     </section>
-  )
+  );
 }

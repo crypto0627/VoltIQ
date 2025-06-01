@@ -1,6 +1,12 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Download, FileText, TrendingUp } from "lucide-react"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Download, FileText, TrendingUp } from "lucide-react";
 
 export default function ReportsPage() {
   return (
@@ -8,7 +14,9 @@ export default function ReportsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Reports</h1>
-          <p className="text-muted-foreground">Generate and view detailed reports of your data.</p>
+          <p className="text-muted-foreground">
+            Generate and view detailed reports of your data.
+          </p>
         </div>
         <Button>
           <Download className="mr-2 h-4 w-4" />
@@ -23,7 +31,9 @@ export default function ReportsPage() {
               <FileText className="h-5 w-5" />
               Sales Report
             </CardTitle>
-            <CardDescription>Monthly sales performance and trends</CardDescription>
+            <CardDescription>
+              Monthly sales performance and trends
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
@@ -44,7 +54,9 @@ export default function ReportsPage() {
               <TrendingUp className="h-5 w-5" />
               Analytics Report
             </CardTitle>
-            <CardDescription>User engagement and website analytics</CardDescription>
+            <CardDescription>
+              User engagement and website analytics
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
@@ -65,7 +77,9 @@ export default function ReportsPage() {
               <FileText className="h-5 w-5" />
               Financial Report
             </CardTitle>
-            <CardDescription>Revenue, expenses, and profit analysis</CardDescription>
+            <CardDescription>
+              Revenue, expenses, and profit analysis
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
@@ -91,7 +105,9 @@ export default function ReportsPage() {
             <div className="flex items-center justify-between p-4 border rounded-lg">
               <div>
                 <p className="font-medium">Q4 2024 Sales Report</p>
-                <p className="text-sm text-muted-foreground">Generated on Dec 15, 2024</p>
+                <p className="text-sm text-muted-foreground">
+                  Generated on Dec 15, 2024
+                </p>
               </div>
               <Button variant="ghost" size="sm">
                 <Download className="h-4 w-4" />
@@ -100,7 +116,9 @@ export default function ReportsPage() {
             <div className="flex items-center justify-between p-4 border rounded-lg">
               <div>
                 <p className="font-medium">November Analytics</p>
-                <p className="text-sm text-muted-foreground">Generated on Dec 1, 2024</p>
+                <p className="text-sm text-muted-foreground">
+                  Generated on Dec 1, 2024
+                </p>
               </div>
               <Button variant="ghost" size="sm">
                 <Download className="h-4 w-4" />
@@ -109,7 +127,9 @@ export default function ReportsPage() {
             <div className="flex items-center justify-between p-4 border rounded-lg">
               <div>
                 <p className="font-medium">Financial Summary Q3</p>
-                <p className="text-sm text-muted-foreground">Generated on Oct 15, 2024</p>
+                <p className="text-sm text-muted-foreground">
+                  Generated on Oct 15, 2024
+                </p>
               </div>
               <Button variant="ghost" size="sm">
                 <Download className="h-4 w-4" />
@@ -119,5 +139,5 @@ export default function ReportsPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

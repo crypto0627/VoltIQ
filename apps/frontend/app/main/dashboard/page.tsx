@@ -1,14 +1,20 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { BarChart3, Users, DollarSign, Activity, Bot } from "lucide-react"
-import { AiChatModal } from "@/components/ai-chat-modal"
-import Image from "next/image"
+import { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { BarChart3, Users, DollarSign, Activity, Bot } from "lucide-react";
+import { AiChatModal } from "@/components/ai-chat-modal";
+import Image from "next/image";
 
 export default function DashboardPage() {
-  const [aiChatOpen, setAiChatOpen] = useState(false)
+  const [aiChatOpen, setAiChatOpen] = useState(false);
 
   return (
     <div className="space-y-6">
@@ -20,7 +26,9 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">$45,231.89</div>
-            <p className="text-xs text-muted-foreground">+20.1% from last month</p>
+            <p className="text-xs text-muted-foreground">
+              +20.1% from last month
+            </p>
           </CardContent>
         </Card>
 
@@ -31,7 +39,9 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">2,350</div>
-            <p className="text-xs text-muted-foreground">+180.1% from last month</p>
+            <p className="text-xs text-muted-foreground">
+              +180.1% from last month
+            </p>
           </CardContent>
         </Card>
 
@@ -42,7 +52,9 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">12,234</div>
-            <p className="text-xs text-muted-foreground">+19% from last month</p>
+            <p className="text-xs text-muted-foreground">
+              +19% from last month
+            </p>
           </CardContent>
         </Card>
 
@@ -53,7 +65,9 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">573</div>
-            <p className="text-xs text-muted-foreground">+201 since last hour</p>
+            <p className="text-xs text-muted-foreground">
+              +201 since last hour
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -73,25 +87,33 @@ export default function DashboardPage() {
         <Card className="col-span-3">
           <CardHeader>
             <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>You have 3 new notifications this week.</CardDescription>
+            <CardDescription>
+              You have 3 new notifications this week.
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="flex items-center">
                 <div className="ml-4 space-y-1">
-                  <p className="text-sm font-medium leading-none">New user registered</p>
+                  <p className="text-sm font-medium leading-none">
+                    New user registered
+                  </p>
                   <p className="text-sm text-muted-foreground">2 minutes ago</p>
                 </div>
               </div>
               <div className="flex items-center">
                 <div className="ml-4 space-y-1">
-                  <p className="text-sm font-medium leading-none">Order completed</p>
+                  <p className="text-sm font-medium leading-none">
+                    Order completed
+                  </p>
                   <p className="text-sm text-muted-foreground">1 hour ago</p>
                 </div>
               </div>
               <div className="flex items-center">
                 <div className="ml-4 space-y-1">
-                  <p className="text-sm font-medium leading-none">Payment received</p>
+                  <p className="text-sm font-medium leading-none">
+                    Payment received
+                  </p>
                   <p className="text-sm text-muted-foreground">3 hours ago</p>
                 </div>
               </div>
@@ -99,12 +121,20 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
-      <Button onClick={() => setAiChatOpen(true)} className="fixed bottom-4 right-4 h-16 w-16 rounded-full p-0 bg-amber-400 hover:bg-amber-500 border-4 border-amber-700">
+      <Button
+        onClick={() => setAiChatOpen(true)}
+        className="fixed bottom-4 right-4 h-16 w-16 rounded-full p-0 bg-amber-400 hover:bg-amber-500 border-4 border-amber-700"
+      >
         <div className="relative h-full w-full">
-          <Image src="/ai-button.jpg" alt="AI Assistant" fill className="rounded-full object-cover" />
+          <Image
+            src="/ai-button.jpg"
+            alt="AI Assistant"
+            fill
+            className="rounded-full object-cover"
+          />
         </div>
       </Button>
       <AiChatModal open={aiChatOpen} onOpenChange={setAiChatOpen} />
     </div>
-  )
+  );
 }

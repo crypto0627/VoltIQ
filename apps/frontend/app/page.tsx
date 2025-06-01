@@ -1,9 +1,10 @@
-import { Navbar } from "@/components/landing/navbar"
-import { Hero } from "@/components/landing/hero"
-import { Features } from "@/components/landing/features"
-import { TechnicalStack } from "@/components/landing/technical-stack"
-import { Discount } from "@/components/landing/discount"
-import { Footer } from "@/components/landing/footer"
+import { Navbar } from "@/components/landing/navbar";
+import { Hero } from "@/components/landing/hero";
+import { Features } from "@/components/landing/features";
+import { TechnicalStack } from "@/components/landing/technical-stack";
+import { Discount } from "@/components/landing/discount";
+import { Footer } from "@/components/landing/footer";
+import { CookieConsentBanner } from "@/components/cookie-consent-banner";
 
 export default function HomePage() {
   return (
@@ -14,6 +15,7 @@ export default function HomePage() {
       <TechnicalStack />
       <Discount />
       <Footer />
+      <CookieConsentBanner />
     </div>
-  )
+  );
 }
