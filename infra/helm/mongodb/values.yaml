@@ -1,5 +1,4 @@
 architecture: replicaset
-
 replicaCount: 3
 
 auth:
@@ -10,12 +9,6 @@ auth:
   password: appuserPassword
   database: eletricity_usage
 
-ingress:
-  enabled: false
-
-autoscaling:
-  enabled: false
-
 service:
   type: NodePort
   nodePorts:
@@ -25,6 +18,7 @@ service:
 persistence:
   enabled: true
   size: 8Gi
+  storageClass: ""
 
 extraFlags:
   - "--bind_ip_all"
@@ -35,3 +29,9 @@ serviceAccount:
 
 rbac:
   create: true
+
+ingress:
+  enabled: false
+
+autoscaling:
+  enabled: false
