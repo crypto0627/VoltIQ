@@ -6,5 +6,5 @@ version: 0.1.0
 appVersion: latest
 dependencies:
   - name: mongodb
-    version: 14.9.2
+    version: 14.8.0
     repository: https://charts.bitnami.com/bitnami
