@@ -20,6 +20,10 @@ service:
     mongodb: 32017
   port: 27017
 
+headless:
+  enabled: true
+  port: 27017
+
 persistence:
   enabled: true
   size: 8Gi
