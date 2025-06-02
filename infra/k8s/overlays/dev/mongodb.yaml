@@ -1,0 +1,33 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: mongodb
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://charts.bitnami.com/bitnami
+    chart: mongodb
+    targetRevision: 14.9.2
+    helm:
+      values: |
+        auth:
+          rootPassword: "rootPassword"
+          username: admin
+          password: adminPassword
+          database: eletricity_usage
+        architecture: standalone
+        replicaSet:
+          enabled: false
+        service:
+          type: ClusterIP
+          port: 27017
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: mongodb
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

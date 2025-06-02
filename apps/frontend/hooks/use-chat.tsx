@@ -70,66 +70,103 @@ export function useChatLogic(initialChats: Chat[] = MOCK_CHATS) {
 
   const sendMessage = useCallback(async (content: string, chatIdToUpdate?: string) => {
     const targetChatId = chatIdToUpdate || activeChatId
-    if (!content.trim() || !targetChatId) return
-
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      content,
-      role: "user",
-      timestamp: new Date(),
+    if (!content.trim()) return
+  
+    let isNewChat = false
+    const targetChat = chats.find((chat) => chat.id === targetChatId)
+  
+    if (!targetChat) return
+  
+    // 檢查是否是假 chat（僅含 welcome 訊息）
+    if (targetChat.messages.length === 1 && targetChat.messages[0].role === "assistant") {
+      isNewChat = true
     }
-
-    setChats((prev) =>
-      prev.map((chat) => {
-        if (chat.id === targetChatId) {
-          const isFirstUserMessage = chat.messages.length === 1 && chat.messages[0].role === "assistant"
-          const newTitle = isFirstUserMessage
-            ? content.length > 20
-              ? content.substring(0, 20) + "..."
-              : content
-            : chat.title
-
-          return {
-            ...chat,
-            messages: [...chat.messages, userMessage],
-            title: newTitle,
-            lastUpdated: new Date(),
-          }
-        }
-        return chat
-      }),
-    )
-
+  
     setIsLoading(true)
-
+  
     try {
-      // Simulate API call and SSE response
-      setTimeout(() => {
-        const aiMessage: Message = {
-          id: (Date.now() + 1).toString(),
-          content: `This is a demo response to: "${content}"`,
-          role: "assistant",
-          timestamp: new Date(),
-        }
+      let newChatId = targetChatId
+  
+      // 如果是新 chat，先 call /api/chat/new
+      if (isNewChat) {
+        const res = await fetch("/api/chat/new", {
+          method: "POST",
+        })
+  
+        const chatFromServer = await res.json()
+        newChatId = chatFromServer.id
+  
+        // 更新 frontend chats list
+        setChats((prev) => [
+          {
+            id: chatFromServer.id,
+            title: chatFromServer.title,
+            messages: chatFromServer.messages,
+            lastUpdated: new Date(chatFromServer.updatedAt),
+          },
+          ...prev.filter((c) => c.id !== targetChatId), // 移除 local 虛擬 chat
+        ])
+        setActiveChatId(chatFromServer.id)
+      }
+  
+      // 建立 user 訊息
+      const userMessage: Message = {
+        id: Date.now().toString(),
+        content,
+        role: "user",
+        timestamp: new Date(),
+      }
+  
+      setChats((prev) =>
+        prev.map((chat) =>
+          chat.id === newChatId
+            ? {
+                ...chat,
+                messages: [...chat.messages, userMessage],
+                title:
+                  chat.messages.length === 1 && chat.messages[0].role === "assistant"
+                    ? content.slice(0, 20) + (content.length > 20 ? "..." : "")
+                    : chat.title,
+                lastUpdated: new Date(),
+              }
+            : chat,
+        ),
+      )
+  
+      // Call message API
+      const response = await fetch(`/api/chat/${newChatId}/message`, {
+        method: "POST",
+        body: JSON.stringify({ content }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
 
-        setChats((prev) =>
-          prev.map((chat) =>
-            chat.id === targetChatId
-              ? {
-                  ...chat,
-                  messages: [...chat.messages, aiMessage],
-                  lastUpdated: new Date(),
-                }
-              : chat,
-          ),
-        )
-        setIsLoading(false)
-      }, 1000)
+      if (!response.ok) {
+        throw new Error('Failed to send message')
+      }
+
+      const aiMessage = await response.json()
+
+      // 更新 AI 回應
+      setChats((prev) =>
+        prev.map((chat) =>
+          chat.id === newChatId
+            ? {
+                ...chat,
+                messages: [...chat.messages, aiMessage],
+                lastUpdated: new Date(),
+              }
+            : chat,
+        ),
+      )
+      setIsLoading(false)
     } catch (error) {
       console.error("Failed to send message:", error)
       setIsLoading(false)
     }
-  }, [activeChatId])
+  }, [chats, activeChatId])
+  
 
   // Get current chat based on activeChatId
   const currentChat = chats.find((chat) => chat.id === activeChatId)

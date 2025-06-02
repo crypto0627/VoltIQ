@@ -1,31 +1,42 @@
-import { prisma } from '@/lib/prisma'
-import { NextResponse } from 'next/server'
-import bcrypt from 'bcrypt'
+// app/api/chat/new/route.ts
+import { NextRequest, NextResponse } from "next/server"
+import { prisma } from "@/lib/prisma"
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { message, chatId } = body
+    const userId = body.userId ?? null
 
-    const existingChat = await prisma.user.findUnique({ where: { chatId } })
-
-    if (existingChat) {
-      return NextResponse.json({ error: 'User already exists' }, { status: 400 })
+    // Validate userId if provided
+    if (userId) {
+      const userExists = await prisma.user.findUnique({
+        where: { id: userId }
+      })
+      
+      if (!userExists) {
+        return NextResponse.json({ error: "Invalid user ID" }, { status: 400 })
+      }
     }
 
-    const saltRounds = 10
-    const hashedPassword = await bcrypt.hash(password, saltRounds)
-
-    const newUser = await prisma.user.create({
-      data: { 
-        email, 
-        password: hashedPassword 
+    const chat = await prisma.chat.create({
+      data: {
+        title: "New Chat",
+        userId,
+        messages: {
+          create: [
+            {
+              role: "assistant",
+              content: "Hello! I'm your AI assistant Jake. I can help you generate charts and text analysis. How can I assist you today?",
+            },
+          ],
+        },
       },
+      include: { messages: true },
     })
 
-    return NextResponse.json(newUser)
-  } catch (err: any) {
-    console.error('POST /api/auth/signup error:', err)
-    return NextResponse.json({ error: err.message }, { status: 500 })
+    return NextResponse.json(chat)
+  } catch (error) {
+    console.error("Error creating chat:", error)
+    return NextResponse.json({ error: "Failed to create chat." }, { status: 500 })
   }
 }

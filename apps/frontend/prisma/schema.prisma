@@ -17,16 +17,6 @@ model User {
   password  String
   createdAt DateTime  @default(now())
   updatedAt DateTime @default(now())
-  powerData PowerData[]
-}
-
-model PowerData {
-  id        String   @id @default(uuid())
-  timestamp DateTime
-  voltage   Float
-  current   Float
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
 }
 
 model Chat {

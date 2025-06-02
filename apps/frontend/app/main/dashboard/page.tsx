@@ -123,7 +123,7 @@ export default function DashboardPage() {
       </div>
       <Button
         onClick={() => setAiChatOpen(true)}
-        className="fixed bottom-4 right-4 h-16 w-16 rounded-full p-0 bg-amber-400 hover:bg-amber-500 border-4 border-amber-700"
+        className="fixed bottom-4 right-4 h-16 w-16 rounded-full p-0 border-4 border-blue-500/40"
       >
         <div className="relative h-full w-full">
           <Image

@@ -15,7 +15,6 @@ import { MOCK_CHATS } from "@/constants/ai-chat-constants"
 export function AiChatModal({ open, onOpenChange }: AiChatModalProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [input, setInput] = useState("")
-
   const {
     chats,
     activeChatId,
@@ -29,7 +28,7 @@ export function AiChatModal({ open, onOpenChange }: AiChatModalProps) {
     sendMessage,
   } = useChatLogic(MOCK_CHATS)
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async() => {
     if (!input.trim()) return
     if (currentChat) { // Ensure currentChat is defined
       sendMessage(input, currentChat.id)
