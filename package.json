@@ -11,7 +11,10 @@
     "deploy:image": "docker build -t jake0627a1/voltiq:latest -f ./apps/frontend/Dockerfile . && docker push jake0627a1/voltiq:latest",
     "dev:argocd" : "kubectl create namespace argocd && kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml && kubectl port-forward svc/argocd-server -n argocd 8080:443",
     "deploy:argocd" : "kubectl apply -f infra/k8s/argocd/root-app.yaml -n argocd",
-    "get:argocd-password": "kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath='{.data.password}' | base64 -d"
+    "get:argocd-password": "kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath='{.data.password}' | base64 -d",
+    "deploy:mongodb": "kubectl apply -f infra/k8s/overlays/dev/mongodb.yaml",
+    "port-forward:mongodb": "kubectl port-forward svc/mongodb-mongodb 27017:27017 -n mongodb",
+    "port-forward:postgres": "kubectl port-forward svc/postgres-postgresql 5432:5432 -n postgres"
   },
   "devDependencies": {
     "prettier": "^3.5.3",

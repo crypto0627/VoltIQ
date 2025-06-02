@@ -1,12 +1,15 @@
-auth:
-  rootPassword: root
-  username: admin
-  password: admin
-  database: test
-architecture: standalone
+# mongodb/values.yaml
 replicaSet:
-  enabled: false
-persistence:
-  enabled: false
-image:
-  tag: 7.0.5-debian-11-r15
+  enabled: true
+  replicas: 3
+  name: rs0
+
+auth:
+  enabled: true
+  rootUser: admin
+  rootPassword: adminPassword
+  database: eletricity_usage
+
+service:
+  type: NodePort
+  nodePort: 32017
