@@ -1,22 +1,29 @@
+# argocd/mongodb-app.yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: mongodb
+  name: mongodb-replica-set
   namespace: argocd
 spec:
-  project: default
+  project: default # 您可以使用預設專案，或建立一個新的專案
+
   source:
-    repoURL: https://github.com/crypto0627/VoltIQ.git
-    targetRevision: HEAD
-    path: infra/helm/mongodb
+    repoURL: https://github.com/crypto0627/VoltIQ.git # 替換為您的Git儲存庫URL
+    targetRevision: HEAD # 使用最新的commit
+    path: infra/helm/mongodb # 指向包含values.yaml的目錄
+    chart: mongodb
+    repoURL: https://charts.bitnami.com/bitnami
     helm:
-      values: |
-        image.repository: bitnami/mongodb
-        image.tag: 7.0.5-debian-11-r13
+      valueFiles:
+        - values.yaml # 使用我們在 Git 儲存庫中定義的 values.yaml
+
   destination:
-    server: https://kubernetes.default.svc
-    namespace: default
+    server: https://kubernetes.default.svc # 指向ArgoCD所在的叢集
+    namespace: mongodb # MongoDB將部署在這個namespace中 (ArgoCD會自動建立如果不存在)
+
   syncPolicy:
     automated:
-      prune: true
-      selfHeal: true
+      prune: true # 刪除不再存在於Git中的資源
+      selfHeal: true # 如果叢集狀態與Git不符，自動同步
+    syncOptions:
+      - CreateNamespace=true # 如果namespace不存在，ArgoCD會自動建立
