@@ -16,7 +16,7 @@ auth:
 service:
   type: NodePort
   nodePorts:
-    mongodb: 32017
+    mongodb: null
   port: 27017
 
 headless:
