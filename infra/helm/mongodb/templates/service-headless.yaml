@@ -1,0 +1,15 @@
+{{- if .Values.headless.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.headless.name }}
+  labels:
+    app: mongodb
+spec:
+  clusterIP: None
+  ports:
+    - port: {{ .Values.headless.port }}
+      targetPort: 27017
+  selector:
+    app: mongodb
+{{- end }}

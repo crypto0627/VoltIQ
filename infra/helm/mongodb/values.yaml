@@ -1,5 +1,9 @@
-architecture: replicaset
 replicaCount: 3
+
+image:
+  repository: bitnami/mongodb
+  tag: 7.0.5-debian-11-r13
+  pullPolicy: IfNotPresent
 
 auth:
   enabled: true
@@ -9,11 +13,6 @@ auth:
   password: appuserPassword
   database: eletricity_usage
 
-image:
-  repository: bitnami/mongodb
-  tag: 7.0.5-debian-11-r13
-  pullPolicy: IfNotPresent
-
 service:
   type: NodePort
   nodePorts:
@@ -22,6 +21,7 @@ service:
 
 headless:
   enabled: true
+  name: mongodb-headless
   port: 27017
 
 persistence:
@@ -31,21 +31,3 @@ persistence:
 
 extraFlags:
   - "--bind_ip_all"
-
-serviceAccount:
-  create: true
-  name: ""
-
-rbac:
-  create: true
-
-ingress:
-  enabled: false
-  hosts: []
-  annotations: {}
-
-autoscaling:
-  enabled: false
-  minReplicas: 1
-  maxReplicas: 5
-  targetCPUUtilizationPercentage: 80
