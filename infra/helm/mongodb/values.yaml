@@ -21,15 +21,15 @@ persistence:
   size: 8Gi
   storageClass: ""
 
-# 若你想允許外部連線（0.0.0.0），加上以下 args
 extraFlags:
   - "--bind_ip_all"
 
-# ServiceAccount 為了避免 nil 錯誤一定要加
 serviceAccount:
   create: true
   name: ""
 
-# RBAC 也建議加上避免找不到
 rbac:
   create: true
+
+ingress:
+  enabled: false  # 👈 解決你目前的 crash 問題
