@@ -6,22 +6,30 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://charts.bitnami.com/bitnami
-    chart: mongodb
-    targetRevision: 14.9.0
+    repoURL: https://mongodb.github.io/helm-charts
+    chart: community-operator
+    targetRevision: 0.7.5
     helm:
       values: |
-        auth:
-          rootPassword: "rootPassword"
-          username: admin
-          password: adminPassword
-          database: eletricity_usage
-        architecture: standalone
-        replicaSet:
-          enabled: false
-        service:
-          type: ClusterIP
-          port: 27017
+        operator:
+          watchedNamespaces: [mongodb]
+        featureCompatibilityVersion: "6.0"
+        persistent: false
+        additionalMongodConfig:
+          storage:
+            dbPath: /data/db
+        credentials:
+          root:
+            password: "rootPassword"
+          user:
+            name: admin
+            password: "adminPassword"
+            database: eletricity_usage
+            roles:
+              - name: clusterAdmin
+                db: admin
+              - name: readWrite
+                db: eletricity_usage
   destination:
     server: https://kubernetes.default.svc
     namespace: mongodb
