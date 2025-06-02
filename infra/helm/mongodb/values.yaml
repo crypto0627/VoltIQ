@@ -10,6 +10,9 @@ auth:
   password: appuserPassword
   database: eletricity_usage
 
+ingress:
+  enabled: false   # 👈 這是解決重點！
+
 service:
   type: NodePort
   nodePorts:
@@ -19,7 +22,6 @@ service:
 persistence:
   enabled: true
   size: 8Gi
-  storageClass: ""
 
 extraFlags:
   - "--bind_ip_all"
@@ -30,6 +32,3 @@ serviceAccount:
 
 rbac:
   create: true
-
-ingress:
-  enabled: false  # 👈 解決你目前的 crash 問題
