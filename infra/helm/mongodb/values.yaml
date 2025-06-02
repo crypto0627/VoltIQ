@@ -9,6 +9,11 @@ auth:
   password: appuserPassword
   database: eletricity_usage
 
+image:
+  repository: bitnami/mongodb
+  tag: 7.0.5-debian-11-r13
+  pullPolicy: IfNotPresent
+
 service:
   type: NodePort
   nodePorts:
