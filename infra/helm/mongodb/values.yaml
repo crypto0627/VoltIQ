@@ -1,15 +1,35 @@
-# mongodb/values.yaml
-replicaSet:
-  enabled: true
-  replicas: 3
-  name: rs0
+architecture: replicaset
+
+replicaCount: 3
 
 auth:
   enabled: true
   rootUser: admin
   rootPassword: adminPassword
+  username: appuser
+  password: appuserPassword
   database: eletricity_usage
 
 service:
   type: NodePort
-  nodePort: 32017
+  nodePorts:
+    mongodb: 32017
+  port: 27017
+
+persistence:
+  enabled: true
+  size: 8Gi
+  storageClass: ""
+
+# 若你想允許外部連線（0.0.0.0），加上以下 args
+extraFlags:
+  - "--bind_ip_all"
+
+# ServiceAccount 為了避免 nil 錯誤一定要加
+serviceAccount:
+  create: true
+  name: ""
+
+# RBAC 也建議加上避免找不到
+rbac:
+  create: true
