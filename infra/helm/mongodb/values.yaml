@@ -11,7 +11,10 @@ auth:
   database: eletricity_usage
 
 ingress:
-  enabled: false   # 👈 這是解決重點！
+  enabled: false
+
+autoscaling:
+  enabled: false
 
 service:
   type: NodePort
