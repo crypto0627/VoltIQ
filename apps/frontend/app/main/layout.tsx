@@ -23,16 +23,12 @@ async function checkAuth() {
     });
 
     if (!response.ok) {
-      console.error(`[/main/layout/checkAuth] Fetch failed: Status ${response.status}`);
       const errorText = await response.text();
       console.error('[/main/layout/checkAuth] Fetch error response:', errorText);
       throw new Error("Unauthorized");
     }
-
-    console.log('[/main/layout/checkAuth] Auth check successful');
     return true;
   } catch (error) {
-    console.error('[/main/layout/checkAuth] Caught exception during auth check:', error);
     return false;
   }
 }

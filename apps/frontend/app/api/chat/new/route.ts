@@ -4,10 +4,8 @@ import { prisma } from "@/lib/prisma"
 
 export async function POST(req: NextRequest) {
   try {
-    console.log("req", req)
     const body = await req.json()
     const userId = body.userId ?? null
-    console.log("userId", userId)
     // Validate userId if provided
     if (userId) {
       const userExists = await prisma.user.findUnique({
