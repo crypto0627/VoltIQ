@@ -28,35 +28,34 @@ export function AiChatModal({ open, onOpenChange }: AiChatModalProps) {
     sendMessage,
   } = useChatLogic(MOCK_CHATS)
 
-  const handleSendMessage = async() => {
-    if (!input.trim()) return
-    if (currentChat) { // Ensure currentChat is defined
-      sendMessage(input, currentChat.id)
-    } else if (chats.length > 0) { // Fallback if currentChat is somehow undefined but chats exist
-      sendMessage(input, chats[0].id)
-    } else {
-        createNewChat().then(newChat => {
-            if(newChat) {
-                sendMessage(input, newChat.id);
-            }
-        })
-    }
-    setInput("")
-  }
+  const handleSendMessage = async () => {
+    if (!input.trim()) return;
 
-  const handleSuggestedQuestion = (question: string) => {
-     if (currentChat) {
-        sendMessage(question, currentChat.id)
-    } else if (chats.length > 0) {
-        sendMessage(question, chats[0].id);
+    // 1. 如果 currentChat 存在，直接發送
+    if (currentChat) {
+      await sendMessage(input, currentChat.id);
     } else {
-        createNewChat().then(newChat => {
-            if (newChat) {
-                sendMessage(question, newChat.id);
-            }
-        })
+      // 2. 如果 currentChat 不存在，先建立新 chat 再發送
+      const newChat = await createNewChat();
+      if (newChat) {
+        setActiveChatId(newChat.id);
+        await sendMessage(input, newChat.id);
+      }
     }
-  }
+    setInput("");
+  };
+
+  const handleSuggestedQuestion = async (question: string) => {
+    if (currentChat) {
+      await sendMessage(question, currentChat.id);
+    } else {
+      const newChat = await createNewChat();
+      if (newChat) {
+        setActiveChatId(newChat.id);
+        await sendMessage(question, newChat.id);
+      }
+    }
+  };
 
   const handleDeleteChat = (chatId: string, e: React.MouseEvent) => {
     e.stopPropagation()
@@ -73,12 +72,8 @@ export function AiChatModal({ open, onOpenChange }: AiChatModalProps) {
             activeChatId={activeChatId}
             onSetActiveChat={setActiveChatId}
             onCreateNewChat={async () => {
-                if (isNewChat && !input.trim()) {
-                    console.log("Current chat is empty, cannot create a new one.");
-                    return;
-                }
-                const newChat = await createNewChat();
-                if (newChat) setActiveChatId(newChat.id);
+              const newChat = await createNewChat();
+              if (newChat) setActiveChatId(newChat.id);
             }}
             onDeleteChat={handleDeleteChat}
             onDeleteAllChats={deleteAllChats}

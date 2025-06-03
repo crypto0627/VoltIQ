@@ -1,38 +1,64 @@
 import { useState, useEffect, useCallback } from "react"
 import type { Chat, Message } from "@/types/ui/ai-chat-type"
-import { MOCK_CHATS, INITIAL_ASSISTANT_MESSAGE } from "@/constants/ai-chat-constants"
+import { MOCK_CHATS } from "@/constants/ai-chat-constants"
+import useUserStore from "@/stores/useUserStore"
 
 export function useChatLogic(initialChats: Chat[] = MOCK_CHATS) {
   const [chats, setChats] = useState<Chat[]>(initialChats)
   const [activeChatId, setActiveChatId] = useState<string>(initialChats[0]?.id || "")
-  const [isLoading, setIsLoading] = useState(false)
-
-  const createNewChat = useCallback(async () => {
-    try {
-      const newChatId = Date.now().toString()
-      const newChat: Chat = {
-        id: newChatId,
-        title: "New Chat",
-        messages: [
-          {
-            ...INITIAL_ASSISTANT_MESSAGE,
-            id: Date.now().toString() + "_msg", // ensure unique message id
-            timestamp: new Date(),
-          },
-        ],
-        lastUpdated: new Date(),
-      }
-      setChats((prev) => [newChat, ...prev])
-      setActiveChatId(newChat.id)
-      return newChat;
-    } catch (error) {
-      console.error("Failed to create new chat:", error)
-      return null;
-    }
-  }, [])
+  const { user, isLoading: isUserLoading, error: userError, fetchUser } = useUserStore();
+  const [isChatActionLoading, setIsChatActionLoading] = useState(false);
 
   useEffect(() => {
-    // Ensure there's always at least one chat, and an active chat is set.
+    fetchUser();
+  }, [fetchUser]);
+
+  const createNewChat = useCallback(async () => {
+    if (!user) {
+        console.error("User not loaded, cannot create chat.");
+        return null;
+    }
+
+    setIsChatActionLoading(true);
+
+    try {
+      const userId = user.id;
+
+      const chatResponse = await fetch("/api/chat/new", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId }),
+      });
+
+      if (!chatResponse.ok) {
+        const chatErrorData = await chatResponse.json().catch(() => ({ message: 'Unknown chat creation error' }));
+        console.error("Failed to create new chat:", chatResponse.status, chatErrorData);
+        throw new Error(`Failed to create new chat: ${chatErrorData.message || chatResponse.statusText}`);
+      }
+
+      const newChat = await chatResponse.json();
+
+      setChats((prev) => [{
+        id: newChat.id,
+        title: newChat.title,
+        messages: newChat.messages || [],
+        lastUpdated: new Date(newChat.updatedAt),
+      }, ...prev]);
+
+      setActiveChatId(newChat.id);
+      setIsChatActionLoading(false);
+      return newChat;
+
+    } catch (error) {
+      console.error("Error during createNewChat process:", error);
+      setIsChatActionLoading(false);
+      return null;
+    }
+  }, [user]);
+
+  useEffect(() => {
     if (chats.length === 0) {
       createNewChat();
     } else if (!activeChatId && chats.length > 0) {
@@ -40,13 +66,19 @@ export function useChatLogic(initialChats: Chat[] = MOCK_CHATS) {
     }
   }, [chats, activeChatId, createNewChat]);
 
-
   const deleteChat = useCallback(async (chatId: string) => {
     try {
+      const response = await fetch(`/api/chat/${chatId}`, {
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete chat');
+      }
+
       setChats((prev) => {
         const remainingChats = prev.filter((chat) => chat.id !== chatId)
         if (remainingChats.length === 0) {
-          // createNewChat will be called by the useEffect if chats become empty
           return []
         }
         if (activeChatId === chatId) {
@@ -61,60 +93,75 @@ export function useChatLogic(initialChats: Chat[] = MOCK_CHATS) {
 
   const deleteAllChats = useCallback(async () => {
     try {
-      setChats([])
-      // createNewChat will be called by the useEffect
+      await Promise.all(chats.map(chat => deleteChat(chat.id)));
     } catch (error) {
       console.error("Failed to delete all chats:", error)
     }
-  }, [])
+  }, [chats, deleteChat])
 
   const sendMessage = useCallback(async (content: string, chatIdToUpdate?: string) => {
+    if (!user) {
+        console.error("User not loaded, cannot send message.");
+        return;
+    }
+
     const targetChatId = chatIdToUpdate || activeChatId
     if (!content.trim()) return
   
     let isNewChat = false
     const targetChat = chats.find((chat) => chat.id === targetChatId)
   
-    if (!targetChat) return
+    if (!targetChat && !isNewChat) {
+      console.error("sendMessage called with invalid targetChatId and not a new chat scenario.");
+      setIsChatActionLoading(false);
+      return;
+    }
   
-    // 檢查是否是假 chat（僅含 welcome 訊息）
-    if (targetChat.messages.length === 1 && targetChat.messages[0].role === "assistant") {
+    if (targetChat?.messages?.length === 1 && targetChat?.messages[0].role === "assistant") {
       isNewChat = true
     }
   
-    setIsLoading(true)
+    setIsChatActionLoading(true)
   
     try {
       let newChatId = targetChatId
   
-      // 如果是新 chat，先 call /api/chat/new
       if (isNewChat) {
         const res = await fetch("/api/chat/new", {
           method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ userId: user.id }),
         })
+  
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => ({ message: 'Unknown error' }));
+          console.error("Failed to create new chat:", res.status, errorData);
+          setIsChatActionLoading(false);
+          return;
+        }
   
         const chatFromServer = await res.json()
         newChatId = chatFromServer.id
   
-        // 更新 frontend chats list
         setChats((prev) => [
           {
             id: chatFromServer.id,
             title: chatFromServer.title,
-            messages: chatFromServer.messages,
+            messages: chatFromServer.messages || [],
             lastUpdated: new Date(chatFromServer.updatedAt),
           },
-          ...prev.filter((c) => c.id !== targetChatId), // 移除 local 虛擬 chat
+          ...prev.filter((c) => c.id !== targetChatId),
         ])
         setActiveChatId(chatFromServer.id)
       }
   
-      // 建立 user 訊息
       const userMessage: Message = {
         id: Date.now().toString(),
         content,
         role: "user",
-        timestamp: new Date(),
+        timestamp: new Date().toISOString(),
       }
   
       setChats((prev) =>
@@ -122,9 +169,9 @@ export function useChatLogic(initialChats: Chat[] = MOCK_CHATS) {
           chat.id === newChatId
             ? {
                 ...chat,
-                messages: [...chat.messages, userMessage],
+                messages: chat.messages ? [...chat.messages, userMessage] : [userMessage],
                 title:
-                  chat.messages.length === 1 && chat.messages[0].role === "assistant"
+                  isNewChat
                     ? content.slice(0, 20) + (content.length > 20 ? "..." : "")
                     : chat.title,
                 lastUpdated: new Date(),
@@ -133,7 +180,15 @@ export function useChatLogic(initialChats: Chat[] = MOCK_CHATS) {
         ),
       )
   
-      // Call message API
+      if (isNewChat) {
+        const firstMessageTitle = content.slice(0, 20) + (content.length > 20 ? "..." : "");
+        await fetch(`/api/chat/${newChatId}/update`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title: firstMessageTitle }),
+        });
+      }
+  
       const response = await fetch(`/api/chat/${newChatId}/message`, {
         method: "POST",
         body: JSON.stringify({ content }),
@@ -143,73 +198,79 @@ export function useChatLogic(initialChats: Chat[] = MOCK_CHATS) {
       })
 
       if (!response.ok) {
-        throw new Error('Failed to send message')
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+        throw new Error(`Failed to send message: ${errorData.message || response.statusText}`);
       }
 
-      const aiMessage = await response.json()
+      const [userMessageFromServer, assistantMessage] = await response.json()
 
-      // 更新 AI 回應
       setChats((prev) =>
         prev.map((chat) =>
           chat.id === newChatId
             ? {
                 ...chat,
-                messages: [...chat.messages, aiMessage],
+                messages: chat.messages 
+                  ? [...chat.messages.filter(m => m.id !== userMessage.id), userMessageFromServer, assistantMessage]
+                  : [userMessageFromServer, assistantMessage],
                 lastUpdated: new Date(),
               }
             : chat,
         ),
       )
-      setIsLoading(false)
+      setIsChatActionLoading(false)
     } catch (error) {
       console.error("Failed to send message:", error)
-      setIsLoading(false)
+      setIsChatActionLoading(false)
     }
-  }, [chats, activeChatId])
+  }, [chats, activeChatId, user]);
   
-
-  // Get current chat based on activeChatId
   const currentChat = chats.find((chat) => chat.id === activeChatId)
 
-  // Check if current chat is new (only has welcome message)
   const isNewChat = currentChat
-    ? currentChat.messages.length === 1 && currentChat.messages[0].role === "assistant"
-    : false // If no currentChat, it's not a "new chat" in this context
+    ? currentChat.messages?.length === 1 && currentChat.messages[0].role === "assistant"
+    : false
 
-  // Load chat history (simplified, as it's mostly for ensuring a chat exists)
   useEffect(() => {
     const loadChatHistory = async () => {
+      if (!user && !isUserLoading) {
+         console.warn("Attempted to load chat history before user was loaded.");
+         return;
+      }
       try {
         const chat = chats.find((c) => c.id === activeChatId)
         if (!chat && chats.length > 0) {
-          // This case should be rare due to the other useEffect, but as a fallback
           setActiveChatId(chats[0].id)
         } else if (!chat && chats.length === 0) {
-            // This will trigger the other useEffect to create a new chat
         }
       } catch (error) {
         console.error("Failed to load chat history:", error)
-        // createNewChat(); // This might cause loops, handled by other effect
       }
     }
 
-    if (activeChatId) {
+    if (activeChatId && user) {
       loadChatHistory()
+    } else if (!activeChatId && chats.length > 0 && user) {
+       setActiveChatId(chats[0].id);
     }
-  }, [activeChatId, chats, createNewChat])
+
+  }, [activeChatId, chats, createNewChat, user, isUserLoading])
+
+  const isLoading = isUserLoading || isChatActionLoading;
 
   return {
     chats,
-    setChats, // Exposing for potential direct manipulation if ever needed, though usually not
+    setChats,
     activeChatId,
     setActiveChatId,
     currentChat,
     isNewChat,
     isLoading,
-    setIsLoading, // Exposing for fine-grained control if needed
     createNewChat,
     deleteChat,
     deleteAllChats,
     sendMessage,
+    user,
+    userError,
+    isUserLoading
   }
 }

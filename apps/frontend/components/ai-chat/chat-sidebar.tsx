@@ -30,9 +30,11 @@ export function ChatSidebar({
   const [searchQuery, setSearchQuery] = useState("")
   const [showConfirmModal, setShowConfirmModal] = useState(false)
 
-  const filteredChats = chats.filter((chat) =>
-    chat.title.toLowerCase().includes(searchQuery.toLowerCase())
-  ).sort((a,b) => b.lastUpdated.getTime() - a.lastUpdated.getTime()); // Sort by most recently updated
+  const filteredChats = chats
+    .filter((chat) => 
+      chat.title ? chat.title.toLowerCase().includes(searchQuery.toLowerCase()) : false
+    )
+    .sort((a,b) => b.lastUpdated.getTime() - a.lastUpdated.getTime()); // Sort by most recently updated
 
   if (!isOpen) {
     return (

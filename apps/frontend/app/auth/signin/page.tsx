@@ -14,6 +14,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import useUserStore from "@/stores/useUserStore";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
@@ -38,11 +39,10 @@ export default function SignInPage() {
         const errorData = await response.json();
         throw new Error(errorData.error || "Sign in failed");
       }
-      console.log('signin success!', response.json())
 
       router.push("/main/dashboard");
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError((err as Error).message);
     }
   };
 

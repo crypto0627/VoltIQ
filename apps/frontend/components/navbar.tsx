@@ -1,8 +1,10 @@
 "use client";
 
+import { useEffect } from "react";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { usePathname, useRouter } from "next/navigation";
+import useUserStore from "@/stores/useUserStore";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -22,30 +24,32 @@ export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
 
-  // Get the current route name from the path
-  const routeName = pathname.split("/").pop() || "Dashboard";
-  const formattedRouteName =
-    routeName.charAt(0).toUpperCase() + routeName.slice(1);
+  // ✅ 取得 user 資料與 action
+  const { user, fetchUser, isLoading } = useUserStore();
+
+  useEffect(() => {
+    fetchUser();
+  }, []);
 
   const handleLogout = async () => {
     try {
-      const response = await fetch('/api/auth/logout', {
-        method: 'POST',
+      const response = await fetch("/api/auth/logout", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
 
-      if (!response.ok) {
-        throw new Error('Logout failed');
-      }
-
-      // Redirect to signin page after successful logout
-      router.push('/auth/signin');
+      if (!response.ok) throw new Error("Logout failed");
+      router.push("/auth/signin");
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("Logout error:", error);
     }
   };
+
+  const routeName = pathname.split("/").pop() || "Dashboard";
+  const formattedRouteName =
+    routeName.charAt(0).toUpperCase() + routeName.slice(1);
 
   return (
     <header className="flex h-16 shrink-0 items-center gap-2 border-b bg-background px-4">
@@ -58,7 +62,6 @@ export function Navbar() {
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Theme Toggle */}
           <Button
             variant="ghost"
             size="icon"
@@ -69,7 +72,6 @@ export function Navbar() {
             <span className="sr-only">Toggle theme</span>
           </Button>
 
-          {/* User Avatar Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -78,17 +80,35 @@ export function Navbar() {
                     src="/placeholder.svg?height=32&width=32"
                     alt="User"
                   />
-                  <AvatarFallback>JD</AvatarFallback>
+                  <AvatarFallback>
+                    {user?.email?.charAt(0).toUpperCase() ?? "?"}
+                  </AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">John Doe</p>
-                  <p className="text-xs leading-none text-muted-foreground">
-                    john.doe@example.com
-                  </p>
+                  {isLoading ? (
+                    <>
+                      <p className="text-sm font-medium leading-none">Loading...</p>
+                      <p className="text-xs leading-none text-muted-foreground">Please wait</p>
+                    </>
+                  ) : user ? (
+                    <>
+                      <p className="text-sm font-medium leading-none">{user.email}</p>
+                      <p className="text-xs leading-none text-muted-foreground">
+                        Hi, Welcome to VoltIQ!
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-sm font-medium leading-none">Guest</p>
+                      <p className="text-xs leading-none text-muted-foreground">
+                        Not signed in
+                      </p>
+                    </>
+                  )}
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />

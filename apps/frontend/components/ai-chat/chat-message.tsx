@@ -1,5 +1,5 @@
 import type React from "react"
-import { Bot, User } from "lucide-react"
+import { User } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import type { Message } from "@/types/ui/ai-chat-type"
 import Image from "next/image"
@@ -10,6 +10,12 @@ interface ChatMessageProps {
 
 export function ChatMessage({ message }: ChatMessageProps) {
   const isUser = message.role === "user"
+  let timeString = ""
+  if (message.timestamp) {
+    try {
+      timeString = new Date(message.timestamp).toLocaleTimeString()
+    } catch {}
+  }
 
   return (
     <div className={`flex gap-3 ${isUser ? "justify-end" : "justify-start"}`}>
@@ -29,7 +35,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
         }`}
       >
         <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
-        <p className="text-xs opacity-70 mt-2">{message.timestamp.toLocaleTimeString()}</p>
+        <p className="text-xs opacity-70 mt-2">{timeString}</p>
       </div>
 
       {isUser && (

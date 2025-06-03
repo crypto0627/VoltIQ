@@ -4,29 +4,21 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { Navbar } from "@/components/navbar";
 import { redirect } from "next/navigation";
 import { cookies } from 'next/headers';
+import useUserStore from "@/stores/useUserStore";
 
 async function checkAuth() {
   try {
-    // Read the cookie directly in the Server Component
     const cookieStore: any = await cookies();
-    // Log the cookieStore itself
-    console.log('[/main/layout/checkAuth] cookieStore object:', cookieStore);
 
     const authToken = cookieStore.get('auth_token')?.value;
-
-    console.log('[/main/layout/checkAuth] Read token from cookie:', authToken ? 'Exists' : 'None');
-
-    // If no token found, return false immediately
     if (!authToken) {
-      console.log('[/main/layout/checkAuth] No token found.');
       return false;
     }
 
-    // Fetch the /api/auth/me route, passing the token in the Authorization header
     const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/me`, {
       cache: 'no-store',
       headers: {
-        'Authorization': `Bearer ${authToken}` // Pass the token here
+        'Authorization': `Bearer ${authToken}`
       }
     });
 

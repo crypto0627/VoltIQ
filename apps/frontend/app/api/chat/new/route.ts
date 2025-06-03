@@ -4,9 +4,10 @@ import { prisma } from "@/lib/prisma"
 
 export async function POST(req: NextRequest) {
   try {
+    console.log("req", req)
     const body = await req.json()
     const userId = body.userId ?? null
-
+    console.log("userId", userId)
     // Validate userId if provided
     if (userId) {
       const userExists = await prisma.user.findUnique({
@@ -14,7 +15,7 @@ export async function POST(req: NextRequest) {
       })
       
       if (!userExists) {
-        return NextResponse.json({ error: "Invalid user ID" }, { status: 400 })
+        return NextResponse.json({ error: "Invalid user ID provided." }, { status: 400 })
       }
     }
 
@@ -34,8 +35,10 @@ export async function POST(req: NextRequest) {
       include: { messages: true },
     })
 
+    console.log("chat", chat)
+
     return NextResponse.json(chat)
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error creating chat:", error)
     return NextResponse.json({ error: "Failed to create chat." }, { status: 500 })
   }

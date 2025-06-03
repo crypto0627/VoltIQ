@@ -1,14 +1,15 @@
----
+# Secret：儲存 MongoDB 管理員帳號密碼
 apiVersion: v1
 kind: Secret
 metadata:
   name: mongodb-secret
 type: Opaque
 data:
-  mongo-root-username: YWRtaW4=  # admin
-  mongo-root-password: cGFzc3dvcmQxMjM=  # password123
+  mongo-root-username: YWRtaW4=         # admin (base64)
+  mongo-root-password: cGFzc3dvcmQxMjM= # password123 (base64)
 
 ---
+# ConfigMap：初始化 Replica Set 腳本
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -27,12 +28,13 @@ data:
     )
 
 ---
+# StatefulSet：部署 MongoDB Replica Set
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: mongodb-replica-set
 spec:
-  serviceName: "mongodb-replica-set"
+  serviceName: "mongodb-replica-set"  # Headless Service 名稱
   replicas: 3
   selector:
     matchLabels:
@@ -45,6 +47,7 @@ spec:
       containers:
       - name: mongodb
         image: mongo:7.0.14
+        args: ["--replSet", "rs0"]
         ports:
         - containerPort: 27017
         volumeMounts:
@@ -79,19 +82,61 @@ spec:
           storage: 20Gi
 
 ---
+# Headless Service：Pod 內部 DNS 導向
 apiVersion: v1
 kind: Service
 metadata:
   name: mongodb-replica-set
 spec:
-  ports:
-  - port: 27017
-    targetPort: 27017
   clusterIP: None
   selector:
     app: mongodb-replica-set
+  ports:
+  - port: 27017
+    targetPort: 27017
 
 ---
+# 可選：每個 Pod 建立 LoadBalancer Service，供叢集外部連線（例如 Compass）
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-0
+spec:
+  type: LoadBalancer
+  selector:
+    statefulset.kubernetes.io/pod-name: mongodb-replica-set-0
+  ports:
+  - port: 27017
+    targetPort: 27017
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-1
+spec:
+  type: LoadBalancer
+  selector:
+    statefulset.kubernetes.io/pod-name: mongodb-replica-set-1
+  ports:
+  - port: 27017
+    targetPort: 27017
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-2
+spec:
+  type: LoadBalancer
+  selector:
+    statefulset.kubernetes.io/pod-name: mongodb-replica-set-2
+  ports:
+  - port: 27017
+    targetPort: 27017
+
+---
+# mongo-express：管理介面
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -126,16 +171,19 @@ spec:
             secretKeyRef:
               name: mongodb-secret
               key: mongo-root-password
+        - name: ME_CONFIG_MONGODB_SERVER_SELECTION_TIMEOUT_MS
+          value: "60000"
 
 ---
+# mongo-express Service：開放對外介面
 apiVersion: v1
 kind: Service
 metadata:
   name: mongo-express
 spec:
+  type: LoadBalancer
+  selector:
+    app: mongo-express
   ports:
   - port: 8081
     targetPort: 8081
-  selector:
-    app: mongo-express
-  type: LoadBalancer

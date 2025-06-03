@@ -14,7 +14,9 @@
     "get:argocd-password": "kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath='{.data.password}' | base64 -d",
     "deploy:mongodb": "kubectl apply -f infra/k8s/overlays/dev/mongodb.yaml",
     "port-forward:mongodb": "kubectl port-forward svc/mongodb-mongodb 27017:27017 -n mongodb",
-    "port-forward:postgres": "kubectl port-forward svc/postgres-postgresql 5432:5432 -n postgres"
+    "port-forward:postgres": "kubectl port-forward svc/postgres-postgresql 5432:5432 -n postgres",
+    "docker-rebuild": "docker-compose down -v && docker-compose build && docker-compose up -d",
+    "docker-restart": "docker-compose restart"
   },
   "devDependencies": {
     "prettier": "^3.5.3",

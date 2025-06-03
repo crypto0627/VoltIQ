@@ -1,0 +1,158 @@
+services:
+  postgres:
+    image: postgres:13
+    container_name: postgres-db
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: auth_db
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - postgres_backup:/var/backups
+    networks:
+      - voltiq
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U admin -d auth_db -h postgres" ]
+      interval: 10s
+      retries: 5
+      start_period: 10s
+
+  mongo1:
+    image: mongo:latest
+    container_name: mongo1
+    expose:
+      - 27017
+    ports:
+      - 27017:27017
+    hostname: mongo1
+    networks:
+      - voltiq
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0" ]
+    volumes:
+      - mongo1_data:/data/db
+
+  mongo2:
+    image: mongo:latest
+    container_name: mongo2
+    expose:
+      - 27017
+    ports:
+      - 27018:27017
+    hostname: mongo2
+    networks:
+      - voltiq
+    depends_on:
+      - mongo1
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0" ]
+    volumes:
+      - mongo2_data:/data/db
+
+  mongo3:
+    image: mongo:latest
+    container_name: mongo3
+    expose:
+      - 27017
+    ports:
+      - 27019:27017
+    hostname: mongo3
+    networks:
+      - voltiq
+    depends_on:
+      - mongo1
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0" ]
+    volumes:
+      - mongo3_data:/data/db
+
+  mongo-arbiter:
+    image: mongo:latest
+    container_name: mongo-arbiter
+    expose:
+      - 27017
+    ports:
+      - 27020:27017
+    hostname: mongo-arbiter
+    networks:
+      - voltiq
+    depends_on:
+      - mongo1
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0" ]
+    volumes:
+      - mongo_arbiter_data:/data/db
+
+  mongo-setup:
+    image: mongo:latest
+    container_name: mongo-setup
+    depends_on:
+      - mongo1
+      - mongo2
+      - mongo3
+      - mongo-arbiter
+    networks:
+      - voltiq
+    volumes:
+      - ./packages/mongo_backup/mongo_setup.sh:/mongo_setup.sh
+    entrypoint: [ "bash", "/mongo_setup.sh" ]
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - voltiq
+    healthcheck:
+      test: [ "CMD", "redis-cli", "-h", "redis", "ping" ]
+      interval: 5s
+      retries: 5
+      start_period: 5s
+
+  pg_backup:
+    image: postgres:13
+    container_name: pg-backup
+    restart: always
+    volumes:
+      - ./packages/postgres_backups:/var/backups
+    networks:
+      - voltiq
+    depends_on:
+      postgres:
+        condition: service_healthy
+    entrypoint: [ "/bin/sh", "-c" ]
+    command: >
+      while true; do
+        sleep $((86400 - $(date +%s) % 86400));
+        TIMESTAMP=$$(date +\%Y\%m\%d);
+        PGPASSWORD=password pg_dump -h postgres -U admin -d auth_db > /var/backups/backup_$$TIMESTAMP.sql;
+      done
+  mongo_backup:
+    image: mongo:latest
+    container_name: mongo_backup
+    restart: always
+    volumes:
+      - ./packages/mongo_backup:/backups
+    networks:
+      - voltiq
+    depends_on:
+      - mongo1
+    entrypoint: [ "/bin/sh", "-c", "while true; do mongodump --host mongo1:27017 --out /backups/$(date +\"%Y-%m-%d_%H-%M-%S\"); sleep 86400; done" ]
+
+volumes:
+  postgres_data:
+  postgres_backup:
+  redis_data:
+  mongo1_data:
+  mongo2_data:
+  mongo3_data:
+  mongo_arbiter_data:
+  mongo_backup:
+  chroma-data:
+
+networks:
+  voltiq:
+    driver: bridge
