@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback } from "react"
 import type { Chat, Message } from "@/types/ui/ai-chat-type"
-import { MOCK_CHATS } from "@/constants/ai-chat-constants"
 import useUserStore from "@/stores/useUserStore"
+import { useChat } from "@ai-sdk/react";
 
-export function useChatLogic(initialChats: Chat[] = MOCK_CHATS) {
-  const [chats, setChats] = useState<Chat[]>(initialChats)
-  const [activeChatId, setActiveChatId] = useState<string>(initialChats[0]?.id || "")
+export function useChatLogic() {
+  const [chats, setChats] = useState<Chat[]>([])
+  const [activeChatId, setActiveChatId] = useState<string>("")
   const { user, isLoading: isUserLoading, error: userError, fetchUser } = useUserStore();
   const [isChatActionLoading, setIsChatActionLoading] = useState(false);
 
@@ -13,10 +13,48 @@ export function useChatLogic(initialChats: Chat[] = MOCK_CHATS) {
     fetchUser();
   }, [fetchUser]);
 
+  // On mount, if no chats, create a new chat from API
+  useEffect(() => {
+    const initChat = async () => {
+      if (!user) return;
+      if (chats.length === 0) {
+        setIsChatActionLoading(true);
+        try {
+          const userId = user.id;
+          const chatResponse = await fetch("/api/chat/new", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ userId }),
+          });
+          if (!chatResponse.ok) {
+            const chatErrorData = await chatResponse.json().catch(() => ({ message: 'Unknown chat creation error' }));
+            console.error("Failed to create new chat:", chatResponse.status, chatErrorData);
+            throw new Error(`Failed to create new chat: ${chatErrorData.message || chatResponse.statusText}`);
+          }
+          const newChat = await chatResponse.json();
+          setChats([{
+            id: newChat.id,
+            title: newChat.title,
+            messages: newChat.messages || [],
+            lastUpdated: new Date(newChat.updatedAt),
+          }]);
+          setActiveChatId(newChat.id);
+        } catch (error) {
+          console.error("Error during initial chat creation:", error);
+        } finally {
+          setIsChatActionLoading(false);
+        }
+      }
+    };
+    initChat();
+  }, [user]); // only run on user change/mount
+
   const createNewChat = useCallback(async () => {
     if (!user) {
-        console.error("User not loaded, cannot create chat.");
-        return null;
+      console.error("User not loaded, cannot create chat.");
+      return null;
     }
 
     setIsChatActionLoading(true);
@@ -59,12 +97,13 @@ export function useChatLogic(initialChats: Chat[] = MOCK_CHATS) {
   }, [user]);
 
   useEffect(() => {
-    if (chats.length === 0) {
-      createNewChat();
+    if (chats.length === 0 && user) {
+      // Already handled by the above effect
+      // createNewChat();
     } else if (!activeChatId && chats.length > 0) {
       setActiveChatId(chats[0].id);
     }
-  }, [chats, activeChatId, createNewChat]);
+  }, [chats, activeChatId, user]);
 
   const deleteChat = useCallback(async (chatId: string) => {
     try {
@@ -101,126 +140,88 @@ export function useChatLogic(initialChats: Chat[] = MOCK_CHATS) {
 
   const sendMessage = useCallback(async (content: string, chatIdToUpdate?: string) => {
     if (!user) {
-        console.error("User not loaded, cannot send message.");
-        return;
+      console.error("User not loaded, cannot send message.");
+      return;
     }
-
-    const targetChatId = chatIdToUpdate || activeChatId
-    if (!content.trim()) return
   
-    let isNewChat = false
-    const targetChat = chats.find((chat) => chat.id === targetChatId)
+    const targetChatId = chatIdToUpdate || activeChatId;
+    if (!content.trim()) return;
   
-    if (!targetChat && !isNewChat) {
-      console.error("sendMessage called with invalid targetChatId and not a new chat scenario.");
+    const targetChat = chats.find((chat) => chat.id === targetChatId);
+    if (!targetChat) {
+      console.error("sendMessage called with invalid targetChatId.");
       setIsChatActionLoading(false);
       return;
     }
   
-    if (targetChat?.messages?.length === 1 && targetChat?.messages[0].role === "assistant") {
-      isNewChat = true
-    }
-  
-    setIsChatActionLoading(true)
+    setIsChatActionLoading(true);
   
     try {
-      let newChatId = targetChatId
-  
-      if (isNewChat) {
-        const res = await fetch("/api/chat/new", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ userId: user.id }),
-        })
-  
-        if (!res.ok) {
-          const errorData = await res.json().catch(() => ({ message: 'Unknown error' }));
-          console.error("Failed to create new chat:", res.status, errorData);
-          setIsChatActionLoading(false);
-          return;
-        }
-  
-        const chatFromServer = await res.json()
-        newChatId = chatFromServer.id
-  
-        setChats((prev) => [
-          {
-            id: chatFromServer.id,
-            title: chatFromServer.title,
-            messages: chatFromServer.messages || [],
-            lastUpdated: new Date(chatFromServer.updatedAt),
-          },
-          ...prev.filter((c) => c.id !== targetChatId),
-        ])
-        setActiveChatId(chatFromServer.id)
-      }
-  
+      // Optimistic UI - 加入用戶訊息
       const userMessage: Message = {
         id: Date.now().toString(),
         content,
         role: "user",
         timestamp: new Date().toISOString(),
-      }
+      };
   
-      setChats((prev) =>
-        prev.map((chat) =>
-          chat.id === newChatId
-            ? {
-                ...chat,
-                messages: chat.messages ? [...chat.messages, userMessage] : [userMessage],
-                title:
-                  isNewChat
-                    ? content.slice(0, 20) + (content.length > 20 ? "..." : "")
-                    : chat.title,
-                lastUpdated: new Date(),
-              }
-            : chat,
-        ),
-      )
+      setChats(prev => prev.map(chat => chat.id === targetChatId ? {
+        ...chat,
+        messages: [...(chat.messages ?? []), userMessage],
+        lastUpdated: new Date(),
+      } : chat));
   
-      if (isNewChat) {
-        const firstMessageTitle = content.slice(0, 20) + (content.length > 20 ? "..." : "");
-        await fetch(`/api/chat/${newChatId}/update`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ title: firstMessageTitle }),
-        });
-      }
-  
-      const response = await fetch(`/api/chat/${newChatId}/message`, {
+      // 發送訊息並接收 stream
+      const response = await fetch(`/api/chat/${targetChatId}/message`, {
         method: "POST",
         body: JSON.stringify({ content }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
-
+        headers: { "Content-Type": "application/json" },
+      });
+  
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
         throw new Error(`Failed to send message: ${errorData.message || response.statusText}`);
       }
-
-      const [userMessageFromServer, assistantMessage] = await response.json()
-
-      setChats((prev) =>
-        prev.map((chat) =>
-          chat.id === newChatId
-            ? {
-                ...chat,
-                messages: chat.messages 
-                  ? [...chat.messages.filter(m => m.id !== userMessage.id), userMessageFromServer, assistantMessage]
-                  : [userMessageFromServer, assistantMessage],
-                lastUpdated: new Date(),
-              }
-            : chat,
-        ),
-      )
-      setIsChatActionLoading(false)
+  
+      // 讀取 ReadableStream
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error("No stream reader");
+  
+      let assistantMessageContent = "";
+      const decoder = new TextDecoder();
+  
+      // 新增一則 assistant 訊息（初始為空）
+      const assistantMessageId = Date.now().toString() + "-assistant";
+      setChats(prev => prev.map(chat => chat.id === targetChatId ? {
+        ...chat,
+        messages: [...(chat.messages ?? []), { id: assistantMessageId, content: "", role: "assistant", timestamp: new Date().toISOString() }],
+      } : chat));
+  
+      // 持續讀取串流 chunk
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunkText = decoder.decode(value, { stream: true });
+        assistantMessageContent += chunkText;
+  
+        // 每讀取一次 chunk 就更新 assistant message
+        setChats(prev => prev.map(chat => {
+          if (chat.id === targetChatId) {
+            return {
+              ...chat,
+              messages: chat.messages?.map(msg => 
+                msg.id === assistantMessageId ? { ...msg, content: assistantMessageContent } : msg
+              ) ?? [],
+            };
+          }
+          return chat;
+        }));
+      }
+  
+      setIsChatActionLoading(false);
     } catch (error) {
-      console.error("Failed to send message:", error)
-      setIsChatActionLoading(false)
+      console.error("Failed to send message:", error);
+      setIsChatActionLoading(false);
     }
   }, [chats, activeChatId, user]);
   

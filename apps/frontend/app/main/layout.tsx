@@ -4,7 +4,6 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { Navbar } from "@/components/navbar";
 import { redirect } from "next/navigation";
 import { cookies } from 'next/headers';
-import useUserStore from "@/stores/useUserStore";
 
 async function checkAuth() {
   try {
@@ -25,7 +24,6 @@ async function checkAuth() {
     if (!response.ok) {
       const errorText = await response.text();
       console.error('[/main/layout/checkAuth] Fetch error response:', errorText);
-      throw new Error("Unauthorized");
     }
     return true;
   } catch (error) {
@@ -38,16 +36,12 @@ export default async function MainLayout({
 }: {
   children: React.ReactNode;
 }) {
-  console.log('[/main/layout] MainLayout rendering...');
+  
   const isAuthenticated = await checkAuth();
-  console.log('[/main/layout] isAuthenticated:', isAuthenticated);
-
   if (!isAuthenticated) {
-    console.log('[/main/layout] User not authenticated, redirecting...');
-    redirect("/auth/signin");
+   redirect("/auth/signin");
   }
 
-  console.log('[/main/layout] User authenticated, rendering dashboard');
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full">

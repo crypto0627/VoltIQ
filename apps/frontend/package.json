@@ -10,8 +10,11 @@
     "db:migration": "npx prisma db push && npx prisma generate"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^1.2.12",
+    "@ai-sdk/react": "^1.2.12",
     "@anthropic-ai/sdk": "^0.52.0",
     "@hookform/resolvers": "^3.9.1",
+    "@langchain/anthropic": "^0.3.21",
     "@prisma/client": "^6.8.2",
     "@radix-ui/react-accordion": "1.2.2",
     "@radix-ui/react-alert-dialog": "1.1.4",
@@ -42,6 +45,7 @@
     "@radix-ui/react-tooltip": "1.1.6",
     "@types/js-cookie": "^3.0.6",
     "@types/react-speech-recognition": "^3.9.6",
+    "ai": "^4.3.16",
     "autoprefixer": "^10.4.20",
     "bcrypt": "^6.0.0",
     "chromadb": "^2.4.6",
@@ -54,6 +58,7 @@
     "input-otp": "1.4.1",
     "js-cookie": "^3.0.5",
     "jsonwebtoken": "^9.0.2",
+    "langchain": "^0.3.27",
     "lucide-react": "^0.454.0",
     "mongodb": "^6.16.0",
     "next": "15.2.4",

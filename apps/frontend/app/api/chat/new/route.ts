@@ -33,8 +33,6 @@ export async function POST(req: NextRequest) {
       include: { messages: true },
     })
 
-    console.log("chat", chat)
-
     return NextResponse.json(chat)
   } catch (error: any) {
     console.error("Error creating chat:", error)

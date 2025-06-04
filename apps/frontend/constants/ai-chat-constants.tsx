@@ -38,7 +38,7 @@ export const MOCK_CHATS: Chat[] = [
         id: "1",
         content: "Hello! I'm your AI assistant. I can help you generate charts and text analysis. How can I assist you today?",
         role: "assistant",
-        timestamp: new Date(),
+        timestamp: new Date().toISOString(),
       },
     ],
     lastUpdated: new Date(),

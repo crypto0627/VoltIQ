@@ -14,7 +14,6 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import useUserStore from "@/stores/useUserStore";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
