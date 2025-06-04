@@ -22,7 +22,6 @@ export function ChatInput({
   isLoading,
   onKeyPress,
 }: ChatInputProps) {
-  const [note, setNote] = useState<String>('')
   const [isRecording, setIsRecording] = useState<Boolean>(false)
 
   const handleKeyPressInternal = (e: React.KeyboardEvent) => {

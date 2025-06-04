@@ -154,7 +154,7 @@ export function Hero() {
           className="bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 text-white px-8 py-4 text-lg font-semibold rounded-full shadow-2xl hover:shadow-emerald-500/25 transition-all duration-300 hover:scale-105 transform"
           asChild
         >
-          <Link href="/auth/signup">Get Started →</Link>
+          <Link href="/auth/signin">Get Started →</Link>
         </Button>
 
         {/* Partner Logos */}

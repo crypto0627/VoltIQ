@@ -15,7 +15,6 @@ export default function HomePage() {
       <TechnicalStack />
       <Discount />
       <Footer />
-      <CookieConsentBanner />
     </div>
   );
 }

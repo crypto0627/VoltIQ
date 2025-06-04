@@ -13,6 +13,11 @@ interface ChatListItemProps {
 }
 
 export function ChatListItem({ chat, isActive, onSelect, onDelete }: ChatListItemProps) {
+  // Truncate title if it's longer than 40 characters
+  const displayTitle = chat.title && chat.title.length > 20
+    ? `${chat.title.substring(0, 20)}...`
+    : chat.title || 'New Chat'; // Fallback to 'New Chat' if title is null/undefined
+
   return (
     <div
       onClick={onSelect}
@@ -26,7 +31,7 @@ export function ChatListItem({ chat, isActive, onSelect, onDelete }: ChatListIte
       <div className="flex flex-col space-y-1 truncate">
         <div className="flex items-center space-x-3">
           <MessageSquare className="h-4 w-4 flex-shrink-0" />
-          <span className="truncate text-sm font-medium">{chat.title}</span>
+          <span className="truncate text-sm font-medium">{displayTitle}</span>
         </div>
         <span className="text-xs text-slate-400 pl-7">
           {format(chat.lastUpdated, "MMM d, h:mm a")}

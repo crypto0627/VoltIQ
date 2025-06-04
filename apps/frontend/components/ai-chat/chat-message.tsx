@@ -9,6 +9,7 @@ interface ChatMessageProps {
 }
 
 export function ChatMessage({ message }: ChatMessageProps) {
+
   const isUser = message.role === "user"
   let timeString = ""
   if (message.timestamp) {
@@ -34,7 +35,18 @@ export function ChatMessage({ message }: ChatMessageProps) {
             : "bg-slate-800/80 text-slate-200 border border-slate-700/50 backdrop-blur-sm"
         }`}
       >
-        <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
+        <div className="text-sm leading-relaxed whitespace-pre-wrap">
+          {message.content.split('\n').map((line, index) => {
+            if (line.startsWith('每月用電量：')) {
+              return <p key={index} className="font-medium">{line}</p>;
+            } else if (line.match(/^\d{1,2}月:/)) {
+              return <p key={index} className="ml-4">• {line}</p>;
+            } else if (line.startsWith('全年總用電量：')) {
+              return <p key={index} className="font-semibold mt-2">{line}</p>;
+            }
+            return <p key={index}>{line}</p>;
+          })}
+        </div>
         <p className="text-xs opacity-70 mt-2">{timeString}</p>
       </div>
 

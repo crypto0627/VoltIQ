@@ -11,35 +11,32 @@ interface Context {
 }
 
 export async function POST(req: NextRequest, context: Context) {
-  const { id: chatId } = context.params;
-  const { content } = await req.json();
+  // Access params directly as per Next.js App Router, despite the misleading error message
+  const params = await context.params;
+  const chatId: string = params.id;
 
-  if (!content || typeof content !== "string") {
-    return NextResponse.json({ error: "Message content is required" }, { status: 400 });
+  // The useChat hook sends the messages array in the request body
+  const { messages: incomingMessages } = await req.json();
+
+  // Find the latest user message to save to DB. It should be the last message.
+  const latestUserMessage = incomingMessages?.[incomingMessages.length - 1];
+
+  // Validate the incoming messages payload
+  if (!incomingMessages || !Array.isArray(incomingMessages) || incomingMessages.length === 0 || !latestUserMessage || latestUserMessage.role !== 'user' || !latestUserMessage.content) {
+    console.error("Invalid messages payload received:", incomingMessages);
+    return NextResponse.json({ error: "Invalid messages payload" }, { status: 400 });
   }
 
-  // 先把使用者訊息存進資料庫
+  // Store user message in database
   await prisma.message.create({
     data: {
       chatId,
       role: "user",
-      content,
+      content: latestUserMessage.content,
     },
   });
 
-  // 取得歷史訊息（包含剛存的）
-  const messageHistory = await prisma.message.findMany({
-    where: { chatId },
-    orderBy: { createdAt: "asc" },
-    take: 10,
-  });
-
-  const formattedMessages = messageHistory.map((msg) => ({
-    role: msg.role.toLowerCase() as "user" | "assistant" | "system",
-    content: msg.content,
-  }));
-
-  // 初始化 MCP transport/client
+  // Initialize MCP transport/client
   const transport = new Experimental_StdioMCPTransport({
     command: "node",
     args: ["/Users/jakekuo/code/fortune/VoltIQ/apps/voltiq-mcp-server/build/index.js"],
@@ -58,13 +55,13 @@ export async function POST(req: NextRequest, context: Context) {
     `5. Provide clear explanations of the data analysis`
   ].join("\n");
 
+  // Use the incoming messages array directly, prepending the system prompt
   const messages = [
     { role: "system" as const, content: systemPrompt },
-    ...formattedMessages,
-    { role: "user" as const, content }
+    ...incomingMessages
   ];
 
-  // 用來累積 AI 回應字串
+  // Accumulate AI response string
   let assistantResponseContent = "";
 
   try {
@@ -109,7 +106,7 @@ export async function POST(req: NextRequest, context: Context) {
           console.error("Streaming error:", err);
         } finally {
           controller.close();
-          // 等 stream 結束後，存助理訊息
+          // Store assistant message after stream ends
           await prisma.message.create({
             data: {
               chatId,
