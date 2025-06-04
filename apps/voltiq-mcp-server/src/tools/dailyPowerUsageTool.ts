@@ -23,8 +23,6 @@ export function registerDailyPowerUsageTool(server: McpServer, collection: Colle
     },
     async (input: { date: string; startTime: string; endTime: string }) => {
       try {
-        console.log("Tool 'get_power_usage_by_time_range' called.");
-
         const { date, startTime, endTime } = input;
 
         const result = await collection.findOne<PowerUsageData>({ date });

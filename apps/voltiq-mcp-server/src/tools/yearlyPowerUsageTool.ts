@@ -19,7 +19,6 @@ export function registerYearlyUsageSummaryTool(server: McpServer, collection: Co
     {},
     async () => {
       try {
-        console.log("Tool 'get_yearly_power_usage_summary' called.");
 
         const monthlyUsageMap: Record<string, number> = {
           "01": 0, "02": 0, "03": 0, "04": 0,

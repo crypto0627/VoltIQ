@@ -19,7 +19,7 @@ export async function POST(req: NextRequest, context: Context) {
   }
 
   // 先把使用者訊息存進資料庫
-  const userMessage = await prisma.message.create({
+  await prisma.message.create({
     data: {
       chatId,
       role: "user",
@@ -74,21 +74,15 @@ export async function POST(req: NextRequest, context: Context) {
       messages,
       maxTokens: 4000,
       temperature: 0.7,
-      onChunk: (chunk: any) => {
-        // chunk.content 是每次接收到的文字片段
-        if (chunk.content) {
-          assistantResponseContent += chunk.content;
+      onChunk: (chunk) => {
+        if (chunk?.chunk?.type === "text-delta") {
+          assistantResponseContent += chunk.chunk.textDelta;
         }
       },
       onError: (error) => {
         console.error("Stream error:", error);
       },
-      onStepFinish: (step) => {
-        console.log("Tool call step finished:", step.toolCalls);
-      },
-      onFinish: async (result) => {
-        console.log("Streaming finished. Final result:", result);
-        // 這邊存 assistant 回應到資料庫
+      onFinish: async () => {
         await prisma.message.create({
           data: {
             chatId,

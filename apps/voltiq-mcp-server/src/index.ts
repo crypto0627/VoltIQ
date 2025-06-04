@@ -17,7 +17,6 @@ const server = new McpServer({
 
 async function main() {
   const transport = new StdioServerTransport();
-  // Connect to MongoDB
   const { db } = await connectToDatabase();
   const mongoCollection = db.collection('electricity_usage');
   registerAllTools(server, mongoCollection);

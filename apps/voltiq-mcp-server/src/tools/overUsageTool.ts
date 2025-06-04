@@ -19,8 +19,6 @@ export function registerHighUsageTool(server: McpServer, collection: Collection)
     {},
     async () => {
       try {
-        console.log("Tool 'get_high_power_usage_records' called.");
-
         const highUsageRecords: { date: string; time: string; usage: number }[] = [];
         let docCount = 0;
 
