@@ -1,15 +1,19 @@
-import type React from "react"
-import { Button } from "@/components/ui/button"
-import { SUGGESTED_QUESTIONS } from "@/constants/ai-chat-constants"
+import type React from "react";
+import { Button } from "@/components/ui/button";
+import { SUGGESTED_QUESTIONS } from "@/constants/ai-chat-constants";
 
 interface SuggestedQuestionsProps {
-  onQuestionClick: (question: string) => void
+  onQuestionClick: (question: string) => void;
 }
 
-export function SuggestedQuestions({ onQuestionClick }: SuggestedQuestionsProps) {
+export function SuggestedQuestions({
+  onQuestionClick,
+}: SuggestedQuestionsProps) {
   return (
     <div className="mb-6">
-      <h3 className="text-slate-300 text-sm font-medium mb-4 text-center">Or try asking about:</h3>
+      <h3 className="text-slate-300 text-sm font-medium mb-4 text-center">
+        Or try asking about:
+      </h3>
       <div className="flex flex-wrap gap-3">
         {SUGGESTED_QUESTIONS.map((item, index) => (
           <Button
@@ -37,5 +41,5 @@ export function SuggestedQuestions({ onQuestionClick }: SuggestedQuestionsProps)
         ))}
       </div>
     </div>
-  )
+  );
 }

@@ -1,113 +1,180 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState, useEffect, useCallback, useMemo } from "react"
-import { Dialog, DialogContent } from "@/components/ui/dialog"
-import type { AiChatModalProps } from "@/types/ui/ai-chat-type"
-import type { Chat, Message } from "@/types/ui/ai-chat-type"
-import useUserStore from "@/stores/useUserStore"
-import { useChat } from "@ai-sdk/react"
-import { ChatSidebar } from "@/components/ai-chat/chat-sidebar"
-import { ChatHeader } from "@/components/ai-chat/chat-header"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import Image from "next/image"
-import { Send, Mic } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { SUGGESTED_QUESTIONS } from "@/constants/ai-chat-constants"
-import { ChatMessage } from "@/components/ai-chat/chat-message"
+import type React from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import type { AiChatModalProps } from "@/types/ui/ai-chat-type";
+import type { Chat, Message } from "@/types/ui/ai-chat-type";
+import useUserStore from "@/stores/useUserStore";
+import { useChat } from "@ai-sdk/react";
+import { ChatSidebar } from "@/components/ai-chat/chat-sidebar";
+import { ChatHeader } from "@/components/ai-chat/chat-header";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import Image from "next/image";
+import { Send, Mic } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { SUGGESTED_QUESTIONS } from "@/constants/ai-chat-constants";
+import { ChatMessage } from "@/components/ai-chat/chat-message";
+
+// 擴展 Message 類型以包含工具調用信息
+interface ExtendedMessage extends Message {
+  toolInvocations?: Array<{
+    toolCallId: string;
+    toolName: string;
+    args: any;
+    state: "partial-call" | "call" | "result" | "error";
+    result?: any;
+  }>;
+}
 
 export function AiChatModal({ open, onOpenChange }: AiChatModalProps) {
   const [sidebarOpen, setSidebarOpen] = useState(
-    typeof window !== "undefined"
-      ? window.innerWidth >= 768
-      : true
-  )
-  const [chats, setChats] = useState<Chat[]>([])
-  const [activeChatId, setActiveChatId] = useState<string>("")
-  const { user, isLoading: isUserLoading, error: userError, fetchUser } = useUserStore();
+    typeof window !== "undefined" ? window.innerWidth >= 768 : true,
+  );
+  const [chats, setChats] = useState<Chat[]>([]);
+  const [activeChatId, setActiveChatId] = useState<string>("");
+  const {
+    user,
+    isLoading: isUserLoading,
+    error: userError,
+    fetchUser,
+  } = useUserStore();
   const [isChatActionLoading, setIsChatActionLoading] = useState(false);
 
   const [isRecording, setIsRecording] = useState<Boolean>(false);
 
-  const currentChat = useMemo(() => chats.find((chat) => chat.id === activeChatId), [chats, activeChatId]);
+  const currentChat = useMemo(
+    () => chats.find((chat) => chat.id === activeChatId),
+    [chats, activeChatId],
+  );
 
   // Use useChat hook for the active conversation
-  const { messages, input, handleInputChange, handleSubmit, isLoading: isAiChatLoading, append, setMessages, setInput } = useChat({
+  const {
+    messages,
+    input,
+    handleInputChange,
+    handleSubmit,
+    isLoading: isAiChatLoading,
+    append,
+    setMessages,
+    setInput,
+  } = useChat({
     api: `/api/chat/${activeChatId}/message`,
     initialMessages: currentChat?.messages || [],
-    id: activeChatId, // Pass the active chat ID to the hook for context
+    id: activeChatId,
+    // 添加工具調用處理
+    onToolCall: async ({ toolCall }) => {
+      console.log("Tool call received:", toolCall);
+      // 工具調用會自動處理，不需要手動干預
+    },
     onResponse: (response) => {
-      // Optional: Handle response if needed, e.g., updating the chat list title
-      // The messages are automatically updated by the hook
+      console.log("Response received:", response);
     },
     onError: (error) => {
       console.error("AI Chat Error:", error);
-      setIsChatActionLoading(false); // Ensure overall loading is off on error
+      setIsChatActionLoading(false);
     },
-    onFinish: (message) => {
-      // Update the chat list with the final messages from the hook
-      // Map useChat's messages (UIMessage[]) to our local Message[] format before updating chat list
-      const updatedMessages: Message[] = messages.map(msg => ({
+    onFinish: (message, { usage, finishReason }) => {
+      console.log("Message finished:", message);
+      console.log("Tool invocations:", message.toolInvocations);
+
+      // 將 useChat 的消息轉換為本地 Message 格式
+      const updatedMessages: ExtendedMessage[] = messages.map((msg) => ({
         id: msg.id,
         content: msg.content,
-        role: msg.role as "user" | "assistant" | "system" | "data", // Cast role
-        timestamp: new Date().toISOString(), // Set timestamp when mapping to local type
+        role: msg.role as "user" | "assistant" | "system" | "data",
+        timestamp: new Date().toISOString(),
+        toolInvocations: msg.toolInvocations || undefined,
       }));
-      setChats(prevChats => prevChats.map(chat =>
-        chat.id === activeChatId ? { ...chat, messages: updatedMessages, lastUpdated: new Date() } : chat
-      ));
-      setIsChatActionLoading(false); // Ensure overall loading is off on finish
-    }
+
+      // 添加剛完成的消息
+      updatedMessages.push({
+        id: message.id,
+        content: message.content,
+        role: message.role as "user" | "assistant" | "system" | "data",
+        timestamp: new Date().toISOString(),
+        toolInvocations: message.toolInvocations || undefined,
+      });
+
+      setChats((prevChats) =>
+        prevChats.map((chat) =>
+          chat.id === activeChatId
+            ? {
+                ...chat,
+                messages: updatedMessages as Message[],
+                lastUpdated: new Date(),
+              }
+            : chat,
+        ),
+      );
+      setIsChatActionLoading(false);
+    },
   });
 
+  // 將 useChat 的消息轉換為擴展的消息格式
+  const extendedMessages: ExtendedMessage[] = useMemo(() => {
+    return messages.map((msg) => ({
+      id: msg.id,
+      content: msg.content,
+      role: msg.role as "user" | "assistant" | "system" | "data",
+      timestamp: new Date().toISOString(),
+      toolInvocations: msg.toolInvocations || undefined,
+    }));
+  }, [messages]);
+
   // Derived state to control visibility of suggested questions
-  const showSuggestedQuestions = currentChat && messages.length === 1 && messages[0].role === "assistant";
+  const showSuggestedQuestions =
+    currentChat &&
+    extendedMessages.length === 1 &&
+    extendedMessages[0].role === "assistant";
 
   useEffect(() => {
     fetchUser();
   }, [fetchUser]);
 
-  // *** New: Effect to create a new chat when the modal opens if no chats exist ***
+  // Create a new chat when the modal opens if no chats exist
   useEffect(() => {
-    // Check if the modal is open, user is loaded, no active chat, and no chats exist
     if (open && user && !isUserLoading && !activeChatId && chats.length === 0) {
       createNewChat();
     }
-  }, [open, user, isUserLoading, activeChatId, chats.length]); // Dependencies for the effect
+  }, [open, user, isUserLoading, activeChatId, chats.length]);
 
-  const deleteChat = useCallback(async (chatId: string) => {
-    try {
-      const response = await fetch(`/api/chat/${chatId}`, {
-        method: "POST",
-      });
+  const deleteChat = useCallback(
+    async (chatId: string) => {
+      try {
+        const response = await fetch(`/api/chat/${chatId}`, {
+          method: "POST",
+        });
 
-      if (!response.ok) {
-        throw new Error('Failed to delete chat');
+        if (!response.ok) {
+          throw new Error("Failed to delete chat");
+        }
+
+        setChats((prev) => {
+          const remainingChats = prev.filter((chat) => chat.id !== chatId);
+          if (remainingChats.length === 0) {
+            return [];
+          }
+          if (activeChatId === chatId) {
+            setActiveChatId(remainingChats[0]?.id || "");
+          }
+          return remainingChats;
+        });
+      } catch (error) {
+        console.error("Failed to delete chat:", error);
       }
-
-      setChats((prev) => {
-        const remainingChats = prev.filter((chat) => chat.id !== chatId)
-        if (remainingChats.length === 0) {
-          return []
-        }
-        if (activeChatId === chatId) {
-          setActiveChatId(remainingChats[0]?.id || "")
-        }
-        return remainingChats
-      })
-    } catch (error) {
-      console.error("Failed to delete chat:", error)
-    }
-  }, [activeChatId])
+    },
+    [activeChatId],
+  );
 
   const deleteAllChats = useCallback(async () => {
     try {
-      await Promise.all(chats.map(chat => deleteChat(chat.id)));
+      await Promise.all(chats.map((chat) => deleteChat(chat.id)));
     } catch (error) {
-      console.error("Failed to delete all chats:", error)
+      console.error("Failed to delete all chats:", error);
     }
-  }, [chats, deleteChat])
+  }, [chats, deleteChat]);
 
   const createNewChat = useCallback(async () => {
     if (!user) {
@@ -129,28 +196,35 @@ export function AiChatModal({ open, onOpenChange }: AiChatModalProps) {
       });
 
       if (!chatResponse.ok) {
-        const chatErrorData = await chatResponse.json().catch(() => ({ message: 'Unknown chat creation error' }));
-        console.error("Failed to create new chat:", chatResponse.status, chatErrorData);
-        throw new Error(`Failed to create new chat: ${chatErrorData.message || chatResponse.statusText}`);
+        const chatErrorData = await chatResponse
+          .json()
+          .catch(() => ({ message: "Unknown chat creation error" }));
+        console.error(
+          "Failed to create new chat:",
+          chatResponse.status,
+          chatErrorData,
+        );
+        throw new Error(
+          `Failed to create new chat: ${chatErrorData.message || chatResponse.statusText}`,
+        );
       }
 
       const newChat = await chatResponse.json();
 
-      // Add the new chat to local state with a default title
-      setChats(prevChats => [{
-        id: newChat.id,
-        title: newChat.title || 'New Chat', // Default title - will be updated on first message
-        messages: newChat.messages || [],
-        lastUpdated: new Date(),
-      }, ...prevChats]);
+      setChats((prevChats) => [
+        {
+          id: newChat.id,
+          title: newChat.title || "New Chat",
+          messages: newChat.messages || [],
+          lastUpdated: new Date(),
+        },
+        ...prevChats,
+      ]);
 
-      // Set the active chat ID
       setActiveChatId(newChat.id);
-
-      setIsChatActionLoading(false); // Chat creation finished
+      setIsChatActionLoading(false);
 
       return newChat;
-
     } catch (error) {
       console.error("Error during new chat creation:", error);
       setIsChatActionLoading(false);
@@ -159,135 +233,139 @@ export function AiChatModal({ open, onOpenChange }: AiChatModalProps) {
   }, [user]);
 
   const handleRecord = () => {
-    setIsRecording(prev => !prev);
-    handleInputChange({ target: { value: isRecording ? '' : 'Recording...' } } as React.ChangeEvent<HTMLInputElement>);
+    setIsRecording((prev) => !prev);
+    handleInputChange({
+      target: { value: isRecording ? "" : "Recording..." },
+    } as React.ChangeEvent<HTMLInputElement>);
   };
 
   const handleKeyPressInternal = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      // Directly call handleSendMessage for input field submission
       handleSendMessage();
     }
   };
 
   const handleSendMessage = async () => {
-    if (!input.trim()) return; // Check for empty input
+    if (!input.trim()) return;
 
-    // Check if this is the first user message in this chat based on existing messages
-    // This is true if the current chat has 0 messages OR 1 message from the assistant
-    const isFirstUserMessage = !currentChat || (currentChat.messages?.length === 1 && currentChat.messages[0].role === "assistant");
+    const isFirstUserMessage =
+      !currentChat ||
+      (currentChat.messages?.length === 1 &&
+        currentChat.messages[0].role === "assistant");
     const messageContent = input.trim();
     let chatIdToAppendTo = activeChatId;
 
-    setIsChatActionLoading(true); // Start loading for sending message
+    setIsChatActionLoading(true);
 
     if (!currentChat) {
-      // If there's no current chat, create a new one first
       const newChat = await createNewChat();
       if (!newChat) {
-         setIsChatActionLoading(false); // Stop loading if chat creation failed
-         return; // Stop if chat creation failed
+        setIsChatActionLoading(false);
+        return;
       }
-      chatIdToAppendTo = newChat.id; // Use the ID of the newly created chat
-      // setActiveChatId is already called in createNewChat
+      chatIdToAppendTo = newChat.id;
     }
 
-    // Append the user message using the hook's append function
-    // The hook will handle sending it to the correct API endpoint based on activeChatId
-    await append({ role: 'user', content: messageContent }); // Await append for more reliable state update
+    await append({ role: "user", content: messageContent });
+    setInput("");
 
-    // Clear the input immediately
-    setInput('');
-
-    // If this is the first user message, update the chat title
     if (isFirstUserMessage) {
-      const newTitle = messageContent.substring(0, 50) || 'New Chat';
+      const newTitle = messageContent.substring(0, 50) || "New Chat";
       try {
-        const updateResponse = await fetch(`/api/chat/${chatIdToAppendTo}/update`, { // Use chatIdToAppendTo
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ title: newTitle }),
-        });
+        const updateResponse = await fetch(
+          `/api/chat/${chatIdToAppendTo}/update`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ title: newTitle }),
+          },
+        );
 
         if (!updateResponse.ok) {
-          console.error("Failed to update new chat title:", updateResponse.status);
+          console.error(
+            "Failed to update new chat title:",
+            updateResponse.status,
+          );
         } else {
-           // Update local state title after successful API update
-           setChats(prevChats => prevChats.map(chat =>
-            chat.id === chatIdToAppendTo ? { ...chat, title: newTitle, lastUpdated: new Date() } : chat // Also update lastUpdated
-          ));
+          setChats((prevChats) =>
+            prevChats.map((chat) =>
+              chat.id === chatIdToAppendTo
+                ? { ...chat, title: newTitle, lastUpdated: new Date() }
+                : chat,
+            ),
+          );
         }
       } catch (error) {
         console.error("Error updating new chat title:", error);
       }
     }
-
-    // setIsChatActionLoading(false); // Do not turn off here, let onFinish handle it for AI response
   };
 
-  // This effect handles setting the active chat if chats exist but no active chat is set
   useEffect(() => {
     if (!activeChatId && chats.length > 0) {
       setActiveChatId(chats[0].id);
     }
-  }, [activeChatId, chats.length]); // Only set active chat if none is set and chats exist
-
-  const isLoading = isUserLoading || isChatActionLoading || isAiChatLoading; // Combined loading state
+  }, [activeChatId, chats.length]);
 
   const handleSuggestedQuestion = async (question: string) => {
-    if (!question.trim()) return; // Prevent sending empty question
+    if (!question.trim()) return;
 
-    // Check if this is the first user message in this chat based on existing messages
-    const isFirstUserMessage = !currentChat || (currentChat.messages?.length === 1 && currentChat.messages[0].role === "assistant");
+    const isFirstUserMessage =
+      !currentChat ||
+      (currentChat.messages?.length === 1 &&
+        currentChat.messages[0].role === "assistant");
     let chatIdToAppendTo = activeChatId;
 
-    setIsChatActionLoading(true); // Start loading
+    setIsChatActionLoading(true);
 
     if (!currentChat) {
-      // If there's no current chat, create a new one first
       const newChat = await createNewChat();
       if (!newChat) {
-         setIsChatActionLoading(false); // Stop loading if chat creation failed
-         return; // Stop if chat creation failed
+        setIsChatActionLoading(false);
+        return;
       }
-      chatIdToAppendTo = newChat.id; // Use the ID of the newly created chat
-      // setActiveChatId is already called in createNewChat
+      chatIdToAppendTo = newChat.id;
     }
 
-    // Append the suggested question as a user message using the hook's append
-    await append({ role: 'user', content: question }); // Await append for more reliable state update
+    await append({ role: "user", content: question });
 
-    // If this is the first user message (in a new or existing chat), update the chat title
     if (isFirstUserMessage) {
-      const newTitle = question.substring(0, 50) || 'New Chat';
+      const newTitle = question.substring(0, 50) || "New Chat";
       try {
-        const updateResponse = await fetch(`/api/chat/${chatIdToAppendTo}/update`, { // Use chatIdToAppendTo
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ title: newTitle }),
-        });
+        const updateResponse = await fetch(
+          `/api/chat/${chatIdToAppendTo}/update`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ title: newTitle }),
+          },
+        );
 
         if (!updateResponse.ok) {
-          console.error("Failed to update new chat title:", updateResponse.status);
+          console.error(
+            "Failed to update new chat title:",
+            updateResponse.status,
+          );
         } else {
-           // Update local state title after successful API update
-           setChats(prevChats => prevChats.map(chat =>
-            chat.id === chatIdToAppendTo ? { ...chat, title: newTitle, lastUpdated: new Date() } : chat // Also update lastUpdated
-          ));
+          setChats((prevChats) =>
+            prevChats.map((chat) =>
+              chat.id === chatIdToAppendTo
+                ? { ...chat, title: newTitle, lastUpdated: new Date() }
+                : chat,
+            ),
+          );
         }
       } catch (error) {
         console.error("Error updating new chat title:", error);
       }
     }
-
-    // setIsChatActionLoading(false); // Do not turn off here, let onFinish handle it for AI response
   };
 
   const handleDeleteChat = (chatId: string, e: React.MouseEvent) => {
-    e.stopPropagation()
-    deleteChat(chatId)
-  }
+    e.stopPropagation();
+    deleteChat(chatId);
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -335,7 +413,10 @@ export function AiChatModal({ open, onOpenChange }: AiChatModalProps) {
           {/* Main Content */}
           <div className="flex-1 flex flex-col h-full w-full md:w-auto">
             <ChatHeader
-              isSidebarOpen={sidebarOpen && (typeof window === "undefined" || window.innerWidth >= 768)}
+              isSidebarOpen={
+                sidebarOpen &&
+                (typeof window === "undefined" || window.innerWidth >= 768)
+              }
               onToggleSidebar={() => setSidebarOpen((prev) => !prev)}
             />
 
@@ -343,17 +424,13 @@ export function AiChatModal({ open, onOpenChange }: AiChatModalProps) {
               {currentChat ? (
                 <div className="flex-1 pr-2 sm:pr-4 mt-4 sm:mt-6 overflow-y-auto max-h-[60vh] sm:max-h-[70vh]">
                   <div className="space-y-4">
-                    {messages.map((message) => {
-                      const localMessage: Message = {
-                        id: message.id,
-                        content: message.content,
-                        role: message.role as "user" | "assistant" | "system" | "data",
-                        timestamp: new Date().toISOString(),
-                      };
-                      return <ChatMessage key={localMessage.id} message={localMessage} />;
-                    })}
+                    {extendedMessages.map((message) => (
+                      <ChatMessage key={message.id} message={message} />
+                    ))}
 
-                    {(isUserLoading || isChatActionLoading || isAiChatLoading) && (
+                    {(isUserLoading ||
+                      isChatActionLoading ||
+                      isAiChatLoading) && (
                       <div className="flex gap-2 sm:gap-3 justify-start">
                         <Avatar className="h-8 w-8 sm:h-10 sm:w-10 bg-gradient-to-r from-emerald-500 to-teal-500 shadow-lg">
                           <AvatarFallback>
@@ -390,13 +467,15 @@ export function AiChatModal({ open, onOpenChange }: AiChatModalProps) {
 
               {showSuggestedQuestions && (
                 <div className="mb-4 sm:mb-6">
-                  <h3 className="text-slate-300 text-xs sm:text-sm font-medium mb-3 sm:mb-4 text-center">Or try asking about:</h3>
+                  <h3 className="text-slate-300 text-xs sm:text-sm font-medium mb-3 sm:mb-4 text-center">
+                    Or try asking about:
+                  </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
                     {SUGGESTED_QUESTIONS.map((item, index) => (
                       <Button
                         key={index}
                         variant="outline"
-                        onClick={() => handleSuggestedQuestion(item.question)} // Call the modified handler
+                        onClick={() => handleSuggestedQuestion(item.question)}
                         className="h-[100px] sm:h-[120px] p-3 sm:p-4 text-left border-slate-600/50 hover:border-emerald-500/50 bg-slate-800/30 hover:bg-slate-700/50 transition-all duration-300 group"
                       >
                         <div className="flex flex-col h-full w-full">
@@ -423,11 +502,20 @@ export function AiChatModal({ open, onOpenChange }: AiChatModalProps) {
               <div className="flex gap-2 sm:gap-3 mt-3 sm:mt-4">
                 <div className="relative flex-1">
                   <Input
-                    value={isRecording ? 'Recording...' : input}
+                    value={isRecording ? "Recording..." : input}
                     onChange={(e) => !isRecording && handleInputChange(e)}
                     onKeyPress={handleKeyPressInternal}
-                    placeholder={isRecording ? "Recording in progress..." : "Give Jake a task to work on..."}
-                    disabled={Boolean(isUserLoading || isChatActionLoading || isRecording || isAiChatLoading)}
+                    placeholder={
+                      isRecording
+                        ? "Recording in progress..."
+                        : "Give Jake a task to work on..."
+                    }
+                    disabled={Boolean(
+                      isUserLoading ||
+                        isChatActionLoading ||
+                        isRecording ||
+                        isAiChatLoading,
+                    )}
                     className="pr-10 flex-1 bg-slate-800/50 border-slate-600/50 focus:border-emerald-500/50 focus:ring-emerald-500/20 text-slate-200 placeholder:text-slate-400 rounded-xl text-sm sm:text-base"
                   />
                   <Button
@@ -435,7 +523,9 @@ export function AiChatModal({ open, onOpenChange }: AiChatModalProps) {
                     size="icon"
                     variant={isRecording ? "default" : "outline"}
                     className={`absolute inset-y-0 right-0 h-full w-8 sm:w-10 ${
-                      isRecording ? "bg-red-500 hover:bg-red-600 text-white" : "text-slate-400 hover:text-black/50"
+                      isRecording
+                        ? "bg-red-500 hover:bg-red-600 text-white"
+                        : "text-slate-400 hover:text-black/50"
                     }`}
                     onClick={handleRecord}
                   >
@@ -443,10 +533,16 @@ export function AiChatModal({ open, onOpenChange }: AiChatModalProps) {
                   </Button>
                 </div>
                 <Button
-                  onClick={handleSendMessage} // Keep calling handleSendMessage for manual input
-                  disabled={Boolean(isUserLoading || isChatActionLoading || !input.trim() || isRecording || isAiChatLoading)}
+                  onClick={handleSendMessage}
+                  disabled={Boolean(
+                    isUserLoading ||
+                      isChatActionLoading ||
+                      !input.trim() ||
+                      isRecording ||
+                      isAiChatLoading,
+                  )}
                   size="icon"
-                  className="bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-600 hover:via-teal-600 to-cyan-600 text-white transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-emerald-500/25 rounded-xl w-8 h-8 sm:w-10 sm:h-10"
+                  className="bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-600 hover:via-teal-600 to-cyan-600 text-white transition-all duration-300"
                 >
                   <Send className="h-3 w-3 sm:h-4 sm:w-4" />
                 </Button>
@@ -456,5 +552,5 @@ export function AiChatModal({ open, onOpenChange }: AiChatModalProps) {
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

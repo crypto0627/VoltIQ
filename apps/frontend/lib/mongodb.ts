@@ -1,5 +1,5 @@
 // lib/mongodb.ts
-import { MongoClient, Db } from 'mongodb';
+import { MongoClient, Db } from "mongodb";
 
 const uri = process.env.MONGODB_URI!;
 const dbName = process.env.MONGODB_DB!;

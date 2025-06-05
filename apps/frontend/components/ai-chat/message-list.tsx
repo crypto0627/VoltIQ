@@ -1,13 +1,13 @@
-import type React from "react"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import type { Message } from "@/types/ui/ai-chat-type"
-import { ChatMessage } from "./chat-message"
-import Image from "next/image"
+import type React from "react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import type { Message } from "@/types/ui/ai-chat-type";
+import { ChatMessage } from "./chat-message";
+import Image from "next/image";
 
 interface MessageListProps {
-  messages: Message[]
-  isLoading: boolean
+  messages: Message[];
+  isLoading: boolean;
 }
 
 export function MessageList({ messages, isLoading }: MessageListProps) {
@@ -47,5 +47,5 @@ export function MessageList({ messages, isLoading }: MessageListProps) {
         )}
       </div>
     </div>
-  )
+  );
 }

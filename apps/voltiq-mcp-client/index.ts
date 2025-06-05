@@ -40,13 +40,13 @@ class MCPClient {
           ? "python"
           : "python3"
         : process.execPath;
-  
+
       this.transport = new StdioClientTransport({
         command,
         args: [serverScriptPath],
       });
       this.mcp.connect(this.transport);
-  
+
       const toolsResult = await this.mcp.listTools();
       this.tools = toolsResult.tools.map((tool) => {
         return {
@@ -57,7 +57,7 @@ class MCPClient {
       });
       console.log(
         "Connected to server with tools:",
-        this.tools.map(({ name }) => name)
+        this.tools.map(({ name }) => name),
       );
     } catch (e) {
       console.log("Failed to connect to MCP server: ", e);
@@ -66,69 +66,69 @@ class MCPClient {
   }
 
   async processQuery(query: string) {
-  const messages: MessageParam[] = [
-    {
-      role: "user",
-      content: query,
-    },
-  ];
-
-  const response = await this.anthropic.messages.create({
-    model: "claude-3-5-sonnet-20241022",
-    max_tokens: 1000,
-    messages,
-    tools: this.tools,
-  });
-
-  const finalText = [];
-  const toolResults = [];
-
-  for (const content of response.content) {
-    if (content.type === "text") {
-      finalText.push(content.text);
-    } else if (content.type === "tool_use") {
-      const toolName = content.name;
-      const toolArgs = content.input as { [x: string]: unknown } | undefined;
-
-      const result = await this.mcp.callTool({
-        name: toolName,
-        arguments: toolArgs,
-      });
-      toolResults.push(result);
-      finalText.push(
-        `[Calling tool ${toolName} with args ${JSON.stringify(toolArgs)}]`
-      );
-
-      messages.push({
+    const messages: MessageParam[] = [
+      {
         role: "user",
-        content: result.content as string,
-      });
+        content: query,
+      },
+    ];
 
-      const response = await this.anthropic.messages.create({
-        model: "claude-3-5-sonnet-20241022",
-        max_tokens: 1000,
-        messages,
-      });
+    const response = await this.anthropic.messages.create({
+      model: "claude-3-5-sonnet-20241022",
+      max_tokens: 1000,
+      messages,
+      tools: this.tools,
+    });
 
-      finalText.push(
-        response.content[0].type === "text" ? response.content[0].text : ""
-      );
+    const finalText = [];
+    const toolResults = [];
+
+    for (const content of response.content) {
+      if (content.type === "text") {
+        finalText.push(content.text);
+      } else if (content.type === "tool_use") {
+        const toolName = content.name;
+        const toolArgs = content.input as { [x: string]: unknown } | undefined;
+
+        const result = await this.mcp.callTool({
+          name: toolName,
+          arguments: toolArgs,
+        });
+        toolResults.push(result);
+        finalText.push(
+          `[Calling tool ${toolName} with args ${JSON.stringify(toolArgs)}]`,
+        );
+
+        messages.push({
+          role: "user",
+          content: result.content as string,
+        });
+
+        const response = await this.anthropic.messages.create({
+          model: "claude-3-5-sonnet-20241022",
+          max_tokens: 1000,
+          messages,
+        });
+
+        finalText.push(
+          response.content[0].type === "text" ? response.content[0].text : "",
+        );
+      }
     }
+
+    return finalText.join("\n");
   }
 
-  return finalText.join("\n");
-}
- 
-async chatLoop() {
+  async chatLoop() {
     const rl = readline.createInterface({
       input: process.stdin,
       output: process.stdout,
     });
-  
+
     try {
       console.log("\nMCP Client Started!");
       console.log("Type your queries or 'quit' to exit.");
-  
+
       while (true) {
         const message = await rl.question("\nQuery: ");
         if (message.toLowerCase() === "quit") {
@@ -141,25 +141,25 @@ async chatLoop() {
       rl.close();
     }
   }
-  
+
   async cleanup() {
     await this.mcp.close();
   }
 }
 
 async function main() {
-    if (process.argv.length < 3) {
-      console.log("Usage: node index.ts <path_to_server_script>");
-      return;
-    }
-    const mcpClient = new MCPClient();
-    try {
-      await mcpClient.connectToServer(process.argv[2]);
-      await mcpClient.chatLoop();
-    } finally {
-      await mcpClient.cleanup();
-      process.exit(0);
-    }
+  if (process.argv.length < 3) {
+    console.log("Usage: node index.ts <path_to_server_script>");
+    return;
   }
-  
-  main();
+  const mcpClient = new MCPClient();
+  try {
+    await mcpClient.connectToServer(process.argv[2]);
+    await mcpClient.chatLoop();
+  } finally {
+    await mcpClient.cleanup();
+    process.exit(0);
+  }
+}
+
+main();

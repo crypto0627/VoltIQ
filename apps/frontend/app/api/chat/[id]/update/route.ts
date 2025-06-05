@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 
 export async function POST(
   req: NextRequest,
-  context: { params: { id: string } }
+  context: { params: { id: string } },
 ) {
   const chatId = context.params.id;
   try {
@@ -20,6 +20,9 @@ export async function POST(
     return NextResponse.json(chat);
   } catch (error) {
     console.error("Error updating chat title:", error);
-    return NextResponse.json({ error: "Failed to update chat title." }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to update chat title." },
+      { status: 500 },
+    );
   }
 }

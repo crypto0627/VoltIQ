@@ -9,7 +9,7 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "VoltIQ",
   description: "Next-Gen Globally Distributed Smart Energy",
-  authors: {name: 'JakeKuo'}
+  authors: { name: "JakeKuo" },
 };
 
 export default function RootLayout({

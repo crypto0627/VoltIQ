@@ -91,12 +91,18 @@ export function Navbar() {
                 <div className="flex flex-col space-y-1">
                   {isLoading ? (
                     <>
-                      <p className="text-sm font-medium leading-none">Loading...</p>
-                      <p className="text-xs leading-none text-muted-foreground">Please wait</p>
+                      <p className="text-sm font-medium leading-none">
+                        Loading...
+                      </p>
+                      <p className="text-xs leading-none text-muted-foreground">
+                        Please wait
+                      </p>
                     </>
                   ) : user ? (
                     <>
-                      <p className="text-sm font-medium leading-none">{user.email}</p>
+                      <p className="text-sm font-medium leading-none">
+                        {user.email}
+                      </p>
                       <p className="text-xs leading-none text-muted-foreground">
                         Hi, Welcome to VoltIQ!
                       </p>
@@ -116,7 +122,9 @@ export function Navbar() {
               <DropdownMenuItem>Settings</DropdownMenuItem>
               <DropdownMenuItem>Support</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogout}>Log out</DropdownMenuItem>
+              <DropdownMenuItem onClick={handleLogout}>
+                Log out
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
