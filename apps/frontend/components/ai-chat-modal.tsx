@@ -1,21 +1,20 @@
 "use client";
 
-import type React from "react";
-import { useState, useEffect, useCallback, useMemo } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import type { AiChatModalProps } from "@/types/ui/ai-chat-type";
-import type { Chat, Message } from "@/types/ui/ai-chat-type";
-import useUserStore from "@/stores/useUserStore";
-import { useChat } from "@ai-sdk/react";
-import { ChatSidebar } from "@/components/ai-chat/chat-sidebar";
-import { ChatHeader } from "@/components/ai-chat/chat-header";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import Image from "next/image";
-import { Send, Mic } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { SUGGESTED_QUESTIONS } from "@/constants/ai-chat-constants";
+import { ChatHeader } from "@/components/ai-chat/chat-header";
 import { ChatMessage } from "@/components/ai-chat/chat-message";
+import { ChatSidebar } from "@/components/ai-chat/chat-sidebar";
+import { SUGGESTED_QUESTIONS } from "@/constants/ai-chat-constants";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import useUserStore from "@/stores/useUserStore";
+import type { AiChatModalProps, Chat, Message } from "@/types/ui/ai-chat-type";
+import { useChat } from "@ai-sdk/react";
+import Image from "next/image";
+import { Mic, Send } from "lucide-react";
+import type React from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 // 擴展 Message 類型以包含工具調用信息
 interface ExtendedMessage extends Message {
@@ -54,10 +53,8 @@ export function AiChatModal({ open, onOpenChange }: AiChatModalProps) {
     messages,
     input,
     handleInputChange,
-    handleSubmit,
     isLoading: isAiChatLoading,
     append,
-    setMessages,
     setInput,
   } = useChat({
     api: `/api/chat/${activeChatId}/message`,
@@ -369,7 +366,7 @@ export function AiChatModal({ open, onOpenChange }: AiChatModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="h-[90vh] max-w-full md:max-w-7xl p-0 bg-gradient-to-br from-slate-900/95 via-slate-800/95 to-slate-900/95 backdrop-blur-xl border-2 border-slate-700/50 shadow-2xl">
+      <DialogContent className="h-[90vh] max-w-full md:max-w-7xl p-0 bg-gradient-to-br from-slate-900/95 via-slate-800/95 to-slate-900/95 backdrop-blur-xl border-2 border-slate-700/50 shadow-2xl" aria-describedby={undefined}>
         <div className="flex h-full w-full">
           {/* Sidebar - Mobile & Desktop */}
           <div

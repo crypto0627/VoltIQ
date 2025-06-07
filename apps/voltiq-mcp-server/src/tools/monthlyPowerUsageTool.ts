@@ -20,12 +20,20 @@ export function registerDailyUsageByMonthTool(
     "get_daily_power_usage_by_month",
     "取得指定月份的每日總用電量。",
     {
-      month: z.string().describe("欲查詢的月份 (兩位數字, e.g., 'January' is '01' , '一月' is '01'....)"),
+      month: z.string().describe("欲查詢的月份 (兩位數字, e.g., 'January' is '01' , '一月' is '01'...., 或輸入 'this month' 查詢當前月份)"),
     },
     async ({ month }) => {
       try {
         const dailyUsageMap: Record<string, number> = {};
         let docCountInMonth = 0;
+
+        // 如果輸入 "this month"，獲取當前月份
+        const targetMonth = month.toLowerCase() === "this month" 
+          ? new Date().getMonth() + 1 
+          : parseInt(month);
+
+        // 確保月份是兩位數格式
+        const formattedMonth = targetMonth.toString().padStart(2, "0");
 
         const cursor = collection.find<PowerUsageData>({});
         for await (const doc of cursor) {
@@ -48,7 +56,7 @@ export function registerDailyUsageByMonthTool(
 
           const docMonth = match[1];
 
-          if (docMonth === month) {
+          if (docMonth === formattedMonth) {
             docCountInMonth++;
 
             let dailyTotal = 0;
@@ -72,7 +80,7 @@ export function registerDailyUsageByMonthTool(
             content: [
               {
                 type: "text",
-                text: `找不到${month}月的用電資料。`,
+                text: `找不到${formattedMonth}月的用電資料。`,
               },
             ],
           };
@@ -81,12 +89,14 @@ export function registerDailyUsageByMonthTool(
         const dailyUsageSummary = Object.entries(dailyUsageMap)
           .sort(([dateA], [dateB]) => dateA.localeCompare(dateB))
           .map(
-            ([date, totalUsage]) => `${date}: ${totalUsage} kWh`,
+            ([date, totalUsage]) => ({ date, totalUsage })
           );
 
         const summaryText = [
-          `${month}月每日用電量：`,
-          ...dailyUsageSummary,
+          `${formattedMonth}月每日用電量：`,
+          ...dailyUsageSummary.map(
+            (e) => `${e.date}: ${e.totalUsage} kW`,
+          ),
         ].join("\n");
 
         return {
@@ -96,6 +106,14 @@ export function registerDailyUsageByMonthTool(
               text: summaryText,
             },
           ],
+          chartData: dailyUsageSummary,
+          chartType: "BarChart",
+          chartConfig: {
+             xAxisDataKey: 'date',
+             barDataKey: 'totalUsage',
+             tooltipLabel: '日期',
+             tooltipValueLabel: '總用電量'
+          }
         };
       } catch (error) {
         console.error(

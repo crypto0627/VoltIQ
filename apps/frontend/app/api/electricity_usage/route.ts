@@ -67,12 +67,23 @@ export async function POST(req: Request) {
       }
     }
 
-    // Convert the grouped data into an array of documents for insertion
-    const documentsToInsert = Object.keys(dailyUsageData).map((date) => ({
+    // Get dates and sort them by month and day (MM/DD)
+    const sortedDates = Object.keys(dailyUsageData).sort((a, b) => {
+      const [monthA, dayA] = a.split('/').map(Number);
+      const [monthB, dayB] = b.split('/').map(Number);
+      
+      if (monthA !== monthB) {
+        return monthA - monthB; // Sort by month
+      }
+      return dayA - dayB; // Then sort by day
+    });
+
+    // Create documentsToInsert array based on sorted dates
+    const documentsToInsert = sortedDates.map((date) => ({
       date: date,
       usageData: dailyUsageData[date].sort((a, b) =>
         a.time.localeCompare(b.time),
-      ), // Optional: Sort by time
+      ), // Optional: Sort by time within each date
     }));
 
     const { db } = await connectToDatabase();

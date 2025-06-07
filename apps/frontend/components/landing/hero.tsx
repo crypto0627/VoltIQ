@@ -12,12 +12,12 @@ const slogans = [
 ];
 
 const partnerLogos = [
-  "Tesla Energy",
-  "Siemens",
-  "GE Renewable",
-  "Schneider Electric",
-  "ABB",
-  "Vestas",
+  "Fortune-ess",
+  "Fortune-ess",
+  "Fortune-ess",
+  "Fortune-ess",
+  "Fortune-ess",
+  "Fortune-ess",
 ];
 
 // Define fixed positions for background particles
@@ -151,10 +151,12 @@ export function Hero() {
         {/* CTA Button */}
         <Button
           size="lg"
-          className="bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 text-white px-8 py-4 text-lg font-semibold rounded-full shadow-2xl hover:shadow-emerald-500/25 transition-all duration-300 hover:scale-105 transform"
+          className="bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 text-white px-8 py-4 text-lg font-semibold rounded-full shadow-2xl hover:shadow-emerald-500/25 transition-all duration-300 hover:scale-105 transform group"
           asChild
         >
-          <Link href="/auth/signin">Get Started →</Link>
+          <Link href="/auth/booking">
+            Book Demo <span className="inline-block transition-transform duration-300 group-hover:translate-x-1">→</span>
+          </Link>
         </Button>
 
         {/* Partner Logos */}

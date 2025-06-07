@@ -65,9 +65,15 @@ export function registerDailyPowerUsageTool(
           `日期: ${date}`,
           `時間區間: ${startTime} - ${endTime}`,
           "用電資料:",
-          ...usageInRange.map((entry) => `${entry.time}: ${entry.usage} kWh`),
-          `\n總用電量: ${totalUsage} kWh`,
+          ...usageInRange.map((entry) => `${entry.time}: ${entry.usage} kW`),
+          `\n總用電量: ${totalUsage} kW`,
         ].join("\n");
+
+        // Prepare data for a line chart
+        const chartData = usageInRange.map(entry => ({
+           time: entry.time, // X-axis: Time
+           usage: Math.round(entry.usage * 100) / 100, // Y-axis: Usage
+        }));
 
         return {
           content: [
@@ -76,6 +82,15 @@ export function registerDailyPowerUsageTool(
               text: summaryText,
             },
           ],
+          chartData: chartData,
+          chartType: "LineChart", // Suggest LineChart for time series
+          chartConfig: { // Configuration for the frontend
+             xAxisDataKey: 'time',
+             yAxisDataKey: 'usage',
+             lineDataKey: 'usage',
+             tooltipLabel: '時間',
+             tooltipValueLabel: '用電量'
+          }
         };
       } catch (error) {
         console.error(

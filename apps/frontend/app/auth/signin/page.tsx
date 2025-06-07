@@ -12,14 +12,26 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ThemeToggle } from "@/components/theme-toggle";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import useUserStore from "@/stores/useUserStore";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
+  const { user, fetchUser } = useUserStore();
+
+  useEffect(() => {
+    fetchUser();
+  }, [fetchUser]);
+
+  useEffect(() => {
+    if (user) {
+      router.push("/main/dashboard");
+    }
+  }, [user, router]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,6 +51,7 @@ export default function SignInPage() {
         throw new Error(errorData.error || "Sign in failed");
       }
 
+      await fetchUser();
       router.push("/main/dashboard");
     } catch (err) {
       setError((err as Error).message);

@@ -2,29 +2,72 @@ import React from "react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import Image from "next/image";
 import type { Message } from "@/types/ui/ai-chat-type";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  LineChart,
+  Line,
+} from "recharts";
 
-interface ChatMessageProps {
-  message: Message;
-}
-
-// 擴展 Message 類型以包含工具調用信息
+// 擴展 Message 類型以包含工具調用信息和可能的圖表數據
 interface ExtendedMessage extends Message {
   toolInvocations?: Array<{
     toolCallId: string;
     toolName: string;
     args: any;
     state: "partial-call" | "call" | "result" | "error";
-    result?: any;
+    result?: any; // Tool result might contain { content: [...], chartData: [...], chartType: string, chartConfig: {...} }
   }>;
+  // Consider adding a dedicated field for chart data if toolInvocations is not suitable for direct consumption
+  // chartData?: any;
+  // chartType?: string;
+  // chartConfig?: any;
 }
 
 export function ChatMessage({ message }: { message: ExtendedMessage }) {
+  // Helper function to find chart data in tool results
+  const getChartData = () => {
+    if (message.toolInvocations && message.toolInvocations.length > 0) {
+      for (const invocation of message.toolInvocations) {
+        // Check for successful tool calls with results
+        if (invocation.state === "result" && invocation.result) {
+          // Check if the result has the expected chart data structure
+          if (invocation.result.chartData && Array.isArray(invocation.result.chartData)) {
+            return {
+              data: invocation.result.chartData,
+              type: invocation.result.chartType || "BarChart", // Default to BarChart if type is missing
+              config: invocation.result.chartConfig || {}
+            };
+          }
+        }
+      }
+    }
+    return null; // No chart data found
+  };
+
   // 處理工具調用結果的格式化
   const formatToolResult = (result: any): string => {
     if (!result) return "";
 
     try {
-      // 如果結果有 content 數組
+      // If it contains chart data, format only the text content part
+      if (result.chartData && Array.isArray(result.chartData)) {
+         if (result.content && Array.isArray(result.content)) {
+            return result.content
+              .filter((item: any) => item.type === "text")
+              .map((item: any) => item.text)
+              .join("\n");
+         }
+         return ""; // If chart data is present but no text content, return empty string for text part
+      }
+
+      // If result has content array
       if (result.content && Array.isArray(result.content)) {
         return result.content
           .filter((item: any) => item.type === "text")
@@ -32,17 +75,17 @@ export function ChatMessage({ message }: { message: ExtendedMessage }) {
           .join("\n");
       }
 
-      // 如果結果是直接的文本
+      // If result is direct text
       if (typeof result === "string") {
         return result;
       }
 
-      // 如果結果是對象，嘗試提取文本內容
+      // If result is object, try to extract text content
       if (typeof result === "object") {
         if (result.text) return result.text;
         if (result.message) return result.message;
-        // 嘗試 JSON 格式化
-        return JSON.stringify(result, null, 2);
+        // Try JSON formatting as a fallback, but prefer not to show raw JSON for charts
+        // return JSON.stringify(result, null, 2);
       }
 
       return String(result);
@@ -127,10 +170,22 @@ export function ChatMessage({ message }: { message: ExtendedMessage }) {
 
   // 渲染格式化的內容
   const renderFormattedContent = (content: string) => {
-    // 按行分割並処理
+    // 按行分割並處理
     const lines = content.split("\n");
 
     return lines.map((line, index) => {
+      // *** START: Added check for lines starting with "0:" ***
+      if (line.trim().startsWith("0:")) {
+         // Remove the "0:" prefix before rendering
+         const formattedLine = line.trim().replace(/^0:\s*/, '');
+         return (
+            <div key={index} className="mb-1 text-slate-300"> {/* Render as normal line without prefix */}
+               {formattedLine}
+            </div>
+         );
+      }
+      // *** END: Added check for lines starting with "0:" ***
+
       // 處理粗體文本（**text**）
       if (line.includes("**")) {
         const parts = line.split(/(\*\*.*?\*\*)/);
@@ -150,64 +205,13 @@ export function ChatMessage({ message }: { message: ExtendedMessage }) {
         );
       }
 
-      // 處理標題行（包含特定关键词的行）
-      const titleKeywords = [
-        "摘要",
-        "總覽",
-        "概況",
-        "統計",
-        "報告",
-        "分析",
-        "數據",
-        "結果",
-      ];
-      if (titleKeywords.some((keyword) => line.includes(keyword))) {
-        return (
-          <div key={index} className="font-semibold text-teal-300 mb-3 text-lg">
-            {line}
-          </div>
-        );
-      }
-
-      // 處理包含冒号的數據行（key-value 格式）
-      if (line.includes(":") || line.includes("：")) {
-        const colonIndex =
-          line.indexOf(":") !== -1 ? line.indexOf(":") : line.indexOf("：");
-        const key = line.substring(0, colonIndex).trim();
-        const value = line.substring(colonIndex + 1).trim();
-
-        return (
-          <div
-            key={index}
-            className="flex justify-between items-center py-1 px-3 rounded bg-slate-800/30 mb-1"
-          >
-            <span className="text-cyan-300 font-medium">{key}</span>
-            <span className="text-slate-200 font-mono">{value}</span>
-          </div>
-        );
-      }
+      // 處理包含冒号的數據行（key-value 格式） - This was already removed
 
       // 處理列表項目（以 • - * 开头的行）
-      if (line.match(/^[\s]*[•\-\*]\s/)) {
-        return (
-          <div key={index} className="ml-4 mb-1 text-slate-300">
-            <span className="text-emerald-400 mr-2">•</span>
-            {line.replace(/^[\s]*[•\-\*]\s/, "")}
-          </div>
-        );
-      }
+      // REMOVED: List item formatting logic
 
       // 處理數字編號列表（1. 2. 3. 开头的行）
-      if (line.match(/^[\s]*\d+[\.\)]\s/)) {
-        return (
-          <div key={index} className="ml-4 mb-1 text-slate-300">
-            <span className="text-teal-400 mr-2 font-medium">
-              {line.match(/^[\s]*(\d+[\.\)])/)?.[1]}
-            </span>
-            {line.replace(/^[\s]*\d+[\.\)]\s/, "")}
-          </div>
-        );
-      }
+      // REMOVED: Numbered list formatting logic
 
       // 空行
       if (!line.trim()) {
@@ -216,40 +220,47 @@ export function ChatMessage({ message }: { message: ExtendedMessage }) {
 
       // 普通行
       return (
-        <div key={index} className="mb-1">
+        <div key={index} className="mb-1 text-slate-300"> {/* Added text color for clarity */}
           {line}
         </div>
       );
     });
   };
 
-  // 獲取完整的消息內容
+  const isUser = message.role === "user";
+  const chartInfo = getChartData(); // Check for chart data
+
+  // Get the full content from tool results, excluding chart data part
   const getFullContent = (): string => {
     let fullContent = message.content;
 
-    // 如果有工具調用結果，只顯示工具調用的結果，不顯示初始內容
+    // If there are tool call results, prefer displaying formatted tool results text
     if (message.toolInvocations && message.toolInvocations.length > 0) {
-      const toolResults = message.toolInvocations
+      const toolResultsText = message.toolInvocations
         .filter(
           (invocation) => invocation.state === "result" && invocation.result,
         )
-        .map((invocation) => formatToolResult(invocation.result))
-        .filter((result) => result.length > 0);
+        .map((invocation) => formatToolResult(invocation.result)) // Use formatToolResult to get only text part
+        .filter((text) => text.length > 0);
 
-      if (toolResults.length > 0) {
-        // 只顯示工具調用結果，使用通用格式化
-        const formattedResults = toolResults.map((result) =>
-          formatGenericData(result),
-        );
-        return formattedResults.join("\n\n");
+      if (toolResultsText.length > 0) {
+        // Format the combined text from tool results
+        return formatGenericData(toolResultsText.join("\n\n"));
       }
     }
 
-    return fullContent;
+    // Fallback to raw message content if no tool results text
+    return formatGenericData(fullContent);
   };
+  const content = getFullContent(); // Get text content
 
-  const isUser = message.role === "user";
-  const content = getFullContent();
+  // Check if content contains any of the exclusion keywords
+  const shouldExcludeChart = (
+    content.includes('分析') || content.includes('analysis') ||
+    content.includes('總結') || content.includes('summary') ||
+    content.includes('統計') || content.includes('statistics') ||
+    content.includes('建議') || content.includes('recommendation')
+  );
 
   return (
     <div
@@ -257,7 +268,7 @@ export function ChatMessage({ message }: { message: ExtendedMessage }) {
     >
       {!isUser && (
         <Avatar className="h-8 w-8 sm:h-10 sm:w-10 bg-gradient-to-r from-emerald-500 to-teal-500 shadow-lg flex-shrink-0">
-          <AvatarFallback>
+          <AvatarFallback className="relative">
             <Image
               src="/ai-button.jpg"
               alt="AI Icon"
@@ -270,7 +281,7 @@ export function ChatMessage({ message }: { message: ExtendedMessage }) {
 
       <div
         className={`
-          max-w-[85%] rounded-2xl p-3 sm:p-4 shadow-lg backdrop-blur-sm
+          max-w-[95%] rounded-2xl p-3 sm:p-4 shadow-lg backdrop-blur-sm
           ${
             isUser
               ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white ml-auto"
@@ -278,7 +289,67 @@ export function ChatMessage({ message }: { message: ExtendedMessage }) {
           }
         `}
       >
-        <div className="space-y-2">{renderFormattedContent(content)}</div>
+        {/* Render chart if data is available and not excluded by keywords */}
+        {chartInfo && chartInfo.data && !shouldExcludeChart && (
+           <div className="w-full h-64 sm:h-80 mb-4"> {/* Container for the chart */}
+              <ResponsiveContainer width="105%" height="85%">
+                 {/* Determine and render the correct chart type directly */}
+                 {chartInfo.type === "BarChart" ? (
+                    <BarChart
+                       data={chartInfo.data}
+                       margin={{
+                          top: 10,
+                          right: 30,
+                          left: 20,
+                          bottom: 5,
+                       }}
+                    >
+                       <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
+                       <XAxis dataKey={chartInfo.config.xAxisDataKey || 'date'} stroke="#94a3b8" />
+                       <YAxis stroke="#94a3b8" tickFormatter={(value) => `${value.toLocaleString("zh-TW")} kW`} />
+                       <Tooltip
+                          cursor={{ fill: '#475569', opacity: 0.5 }}
+                          contentStyle={{ backgroundColor: '#334155', border: 'none', borderRadius: '2px' }}
+                          labelStyle={{ color: '#e2e8f0' }}
+                          itemStyle={{ color: '#94a3b8' }}
+                          formatter={(value: number, name: string) => [value.toLocaleString("zh-TW"), chartInfo.config.tooltipValueLabel || name]}
+                          labelFormatter={(label: string) => `${chartInfo.config.tooltipLabel || ''}${label}`}
+                       />
+                       <Legend />
+                       <Bar dataKey={chartInfo.config.barDataKey || 'totalUsage'} fill="#34d399" name={chartInfo.config.tooltipValueLabel || "用電量"} />
+                    </BarChart>
+                 ) :
+                 (
+                    <LineChart
+                       data={chartInfo.data}
+                       margin={{
+                          top: 5,
+                          right: 30,
+                          left: 20,
+                          bottom: 5,
+                       }}
+                    >
+                       <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
+                       <XAxis dataKey={chartInfo.config.xAxisDataKey || 'time'} stroke="#94a3b8" />
+                       <YAxis stroke="#94a3b8" tickFormatter={(value) => `${value.toLocaleString("zh-TW")} kW`} />
+                       <Tooltip
+                           contentStyle={{ backgroundColor: '#334155', border: 'none', borderRadius: '4px' }}
+                           labelStyle={{ color: '#e2e8f0' }}
+                           itemStyle={{ color: '#94a3b8' }}
+                            formatter={(value: number, name: string) => [value.toLocaleString("zh-TW"), chartInfo.config.tooltipValueLabel || name]}
+                           labelFormatter={(label: string) => `${chartInfo.config.tooltipLabel || ''}${label}`}
+                       />
+                       <Legend />
+                       <Line type="monotone" dataKey={chartInfo.config.lineDataKey || 'usage'} stroke="#34d399" activeDot={{ r: 8 }} name={chartInfo.config.tooltipValueLabel || "用電量"} />
+                    </LineChart>
+                 )}
+                 {/* Add other chart types here as needed */}
+              </ResponsiveContainer>
+           </div>
+        )}
+
+        {/* Render text content below the chart (or alone if no chart) */}
+        {content && <div className="space-y-2">{renderFormattedContent(content)}</div>}
 
         {/* 顯示工具調用信息（調試用，可選） */}
         {message.toolInvocations && message.toolInvocations.length > 0 && (
@@ -300,7 +371,7 @@ export function ChatMessage({ message }: { message: ExtendedMessage }) {
 
       {isUser && (
         <Avatar className="h-8 w-8 sm:h-10 sm:w-10 bg-gradient-to-r from-blue-500 to-purple-500 shadow-lg flex-shrink-0">
-          <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold text-sm">
+          <AvatarFallback className="relative bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold text-sm">
             U
           </AvatarFallback>
         </Avatar>

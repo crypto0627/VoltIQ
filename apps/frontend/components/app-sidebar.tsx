@@ -3,7 +3,6 @@
 import {
   Calendar,
   Home,
-  Settings,
   Sliders,
   User,
   FileText,
@@ -52,12 +51,7 @@ const accountItems = [
     title: "Profile",
     url: "/main/profile",
     icon: User,
-  },
-  {
-    title: "Settings",
-    url: "/main/settings",
-    icon: Settings,
-  },
+  }
 ];
 
 export function AppSidebar() {
@@ -67,7 +61,7 @@ export function AppSidebar() {
       <SidebarHeader>
         <div className="flex justify-start p-2 rounded-lg">
           <Link href={"/"} className="w-[200px] h-[50px] relative">
-            <Image src="/logo.png" alt="Logo" fill className="object-contain" />
+            <Image src="/ess-logo.png" alt="Logo" fill className="object-contain" />
           </Link>
         </div>
       </SidebarHeader>

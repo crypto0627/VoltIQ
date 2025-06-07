@@ -1,149 +1,74 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+"use client";
+
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { Slider } from "@/components/ui/slider";
-import { Label } from "@/components/ui/label";
-import { Power, Settings, Zap, Thermometer } from "lucide-react";
+
+const urls = {
+  meter: "http://60.248.136.217:13000/d/8x2xVJ2nw/meter?orgId=1&refresh=5s&kiosk=tv&kios",
+  powerControl: "http://60.248.136.217:13000/d/5fnBlbXnz/pcs?orgId=1&refresh=5s&kiosk=tv&kiosk",
+  battery: "http://60.248.136.217:13000/d/15odcko7z/battery-monitor?orgId=1&refresh=5s&kiosk=tv&kios",
+};
 
 export default function ControllerPage() {
+  const [activeTab, setActiveTab] = useState("battery");
+  const [showIframe, setShowIframe] = useState(false);
+
+  const handleIframeLoad = () => {
+    setShowIframe(true);
+  };
+
+  const changeTab = (tab: string) => {
+    if (activeTab === tab) return;
+    setShowIframe(false);
+    setActiveTab(tab);
+  };
+
+  useEffect(() => {
+    // 初始化時顯示iframe
+    setShowIframe(true);
+  }, []);
+
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Controller</h1>
-        <p className="text-muted-foreground">
-          Manage system controls and configurations.
-        </p>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Power className="h-5 w-5" />
-              System Power
-            </CardTitle>
-            <CardDescription>Control main system power state</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="system-power">Main Power</Label>
-              <Switch id="system-power" defaultChecked />
-            </div>
-            <div className="flex items-center justify-between">
-              <Label htmlFor="backup-power">Backup Power</Label>
-              <Switch id="backup-power" />
-            </div>
-            <Button className="w-full" variant="outline">
-              <Settings className="mr-2 h-4 w-4" />
-              Advanced Settings
+    <div className="flex flex-col min-h-screen w-full gap-2">
+      <header className="shadow-md bg-white rounded-lg p-6">
+        <div className="flex items-center justify-between">
+          <h1 className="m-0 text-3xl font-bold text-gray-800">
+            System Monitor
+          </h1>
+          <div className="flex space-x-6">
+            <Button
+              onClick={() => changeTab("meter")}
+              variant={activeTab === "meter" ? "default" : "outline"}
+            >
+              Meter
             </Button>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Thermometer className="h-5 w-5" />
-              Temperature Control
-            </CardTitle>
-            <CardDescription>
-              Adjust system temperature settings
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label>Target Temperature: 22°C</Label>
-              <Slider defaultValue={[22]} max={30} min={15} step={1} />
-            </div>
-            <div className="flex items-center justify-between">
-              <Label htmlFor="auto-temp">Auto Adjust</Label>
-              <Switch id="auto-temp" defaultChecked />
-            </div>
-            <div className="text-sm text-muted-foreground">
-              Current: 21°C | Humidity: 45%
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Zap className="h-5 w-5" />
-              Performance
-            </CardTitle>
-            <CardDescription>System performance controls</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label>CPU Usage: 65%</Label>
-              <Slider defaultValue={[65]} max={100} min={0} step={1} disabled />
-            </div>
-            <div className="space-y-2">
-              <Label>Memory Usage: 42%</Label>
-              <Slider defaultValue={[42]} max={100} min={0} step={1} disabled />
-            </div>
-            <Button className="w-full" variant="outline">
-              Optimize Performance
+            <Button
+              onClick={() => changeTab("powerControl")}
+              variant={activeTab === "powerControl" ? "default" : "outline"}
+            >
+              PCS
             </Button>
-          </CardContent>
-        </Card>
-      </div>
+            <Button
+              onClick={() => changeTab("battery")}
+              variant={activeTab === "battery" ? "default" : "outline"}
+            >
+              Battery
+            </Button>
+          </div>
+        </div>
+      </header>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-            <CardDescription>Common system operations</CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-2">
-            <Button className="w-full justify-start">Restart System</Button>
-            <Button className="w-full justify-start" variant="outline">
-              Run Diagnostics
-            </Button>
-            <Button className="w-full justify-start" variant="outline">
-              Clear Cache
-            </Button>
-            <Button className="w-full justify-start" variant="outline">
-              Update Firmware
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>System Status</CardTitle>
-            <CardDescription>Current system health and status</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm">System Health</span>
-              <span className="text-sm font-medium text-green-600">
-                Excellent
-              </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm">Last Maintenance</span>
-              <span className="text-sm text-muted-foreground">2 days ago</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm">Uptime</span>
-              <span className="text-sm text-muted-foreground">
-                15 days, 4 hours
-              </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm">Next Scheduled Maintenance</span>
-              <span className="text-sm text-muted-foreground">In 5 days</span>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <main className="flex-1 relative">
+        <div className="w-full h-[calc(100vh-140px)] overflow-hidden rounded-lg shadow-md border border-gray-200">
+          <iframe
+            src={urls[activeTab as keyof typeof urls]}
+            className="w-full h-full border-none"
+            onLoad={handleIframeLoad}
+            frameBorder="0"
+            allowFullScreen
+          />
+        </div>
+      </main>
     </div>
   );
 }

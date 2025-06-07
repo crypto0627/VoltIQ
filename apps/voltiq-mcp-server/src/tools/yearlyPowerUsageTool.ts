@@ -92,12 +92,15 @@ export function registerYearlyUsageSummaryTool(
           };
         }
 
-        const monthlyUsageSummary = Object.entries(monthlyUsageMap).map(
-          ([month, total]) => ({
-            month,
-            totalUsage: Math.round(total * 100) / 100,
-          }),
-        );
+        // Prepare data for a bar chart - sort by month
+        const monthlyUsageSummary = Object.entries(monthlyUsageMap)
+           .sort(([monthA], [monthB]) => monthA.localeCompare(monthB)) // Sort by month string
+           .map(
+             ([month, total]) => ({
+               month: `${month}月`, // Format month for display, e.g., "01月"
+               totalUsage: Math.round(total * 100) / 100,
+             }),
+           );
 
         const totalYearlyUsage =
           Math.round(
@@ -108,9 +111,9 @@ export function registerYearlyUsageSummaryTool(
         const summaryText = [
           "每月用電量：",
           ...monthlyUsageSummary.map(
-            (e) => `${e.month}月: ${e.totalUsage} kWh`,
+            (e) => `${e.month}: ${e.totalUsage} kW`,
           ),
-          `\n全年總用電量：${totalYearlyUsage} kWh`,
+          `\n全年總用電量：${totalYearlyUsage} kW`,
         ].join("\n");
 
         return {
@@ -120,6 +123,14 @@ export function registerYearlyUsageSummaryTool(
               text: summaryText,
             },
           ],
+          chartData: monthlyUsageSummary,
+          chartType: "BarChart", // Suggest BarChart for monthly comparison
+          chartConfig: { // Configuration for the frontend
+             xAxisDataKey: 'month',
+             barDataKey: 'totalUsage',
+             tooltipLabel: '月份',
+             tooltipValueLabel: '總用電量'
+          }
         };
       } catch (error) {
         console.error(

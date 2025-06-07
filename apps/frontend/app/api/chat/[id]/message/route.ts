@@ -11,17 +11,11 @@ interface Context {
 }
 
 export async function POST(req: NextRequest, context: Context) {
-  // Access params directly as per Next.js App Router
   const params = await context.params;
   const chatId: string = params.id;
-
-  // The useChat hook sends the messages array in the request body
   const { messages: incomingMessages } = await req.json();
-
-  // Find the latest user message to save to DB
   const latestUserMessage = incomingMessages?.[incomingMessages.length - 1];
 
-  // Validate the incoming messages payload
   if (
     !incomingMessages ||
     !Array.isArray(incomingMessages) ||
@@ -37,7 +31,6 @@ export async function POST(req: NextRequest, context: Context) {
     );
   }
 
-  // Store user message in database
   await prisma.message.create({
     data: {
       chatId,
@@ -46,7 +39,6 @@ export async function POST(req: NextRequest, context: Context) {
     },
   });
 
-  // Initialize MCP transport/client
   const transport = new Experimental_StdioMCPTransport({
     command: "node",
     args: [
@@ -61,34 +53,58 @@ export async function POST(req: NextRequest, context: Context) {
     client = await experimental_createMCPClient({ transport });
     tools = await client.tools();
 
-    // Debug: Log available tools
-    console.log("🔧 Available MCP tools:", Object.keys(tools || {}));
-
     const systemPrompt = [
       `You are a helpful AI assistant specialized in analyzing power usage data.`,
-      `Available tools and their usage:`,
-      `- get_daily_power_usage_summary: Use this to get daily power usage data for a specific month`,
+      `Available tools:`,
+      `- get_daily_power_usage_by_month: 取得指定月份的每日總用電量。 Requires 'month' parameter (two-digit string, e.g., '01' for January).`,
+      `- get_power_usage_by_time_range: 查詢指定日期與時間區間的用電資料。 Requires 'date' (MM/DD), 'startTime' (HH:mm), and 'endTime' (HH:mm) parameters.`,
+      `- get_high_power_usage_records: 查詢所有 usage > 2000 的用電紀錄，包含日期與時間。 Takes no parameters.`,
+      `- get_yearly_power_usage_summary: 統計所有月份的總用電量（共 12 個月），並顯示全年總和。 Takes no parameters.`,
       ``,
-      `When user requests monthly data (like "一月的用電資料" or "1月用電資料"):`,
-      `1. Extract the month from user input`,
-      `2. Call get_daily_power_usage_summary with the month parameter`,
-      `3. The month parameter should be in format: "01" for January, "02" for February, etc.`,
-      `4. Support Chinese month names: 一月=01, 二月=02, 三月=03, 四月=04, 五月=05, 六月=06, 七月=07, 八月=08, 九月=09, 十月=10, 十一月=11, 十二月=12`,
+      `When the user asks a question, determine which tool is appropriate based on the keywords and required information in the query.`,
+      `Instructions for tool usage:`,
+      `1.  If the user asks for the daily power usage of a specific month (e.g., "一月的用電資料", "四月的用電", "給我03月的日用電"), use the \`get_daily_power_usage_by_month\` tool. Extract the month and convert it to a two-digit string ("一月" or "January" -> "01", "二月" or "February" -> "02", etc.).`,
+      `2.  If the user asks for power usage data for a specific date and time range (e.g., "04/01早上8點到10點的用電", "查詢05/15 14:00到16:30的用電量"), use the \`get_power_usage_by_time_range\` tool. Extract the 'date' (MM/DD), 'startTime' (HH:mm), and 'endTime' (HH:mm). Ensure times are in 24-hour format.`,
+      `3.  If the user asks to find records with usage greater than 2000 (e.g., "找出高用電紀錄", "哪些時段用電量超過2000?", "查詢異常高用電量"), use the \`get_high_power_usage_records\` tool. This tool requires no parameters.`,
+      `4.  If the user asks for a summary of monthly or yearly total power usage (e.g., "今年每月用電量總和", "全年總用電量", "給我用電量統計"), use the \`get_yearly_power_usage_summary\` tool. This tool requires no parameters.`,
       ``,
-      `Guidelines:`,
-      `1. Always provide the month parameter when calling tools`,
-      `2. Make multiple tool calls if needed for complete information`,
-      `3. Provide clear explanations of the data analysis`,
-      `4. If tool calls fail, explain what went wrong`,
+      `**Data Analysis Instructions:**`,
+      `If the user's message contains keywords like "分析", "總結", "建議", "分析數據", "統整", it indicates a request for data analysis.`,
+      `In such cases:`,
+      `a. First, identify which data needs to be analyzed based on the context.`,
+      `b. Call the appropriate tool(s) to gather comprehensive data.`,
+      `c. After retrieving the data, perform the following analysis:`,
+      `   - Calculate key statistics (mean, median, max, min)`,
+      `   - Identify patterns and trends`,
+      `   - Compare with historical data if available`,
+      `   - Highlight significant findings`,
+      `   - Provide actionable insights and recommendations`,
+      `d. Present the analysis in a structured format:`,
+      `   1. Data Overview`,
+      `   2. Key Findings`,
+      `   3. Patterns and Trends`,
+      `   4. Recommendations`,
+      ``,
+      `**Chart Generation Instructions:**`,
+      `If the user's message contains keywords like "生成圖表", "數據圖", "圖", "chart", "圖表", it indicates a request to visualize data.`,
+      `In such cases:`,
+      `a. First, identify which data the user wants charted (e.g., daily usage for a month, yearly summary, high usage).`,
+      `b. Call the appropriate tool to retrieve the required data (e.g., \`get_daily_power_usage_by_month\` for monthly daily data).`,
+      `c. After successfully retrieving the data from the tool, process the tool's response to prepare the data in a format suitable for charting with libraries like Recharts. Determine the most suitable chart type (e.g., line chart for time series, bar chart for monthly comparison).`,
+      `d. Return the processed, chart-ready data to the frontend. Be specific about the format you are returning for charting. Note: The current tools return text, so parsing will be required.`,
+      ``,
+      `General Guidelines:`,
+      `- Always provide the necessary parameters for the chosen tool.`,
+      `- Make multiple tool calls if needed to fully address the user's query.`,
+      `- If a tool call fails or returns no data, inform the user clearly.`,
+      `- Present the results from the tools in a user-friendly format and provide explanations where helpful.`,
     ].join("\n");
 
-    // Use the incoming messages array directly, prepending the system prompt
     const messages = [
       { role: "system" as const, content: systemPrompt },
       ...incomingMessages,
     ];
 
-    // Debug: Log the last few messages to understand context
     console.log(
       "💬 Recent messages:",
       messages.slice(-2).map((m) => ({
@@ -100,66 +116,97 @@ export async function POST(req: NextRequest, context: Context) {
       })),
     );
 
-    // Accumulate AI response string
     let assistantResponseContent = "";
 
-    const result = await streamText({
-      model: anthropic("claude-3-7-sonnet-20250219"),
-      tools,
-      messages,
-      maxTokens: 4000,
-      temperature: 0.3, // Lower temperature for more consistent tool usage
-      onChunk: (chunk) => {
-        if (chunk?.chunk?.type === "text-delta") {
-          assistantResponseContent += chunk.chunk.textDelta;
-        }
-      },
-      onStepFinish: (step) => {
-        // Debug: Log tool calls and their results
-        if (step.toolCalls && step.toolCalls.length > 0) {
-          console.log(
-            "🔧 Tool calls made:",
-            step.toolCalls.map((tc) => ({
-              toolName: tc.toolName,
-              args: tc.args,
-            })),
-          );
-        }
-        if (step.toolResults && step.toolResults.length > 0) {
-          console.log(
-            "📊 Tool results:",
-            step.toolResults.map((tr) => ({
-              toolCallId: tr.toolCallId,
-              result:
-                typeof tr.result === "string"
-                  ? tr.result.substring(0, 200)
-                  : tr.result,
-            })),
-          );
-        }
-      },
-      onError: (error) => {
-        console.error("❌ Stream error:", error);
-      },
-      onFinish: async (finishResult) => {
-        console.log("✅ Stream finished");
-        console.log(
-          "📝 Final response length:",
-          assistantResponseContent.length,
-        );
+    const MAX_RETRIES = 3;
+    let retryCount = 0;
+    let result;
 
-        // Save assistant response to database
-        if (assistantResponseContent.trim()) {
-          await prisma.message.create({
-            data: {
-              chatId,
-              role: "assistant",
-              content: assistantResponseContent,
-            },
-          });
+    while (retryCount < MAX_RETRIES) {
+      try {
+        result = await streamText({
+          model: anthropic("claude-3-7-sonnet-20250219"),
+          tools,
+          messages,
+          maxTokens: 4000,
+          temperature: 0.3,
+          onChunk: (chunk) => {
+            if (chunk?.chunk?.type === "text-delta") {
+              assistantResponseContent += chunk.chunk.textDelta;
+            }
+          },
+          onStepFinish: (step) => {
+            if (step.toolCalls && step.toolCalls.length > 0) {
+              console.log(
+                "🔧 Tool calls made:",
+                step.toolCalls.map((tc) => ({
+                  toolName: tc.toolName,
+                  args: tc.args,
+                })),
+              );
+            }
+            if (step.toolResults && step.toolResults.length > 0) {
+              console.log(
+                "📊 Tool results:",
+                step.toolResults.map((tr) => ({
+                  toolCallId: tr.toolCallId,
+                  result:
+                    typeof tr.result === "string"
+                      ? tr.result.substring(0, 200)
+                      : tr.result,
+                })),
+              );
+            }
+          },
+          onError: (error) => {
+            console.error("❌ Stream error:", error);
+            // Note: Specific retry logic for 529 is handled outside this onError callback
+          },
+          onFinish: async (finishResult) => {
+            console.log("✅ Stream finished");
+            console.log(
+              "📝 Final response length:",
+              assistantResponseContent.length,
+            );
+
+            // Only save the final assistant message after successful stream
+            if (assistantResponseContent.trim()) {
+              await prisma.message.create({
+                data: {
+                  chatId,
+                  role: "assistant",
+                  content: assistantResponseContent,
+                },
+              });
+            }
+          },
+        });
+
+        // If successful, break the retry loop
+        break;
+      } catch (error) {
+        console.error(`Attempt ${retryCount + 1} failed:`, error);
+
+        // Check for 529 error specifically. The error structure might vary, check error.cause or error.status
+        // Assuming the error object might have a 'cause' with a 'status' or 'code' property for HTTP errors
+        const isOverloadedError = (error as any)?.cause?.status === 529 || (error as any)?.status === 529 || (error as any)?.code === 529;
+
+        if (isOverloadedError && retryCount < MAX_RETRIES - 1) {
+          const delay = Math.pow(2, retryCount) * 1000; // Exponential backoff: 1s, 2s, 4s
+          console.log(`Retrying in ${delay / 1000} seconds...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+          retryCount++;
+        } else {
+          // If not a 529 error or max retries reached, re-throw the error
+          throw error;
         }
-      },
-    });
+      }
+    }
+
+    // If the loop finishes without a successful result (e.g., threw error after max retries)
+    if (!result) {
+      throw new Error("Failed to stream text after multiple retries.");
+    }
 
     const response = result.toDataStreamResponse();
 

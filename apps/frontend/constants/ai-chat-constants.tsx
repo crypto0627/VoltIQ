@@ -1,5 +1,5 @@
 import type React from "react";
-import { BarChart3, Type } from "lucide-react";
+import { BarChart3, LineChart, Calendar, AlertTriangle } from "lucide-react";
 import type { Chat, SuggestedQuestion } from "@/types/ui/ai-chat-type";
 
 export const SUGGESTED_QUESTIONS: SuggestedQuestion[] = [
@@ -12,20 +12,20 @@ export const SUGGESTED_QUESTIONS: SuggestedQuestion[] = [
   {
     title: "Annual Electricity Usage",
     question: "Show me the electricity usage trend over the past year",
-    icon: <Type className="h-4 w-4 text-white" />,
+    icon: <LineChart className="h-4 w-4 text-white" />,
     gradient: "from-purple-500 to-pink-500",
   },
   {
-    title: "5-Year Electricity Usage",
-    question: "Show me the electricity usage changes over the past 5 years",
-    icon: <BarChart3 className="h-4 w-4 text-white" />,
+    title: "Morning Peak Usage",
+    question: "Show me the electricity usage from 08:00 to 12:00 in January",
+    icon: <Calendar className="h-4 w-4 text-white" />,
     gradient: "from-green-500 to-emerald-500",
   },
   {
     title: "Excess Contract Usage",
     question:
       "Show me the electricity usage exceeding the 2000kW contract capacity",
-    icon: <Type className="h-4 w-4 text-white" />,
+    icon: <AlertTriangle className="h-4 w-4 text-white" />,
     gradient: "from-amber-500 to-orange-500",
   },
 ];

@@ -1,36 +1,41 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import Image from "next/image";
+import useUserStore from "@/stores/useUserStore";
 
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isSignedIn, setIsSignedIn] = useState(false);
+  const { user, fetchUser } = useUserStore();
+
+  useEffect(() => {
+    fetchUser();
+  }, [fetchUser]);
 
   const navItems = [
-    { name: "Product", href: "#features" },
-    { name: "Solution", href: "#tech-stack" },
-    { name: "About us", href: "#about" },
+    { name: "Product", href: "#features", blank: false },
+    { name: "Solution", href: "#tech-stack", blank: false },
+    { name: "About us", href: "https://www.fortune-ess.com.tw/", blank: true},
   ];
 
   return (
     <>
       {/* Announcement Bar */}
-      <div className="bg-gradient-to-r from-emerald-500 to-blue-500 text-white text-center py-2 px-4 text-sm">
+      <div className="fixed top-0 left-0 right-0 bg-gradient-to-r from-emerald-500 to-blue-500 text-white text-center py-2 px-4 text-sm z-50">
         <span className="mr-2">🔥</span>
-        Subscribe member $NT 150 per month
+        Contact our sales team
         <Button
           variant="link"
           className="text-white underline ml-2 p-0 h-auto hover:text-emerald-200 transition-colors"
         >
-          <Link href="#subscribe">Learn More</Link>
+          <Link href="#footer">here</Link>
         </Button>
       </div>
 
-      <nav className="relative z-50 bg-slate-900/80 backdrop-blur-lg border-b border-white/10">
+      <nav className="fixed top-8 left-0 right-0 z-40 bg-slate-900/80 backdrop-blur-lg border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
@@ -51,6 +56,7 @@ export function Navbar() {
                 <Link
                   key={item.name}
                   href={item.href}
+                  target={item.blank ? '_blank' : undefined}
                   className="text-gray-300 hover:text-emerald-400 transition-all duration-300 font-medium relative group"
                 >
                   {item.name}
@@ -61,14 +67,16 @@ export function Navbar() {
 
             {/* Desktop Auth Buttons */}
             <div className="hidden md:flex items-center space-x-4">
-              {isSignedIn ? (
-                <Button
-                  variant="outline"
-                  onClick={() => setIsSignedIn(false)}
-                  className="border-gray-600 text-white hover:bg-emerald-500/10 hover:border-emerald-500 hover:text-emerald-400 transition-all duration-300"
-                >
-                  Sign out
-                </Button>
+              {user ? (
+                <>
+                  <span className="text-gray-300">{user.email}</span>
+                  <Button
+                    className="bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 text-white shadow-lg hover:shadow-emerald-500/25 transition-all duration-300 hover:scale-105 transform"
+                    asChild
+                  >
+                    <Link href="/main/dashboard">Get Started →</Link>
+                  </Button>
+                </>
               ) : (
                 <>
                   <Button
@@ -112,6 +120,7 @@ export function Navbar() {
                 <Link
                   key={item.name}
                   href={item.href}
+                  target={item.blank ? '_blank' : undefined}
                   className="block text-gray-300 hover:text-emerald-400 transition-all duration-300 px-4 py-2 rounded-lg hover:bg-emerald-500/10"
                   onClick={() => setIsMenuOpen(false)}
                 >
@@ -119,14 +128,16 @@ export function Navbar() {
                 </Link>
               ))}
               <div className="pt-4 space-y-2 px-4">
-                {isSignedIn ? (
-                  <Button
-                    variant="outline"
-                    className="w-full border-gray-600 text-white hover:bg-emerald-500/10 hover:border-emerald-500 hover:text-emerald-400 transition-all duration-300"
-                    onClick={() => setIsSignedIn(false)}
-                  >
-                    Sign out
-                  </Button>
+                {user ? (
+                  <>
+                    <span className="block text-gray-300 px-4 py-2">{user.email}</span>
+                    <Button
+                      className="w-full bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 transition-all duration-300"
+                      asChild
+                    >
+                      <Link href="/main/dashboard">Get Started →</Link>
+                    </Button>
+                  </>
                 ) : (
                   <>
                     <Button

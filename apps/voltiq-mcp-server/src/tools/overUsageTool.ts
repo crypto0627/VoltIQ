@@ -95,7 +95,7 @@ export function registerHighUsageTool(
         const summaryText = [
           "高用電紀錄：",
           ...highUsageRecords.map(
-            (record) => `${record.date} ${record.time}: ${record.usage} kWh`,
+            (record) => `${record.date} ${record.time}: ${record.usage} kW`,
           ),
         ].join("\n");
 

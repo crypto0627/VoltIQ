@@ -1,20 +1,50 @@
+'use client'
 import { Navbar } from "@/components/landing/navbar";
 import { Hero } from "@/components/landing/hero";
 import { Features } from "@/components/landing/features";
 import { TechnicalStack } from "@/components/landing/technical-stack";
-import { Discount } from "@/components/landing/discount";
 import { Footer } from "@/components/landing/footer";
 import { CookieConsentBanner } from "@/components/cookie-consent-banner";
+import { useState, useEffect } from "react";
 
 export default function HomePage() {
+  const [isConsentGiven, setIsConsentGiven] = useState(false);
+
+  useEffect(() => {
+    const consent = localStorage.getItem("cookie_consent");
+    if (consent === "accepted") {
+      setIsConsentGiven(true);
+    }
+  }, []);
+
+  const handleAccept = () => {
+    setIsConsentGiven(true);
+  };
+
+  const handleReject = () => {
+    setIsConsentGiven(false)
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      <Navbar />
-      <Hero />
-      <Features />
-      <TechnicalStack />
-      <Discount />
-      <Footer />
+      <CookieConsentBanner onAccept={handleAccept} onReject={handleReject} />
+      {isConsentGiven ? (
+        <>
+          <Navbar />
+          <Hero />
+          <Features />
+          <TechnicalStack />
+          <Footer />
+        </>
+      ) : (
+        <div className="pointer-events-none blur-sm">
+          <Navbar />
+          <Hero />
+          <Features />
+          <TechnicalStack />
+          <Footer />
+        </div>
+      )}
     </div>
   );
 }

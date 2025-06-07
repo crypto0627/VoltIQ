@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { usePathname, useRouter } from "next/navigation";
@@ -23,12 +23,28 @@ export function Navbar() {
   const { setTheme, theme } = useTheme();
   const pathname = usePathname();
   const router = useRouter();
+  const [currentDateTime, setCurrentDateTime] = useState("");
 
   // ✅ 取得 user 資料與 action
   const { user, fetchUser, isLoading } = useUserStore();
 
   useEffect(() => {
     fetchUser();
+  }, []);
+
+  useEffect(() => {
+    const updateDateTime = () => {
+      const now = new Date();
+      const utc8Time = new Date(now.getTime() + 8 * 60 * 60 * 1000);
+      const date = utc8Time.toISOString().split('T')[0];
+      const time = utc8Time.toISOString().split('T')[1].slice(0, 8);
+      setCurrentDateTime(`${date} ${time}`);
+    };
+
+    updateDateTime();
+    const timer = setInterval(updateDateTime, 1000);
+
+    return () => clearInterval(timer);
   }, []);
 
   const handleLogout = async () => {
@@ -62,6 +78,7 @@ export function Navbar() {
         </div>
 
         <div className="flex items-center gap-2">
+          <div className="text-sm font-medium w-[180px] text-right font-mono tabular-nums">{currentDateTime}</div>
           <Button
             variant="ghost"
             size="icon"
