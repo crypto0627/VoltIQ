@@ -1,23 +1,35 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Zap, Clock, DollarSign, Activity, Bot } from "lucide-react";
+import { Zap, Clock, DollarSign, Activity } from "lucide-react";
 import { AiChatModal } from "@/components/ai-chat-modal";
 import Image from "next/image";
 import ElectricityUsageChart from "@/components/dashboard/loading-usage";
 import BatteryStatusChart from "@/components/dashboard/battery-status-chart";
 import ChargeChart from "@/components/dashboard/charge-chart";
+import SystemStatus from "@/components/dashboard/system-status";
+import { InfoCard } from "@/components/dashboard/info-card";
+import { useElectricityStore } from "@/stores/electricityStore";
+import { useUsageCalculations } from "@/hooks/use-usage-calculations";
+import { InfoCardList } from "@/components/dashboard/info-card-list";
 
 export default function DashboardPage() {
   const [aiChatOpen, setAiChatOpen] = useState(false);
+  const { startSimulation, stopSimulation } = useElectricityStore();
+
+  useEffect(() => {
+    startSimulation();
+    return () => stopSimulation();
+  }, [startSimulation, stopSimulation]);
+
+  const usage = useUsageCalculations();
 
   return (
     <div className="space-y-6">
@@ -31,76 +43,13 @@ export default function DashboardPage() {
 
         {/* Middle section */}
         <div className="xl:w-2/5 space-y-4">
-          <BatteryStatusChart />
+          <SystemStatus />
           <BatteryStatusChart />
         </div>
 
         {/* Right section - Stats Cards */}
         <div className="xl:w-1/5 space-y-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Peak Usage</CardTitle>
-              <Zap className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">2,350 kWh</div>
-              <p className="text-xs text-muted-foreground">
-                +15% from last month
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Off-Peak Usage</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">1,850 kWh</div>
-              <p className="text-xs text-muted-foreground">
-                -5% from last month
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Mid-Peak Usage</CardTitle>
-              <Activity className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">1,200 kWh</div>
-              <p className="text-xs text-muted-foreground">
-                +8% from last month
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Electricity Bill</CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">$12,450</div>
-              <p className="text-xs text-muted-foreground">
-                +12% from last month
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Today's electricity usage</CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">5000kWh</div>
-              <p className="text-xs text-muted-foreground">
-                +18% from last month
-              </p>
-            </CardContent>
-          </Card>
+          <InfoCardList usage={usage} />
         </div>
       </div>
 

@@ -44,7 +44,7 @@ const timeLabel = [
   "20:00", "20:30", "21:00", "21:30", "22:00", "22:30", "23:00", "23:30"
 ];
 
-const simulationInterval = 500; // 降低到500ms讓動畫更流暢
+const simulationInterval = 1000; // 調整到500ms讓動畫更順暢且不卡頓
 
 export const useElectricityStore = create<ElectricityState>((set, get) => ({
   data: [],
@@ -53,41 +53,27 @@ export const useElectricityStore = create<ElectricityState>((set, get) => ({
   simulationTimer: undefined,
 
   startSimulation: () => {
-    // 初始化第一筆數據
-    set({
-      data: [{
-        time: timeLabel[0],
-        soc: simulateSocData[0],
-        batteryUsage: simulationBatteryUsageData[0],
-        powerUsage: simulatePowerData[0],
-      }],
-      currentTimeIndex: 1
-    });
+    const { timeLabel, data, currentTimeIndex } = get();
+
+    // Populate data if it's empty (initial load or after reset)
+    if (data.length === 0) {
+      const initialData = timeLabel.map((time, index) => ({
+        time,
+        soc: simulateSocData[index],
+        batteryUsage: simulationBatteryUsageData[index],
+        powerUsage: simulatePowerData[index],
+      }));
+      set({ data: initialData, currentTimeIndex: 0 });
+    }
 
     const timer = window.setInterval(() => {
       const { currentTimeIndex, data } = get();
-      
-      if (currentTimeIndex >= 48) {
-        // 重置時保留第一筆數據
-        set({
-          data: [{
-            time: timeLabel[0],
-            soc: simulateSocData[0],
-            batteryUsage: simulationBatteryUsageData[0],
-            powerUsage: simulatePowerData[0],
-          }],
-          currentTimeIndex: 1
-        });
+
+      if (currentTimeIndex >= data.length - 1) {
+        // Reset to beginning of data
+        set({ currentTimeIndex: 0 });
       } else {
-        set({
-          data: [...data, {
-            time: timeLabel[currentTimeIndex],
-            soc: simulateSocData[currentTimeIndex],
-            batteryUsage: simulationBatteryUsageData[currentTimeIndex],
-            powerUsage: simulatePowerData[currentTimeIndex],
-          }],
-          currentTimeIndex: currentTimeIndex + 1
-        });
+        set({ currentTimeIndex: currentTimeIndex + 1 });
       }
     }, simulationInterval);
 
