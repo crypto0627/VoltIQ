@@ -12,27 +12,35 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ThemeToggle } from "@/components/theme-toggle";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import useUserStore from "@/stores/useUserStore";
+import { useTranslations } from 'next-intl';
 
-export default function SignUpPage() {
+export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
+  const { user, fetchUser } = useUserStore();
+  const t = useTranslations('Auth.signin');
 
-  const handleSignUp = async (e: React.FormEvent) => {
+  useEffect(() => {
+    fetchUser();
+  }, [fetchUser]);
+
+  useEffect(() => {
+    if (user) {
+      router.push("/main/dashboard");
+    }
+  }, [user, router]);
+
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
-
     try {
-      const response = await fetch("/api/auth/signup", {
+      const response = await fetch("/api/auth/signin", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -42,13 +50,13 @@ export default function SignUpPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Sign up failed");
+        throw new Error(errorData.error || "Sign in failed");
       }
 
-      // Redirect to signin page on successful signup
-      router.push("/auth/signin");
-    } catch (err: any) {
-      setError(err.message);
+      await fetchUser();
+      router.push("/main/dashboard");
+    } catch (err) {
+      setError((err as Error).message);
     }
   };
 
@@ -58,63 +66,52 @@ export default function SignUpPage() {
       <div className="flex-1 flex items-center justify-center p-8 bg-background">
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle className="text-2xl">Create your account</CardTitle>
+            <CardTitle className="text-2xl">{t('welcome')}</CardTitle>
             <CardDescription>
-              Get started with your free account today
+              {t('description')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <form onSubmit={handleSignUp} className="space-y-4">
+            <form onSubmit={handleSignIn} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">{t('email')}</Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="Enter your email"
+                  placeholder={t('emailPlaceholder')}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">{t('password')}</Label>
                 <Input
                   id="password"
                   type="password"
-                  placeholder="Create a password"
+                  placeholder={t('passwordPlaceholder')}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  placeholder="Confirm your password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                />
-              </div>
               {error && <div className="text-red-500 text-sm">{error}</div>}
               <Button type="submit" className="w-full">
-                Create Account
+                {t('signIn')}
               </Button>
             </form>
             <div className="text-center text-sm">
-              {"Already have an account? "}
+              {t('noAccount')}{" "}
               <Link
-                href="/auth/signin"
+                href="/auth/signup"
                 className="text-primary hover:underline"
               >
-                Sign in
+                {t('signUp')}
               </Link>
             </div>
             <div className="text-center">
               <Button asChild variant="link">
-                <Link href="/">Back to Home</Link>
+                <Link href="/">{t('backToHome')}</Link>
               </Button>
             </div>
           </CardContent>
@@ -125,34 +122,34 @@ export default function SignUpPage() {
       <div className="flex-1 bg-gradient-to-br from-primary/20 via-primary/10 to-background flex items-center justify-center p-8">
         <div className="text-center space-y-6">
           <div className="flex items-center justify-center">
-            <Image src="/logo.png" alt="Logo" width={400} height={100} />
+            <Image src="/ess-logo.png" alt="Logo" width={400} height={100} />
           </div>
           <p className="text-xl text-muted-foreground max-w-md">
-            Next-Gen Energy Intelligence Platform
+            {t('platformTitle')}
           </p>
-          <div className="grid grid-cols-2 gap极 4 max-w-md text-sm">
+          <div className="grid grid-cols-2 gap-4 max-w-md text-sm">
             <div className="p-4 rounded-lg bg-card/50 backdrop-blur-sm">
-              <div className="font-semibold">Predictive Analytics</div>
+              <div className="font-semibold">{t('predictiveAnalytics.title')}</div>
               <div className="text-muted-foreground">
-                Forecast energy usage with 95% accuracy
+                {t('predictiveAnalytics.description')}
               </div>
             </div>
             <div className="p-4 rounded-lg bg-card/50 backdrop-blur-sm">
-              <div className="font-semibold">Carbon Footprint Tracking</div>
+              <div className="font-semibold">{t('carbonFootprint.title')}</div>
               <div className="text-muted-foreground">
-                Monitor and optimize your environmental impact
+                {t('carbonFootprint.description')}
               </div>
             </div>
             <div className="p-4 rounded-lg bg-card/50 backdrop-blur-sm">
-              <div className="font-semibold">Smart Grid Integration</div>
+              <div className="font-semibold">{t('smartGrid.title')}</div>
               <div className="text-muted-foreground">
-                Seamless connection with IoT devices
+                {t('smartGrid.description')}
               </div>
             </div>
             <div className="p-4 rounded-lg bg-card/50 backdrop-blur-sm">
-              <div className="font-semibold">Energy Optimization</div>
+              <div className="font-semibold">{t('energyOptimization.title')}</div>
               <div className="text-muted-foreground">
-                AI-driven cost and efficiency improvements
+                {t('energyOptimization.description')}
               </div>
             </div>
           </div>

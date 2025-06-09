@@ -1,21 +1,13 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Zap, Clock, DollarSign, Activity } from "lucide-react";
 import { AiChatModal } from "@/components/ai-chat-modal";
 import Image from "next/image";
-import ElectricityUsageChart from "@/components/dashboard/loading-usage";
+import ElectricityUsageChart from "@/components/dashboard/daily-usage";
 import BatteryStatusChart from "@/components/dashboard/battery-status-chart";
 import ChargeChart from "@/components/dashboard/charge-chart";
 import SystemStatus from "@/components/dashboard/system-status";
-import { InfoCard } from "@/components/dashboard/info-card";
 import { useElectricityStore } from "@/stores/electricityStore";
 import { useUsageCalculations } from "@/hooks/use-usage-calculations";
 import { InfoCardList } from "@/components/dashboard/info-card-list";

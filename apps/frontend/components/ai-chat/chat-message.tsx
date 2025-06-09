@@ -179,7 +179,7 @@ export function ChatMessage({ message }: { message: ExtendedMessage }) {
          // Remove the "0:" prefix before rendering
          const formattedLine = line.trim().replace(/^0:\s*/, '');
          return (
-            <div key={index} className="mb-1 text-slate-300"> {/* Render as normal line without prefix */}
+            <div key={index} className="mb-2 text-slate-100"> {/* Render as normal line without prefix */}
                {formattedLine}
             </div>
          );
@@ -194,7 +194,7 @@ export function ChatMessage({ message }: { message: ExtendedMessage }) {
             {parts.map((part, partIndex) => {
               if (part.startsWith("**") && part.endsWith("**")) {
                 return (
-                  <span key={partIndex} className="font-bold text-emerald-300">
+                  <span key={partIndex} className="font-bold text-emerald-400">
                     {part.slice(2, -2)}
                   </span>
                 );
@@ -220,7 +220,7 @@ export function ChatMessage({ message }: { message: ExtendedMessage }) {
 
       // 普通行
       return (
-        <div key={index} className="mb-1 text-slate-300"> {/* Added text color for clarity */}
+        <div key={index} className="mb-2 text-slate-100"> {/* Added text color for clarity */}
           {line}
         </div>
       );
@@ -281,35 +281,35 @@ export function ChatMessage({ message }: { message: ExtendedMessage }) {
 
       <div
         className={`
-          max-w-[95%] rounded-2xl p-3 sm:p-4 shadow-lg backdrop-blur-sm
+          max-w-[95%] rounded-xl p-3 sm:p-4 shadow-xl backdrop-blur-sm
           ${
             isUser
-              ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white ml-auto"
-              : "bg-slate-800/80 border border-slate-700/50 text-slate-200"
+              ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white ml-auto"
+              : "bg-slate-700/80 border border-slate-600/50 text-slate-100"
           }
         `}
       >
         {/* Render chart if data is available and not excluded by keywords */}
         {chartInfo && chartInfo.data && !shouldExcludeChart && (
-           <div className="w-full h-64 sm:h-80 mb-4"> {/* Container for the chart */}
-              <ResponsiveContainer width="105%" height="85%">
+           <div className="w-full h-64 sm:h-80 mb-4 rounded-lg overflow-hidden bg-slate-900/30"> {/* Container for the chart */}
+              <ResponsiveContainer width="100%" height="85%">
                  {/* Determine and render the correct chart type directly */}
                  {chartInfo.type === "BarChart" ? (
                     <BarChart
                        data={chartInfo.data}
                        margin={{
-                          top: 10,
+                          top: 20,
                           right: 30,
-                          left: 20,
+                          left: 40,
                           bottom: 5,
                        }}
                     >
                        <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
-                       <XAxis dataKey={chartInfo.config.xAxisDataKey || 'date'} stroke="#94a3b8" />
-                       <YAxis stroke="#94a3b8" tickFormatter={(value) => `${value.toLocaleString("zh-TW")} kW`} />
+                       <XAxis dataKey={chartInfo.config.xAxisDataKey || 'date'} stroke="#e2e8f0" />
+                       <YAxis stroke="#e2e8f0" tickFormatter={(value) => `${value.toLocaleString("zh-TW")} kW`} />
                        <Tooltip
                           cursor={{ fill: '#475569', opacity: 0.5 }}
-                          contentStyle={{ backgroundColor: '#334155', border: 'none', borderRadius: '2px' }}
+                          contentStyle={{ backgroundColor: '#334155', border: 'none', borderRadius: '4px' }}
                           labelStyle={{ color: '#e2e8f0' }}
                           itemStyle={{ color: '#94a3b8' }}
                           formatter={(value: number, name: string) => [value.toLocaleString("zh-TW"), chartInfo.config.tooltipValueLabel || name]}
@@ -323,15 +323,15 @@ export function ChatMessage({ message }: { message: ExtendedMessage }) {
                     <LineChart
                        data={chartInfo.data}
                        margin={{
-                          top: 5,
+                          top: 20,
                           right: 30,
-                          left: 20,
+                          left: 40,
                           bottom: 5,
                        }}
                     >
                        <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
-                       <XAxis dataKey={chartInfo.config.xAxisDataKey || 'time'} stroke="#94a3b8" />
-                       <YAxis stroke="#94a3b8" tickFormatter={(value) => `${value.toLocaleString("zh-TW")} kW`} />
+                       <XAxis dataKey={chartInfo.config.xAxisDataKey || 'time'} stroke="#e2e8f0" />
+                       <YAxis stroke="#e2e8f0" tickFormatter={(value) => `${value.toLocaleString("zh-TW")} kW`} />
                        <Tooltip
                            contentStyle={{ backgroundColor: '#334155', border: 'none', borderRadius: '4px' }}
                            labelStyle={{ color: '#e2e8f0' }}
@@ -340,7 +340,7 @@ export function ChatMessage({ message }: { message: ExtendedMessage }) {
                            labelFormatter={(label: string) => `${chartInfo.config.tooltipLabel || ''}${label}`}
                        />
                        <Legend />
-                       <Line type="monotone" dataKey={chartInfo.config.lineDataKey || 'usage'} stroke="#34d399" activeDot={{ r: 8 }} name={chartInfo.config.tooltipValueLabel || "用電量"} />
+                       <Line type="monotone" dataKey={chartInfo.config.lineDataKey || 'usage'} stroke="#34d399" activeDot={{ r: 5, fill: '#34d399', stroke: '#e2e8f0' }} name={chartInfo.config.tooltipValueLabel || "用電量"} />
                     </LineChart>
                  )}
                  {/* Add other chart types here as needed */}
@@ -361,7 +361,7 @@ export function ChatMessage({ message }: { message: ExtendedMessage }) {
           </div>
         )}
 
-        <div className="text-xs text-slate-400 mt-2 opacity-70">
+        <div className="text-xs text-slate-400 mt-2 opacity-60">
           {new Date(message.timestamp).toLocaleTimeString("zh-TW", {
             hour: "2-digit",
             minute: "2-digit",
@@ -379,3 +379,4 @@ export function ChatMessage({ message }: { message: ExtendedMessage }) {
     </div>
   );
 }
+

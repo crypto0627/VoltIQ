@@ -4,8 +4,10 @@ import { useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Battery, Sun, Zap, Power, ArrowLeft, ArrowRight, ArrowDown } from "lucide-react"
 import { useElectricityStore } from '@/stores/electricityStore'
+import { useTranslations } from 'next-intl'
 
 export default function SystemStatus() {
+  const t = useTranslations('main.dashboard')
   const { data, currentTimeIndex, startSimulation, stopSimulation } = useElectricityStore();
   const currentData = data[currentTimeIndex] || { powerUsage: 0, batteryUsage: 0 };
   const currentTime = data[currentTimeIndex]?.time || "00:00";
@@ -21,10 +23,10 @@ export default function SystemStatus() {
     <div className="relative">
       <Card className="shadow-lg bg-card text-card-foreground">
         <CardHeader className="">
-          <CardTitle className="text-xl font-semibold">System Status</CardTitle>
+          <CardTitle className="text-xl font-semibold">{t('systemStatus')}</CardTitle>
         </CardHeader>
         <CardContent className="p-6">
-          <div className="relative w-full max-w-[400px] mx-auto h-[250px]">
+          <div className="relative w-full max-w-[400px] mx-auto h-[265px]">
             {/* Dashed Lines */}
             <svg className="absolute inset-0 w-full h-full" style={{ pointerEvents: 'none', zIndex: 1 }}>
               {/* Center to Solar */}
@@ -98,7 +100,7 @@ export default function SystemStatus() {
               <div className="flex flex-col items-center">
                 <div className="p-4 bg-primary/10 rounded-full relative">
                   <Sun className="h-8 w-8 text-primary" />
-                  <span className="absolute -top-6 left-1/2 transform -translate-x-1/2 text-sm font-medium whitespace-nowrap">Solar Panel</span>
+                  <span className="absolute -top-6 left-1/2 transform -translate-x-1/2 text-sm font-medium whitespace-nowrap">{t('solarPanel')}</span>
                 </div>
               </div>
             </div>
@@ -109,7 +111,7 @@ export default function SystemStatus() {
                 <div className="p-4 bg-primary/10 rounded-full">
                   <Battery className="h-8 w-8 text-primary" />
                 </div>
-                <span className="text-sm font-medium">Battery Status</span>
+                <span className="text-sm font-medium">{t('batteryStatus')}</span>
               </div>
             </div>
 
@@ -119,7 +121,7 @@ export default function SystemStatus() {
                 <div className="p-4 bg-primary/10 rounded-full">
                   <Zap className="h-8 w-8 text-primary" />
                 </div>
-                <span className="text-sm font-medium">Grid Power</span>
+                <span className="text-sm font-medium">{t('gridPower')}</span>
               </div>
             </div>
 
@@ -129,7 +131,7 @@ export default function SystemStatus() {
                 <div className="p-4 bg-primary/10 rounded-full">
                   <Power className="h-8 w-8 text-primary" />
                 </div>
-                <span className="text-sm font-medium">Storage Device</span>
+                <span className="text-sm font-medium">{t('storageDevice')}</span>
               </div>
             </div>
           </div>
@@ -142,19 +144,19 @@ export default function SystemStatus() {
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <ArrowDown className="text-primary" width={24} height={24} fill="hsl(var(--primary))" />
-              <span className="text-sm">Solar Power Generation</span>
+              <span className="text-sm">{t('solarPowerGeneration')}</span>
             </div>
             <div className="flex items-center gap-2">
               <ArrowLeft className="text-chart-2" width={24} height={24} fill="hsl(var(--chart-2))" />
-              <span className="text-sm">Battery Charging</span>
+              <span className="text-sm">{t('batteryCharging')}</span>
             </div>
             <div className="flex items-center gap-2">
               <ArrowRight className="text-chart-1" width={24} height={24} fill="hsl(var(--chart-1))" />
-              <span className="text-sm">Battery Discharging</span>
+              <span className="text-sm">{t('batteryDischarging')}</span>
             </div>
             <div className="flex items-center gap-2">
               <ArrowLeft className="text-primary" width={24} height={24} fill="hsl(var(--primary))" />
-              <span className="text-sm">Grid Power Flow</span>
+              <span className="text-sm">{t('gridPowerFlow')}</span>
             </div>
           </div>
         </CardContent>

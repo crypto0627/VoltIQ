@@ -1,0 +1,118 @@
+{
+    "Auth": {
+      "signin": {
+        "welcome": "Welcome back",
+        "description": "Enter your credentials to access your account",
+        "email": "Email",
+        "emailPlaceholder": "Enter your email",
+        "password": "Password",
+        "passwordPlaceholder": "Enter your password",
+        "signIn": "Sign In",
+        "noAccount": "Don't have an account?",
+        "signUp": "Sign up",
+        "backToHome": "Back to Home",
+        "platformTitle": "Next-Gen Energy Intelligence Platform",
+        "predictiveAnalytics": {
+          "title": "Predictive Analytics",
+          "description": "Forecast energy usage with 95% accuracy"
+        },
+        "carbonFootprint": {
+          "title": "Carbon Footprint Tracking",
+          "description": "Monitor and optimize your environmental impact"
+        },
+        "smartGrid": {
+          "title": "Smart Grid Integration",
+          "description": "Seamless connection with IoT devices"
+        },
+        "energyOptimization": {
+          "title": "Energy Optimization",
+          "description": "AI-driven cost and efficiency improvements"
+        }
+      },
+      "signup": {
+        "welcome": "Create your account",
+        "description": "Get started with your free account today",
+        "email": "Email",
+        "emailPlaceholder": "Enter your email",
+        "password": "Password",
+        "passwordPlaceholder": "Create a password",
+        "confirmPassword": "Confirm Password",
+        "confirmPasswordPlaceholder": "Confirm your password",
+        "createAccount": "Create Account",
+        "hasAccount": "Already have an account?",
+        "signIn": "Sign in",
+        "backToHome": "Back to Home",
+        "platformTitle": "Next-Gen Energy Intelligence Platform",
+        "predictiveAnalytics": {
+          "title": "Predictive Analytics",
+          "description": "Forecast energy usage with 95% accuracy"
+        },
+        "carbonFootprint": {
+          "title": "Carbon Footprint Tracking",
+          "description": "Monitor and optimize your environmental impact"
+        },
+        "smartGrid": {
+          "title": "Smart Grid Integration",
+          "description": "Seamless connection with IoT devices"
+        },
+        "energyOptimization": {
+          "title": "Energy Optimization",
+          "description": "AI-driven cost and efficiency improvements"
+        }
+      }
+    },
+    "main": {
+      "navbar": {
+        "profile": "Profile",
+        "settings": "Settings",
+        "support": "Support",
+        "logout": "Log out",
+        "loading": "Loading...",
+        "pleaseWait": "Please wait",
+        "guest": "Guest",
+        "notSignedIn": "Not signed in",
+        "welcomeMessage": "Hi, Welcome to Fortune ESS's energy storage system!",
+        "dashboard": "Dashboard",
+        "reports": "Reports",
+        "schedule": "Schedule",
+        "controller": "Controller"
+      },
+      "sidebar": {
+        "mainNavigation": "Main Navigation",
+        "account": "Account",
+        "dashboard": "Dashboard",
+        "reports": "Reports",
+        "schedule": "Schedule",
+        "controller": "Controller",
+        "profile": "Profile"
+      },
+      "dashboard": {
+        "dailyElectricityUsage": "Daily Electricity Usage",
+        "overUsage": "Over Usage",
+        "overUsageRecords": "Over Usage Records",
+        "time": "Time",
+        "usage": "Usage (kWh)",
+        "electricityUsage": "Electricity Usage",
+        "contractLimit": "Contract Limit 2000 kW",
+        "systemStatus": "System Status",
+        "solarPanel": "Solar Panel",
+        "batteryStatus": "Battery Status",
+        "gridPower": "Grid Power",
+        "storageDevice": "Storage Device",
+        "solarPowerGeneration": "Solar Power Generation",
+        "batteryCharging": "Battery Charging",
+        "batteryDischarging": "Battery Discharging",
+        "gridPowerFlow": "Grid Power Flow",
+        "batteryLevel": "Battery Level",
+        "batteryChargeDischarge": "Battery Charge/Discharge",
+        "power": "Power (kW)",
+        "charging": "Charging",
+        "discharging": "Discharging",
+        "peakUsage": "Peak Usage",
+        "offPeakUsage": "Off-Peak Usage",
+        "midPeakUsage": "Mid-Peak Usage",
+        "electricityBill": "Electricity Bill",
+        "todaysElectricityUsage": "Today's Electricity Usage"
+      }
+    }
+  }

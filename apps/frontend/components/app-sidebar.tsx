@@ -10,6 +10,7 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import {
   Sidebar,
   SidebarContent,
@@ -25,22 +26,22 @@ import {
 
 const menuItems = [
   {
-    title: "Dashboard",
+    title: "dashboard",
     url: "/main/dashboard",
     icon: Home,
   },
   {
-    title: "Reports",
+    title: "reports",
     url: "/main/reports",
     icon: FileText,
   },
   {
-    title: "Schedule",
+    title: "schedule",
     url: "/main/schedule",
     icon: Calendar,
   },
   {
-    title: "Controller",
+    title: "controller",
     url: "/main/controller",
     icon: Sliders,
   },
@@ -48,7 +49,7 @@ const menuItems = [
 
 const accountItems = [
   {
-    title: "Profile",
+    title: "profile",
     url: "/main/profile",
     icon: User,
   }
@@ -56,6 +57,8 @@ const accountItems = [
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const t = useTranslations("main.sidebar");
+
   return (
     <Sidebar>
       <SidebarHeader>
@@ -68,7 +71,7 @@ export function AppSidebar() {
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Main Navigation</SidebarGroupLabel>
+          <SidebarGroupLabel>{t("mainNavigation")}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => (
@@ -76,7 +79,7 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild isActive={pathname === item.url}>
                     <Link href={item.url}>
                       <item.icon className="size-4" />
-                      <span>{item.title}</span>
+                      <span>{t(item.title)}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -86,7 +89,7 @@ export function AppSidebar() {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel>Account</SidebarGroupLabel>
+          <SidebarGroupLabel>{t("account")}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {accountItems.map((item) => (
@@ -94,7 +97,7 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild isActive={pathname === item.url}>
                     <Link href={item.url}>
                       <item.icon className="size-4" />
-                      <span>{item.title}</span>
+                      <span>{t(item.title)}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

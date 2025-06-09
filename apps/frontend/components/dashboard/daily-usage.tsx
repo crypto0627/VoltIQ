@@ -5,42 +5,90 @@ import {
 } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useElectricityStore } from '@/stores/electricityStore';
-
-type UsageData = {
-  time: string;
-  usage: number;
-};
+import { Button } from "@/components/ui/button";
+import { AlertTriangle, X } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { useTranslations } from 'next-intl';
 
 export default function ElectricityUsageChart() {
+  const t = useTranslations('main.dashboard');
   const { data, currentTimeIndex, timeLabel, startSimulation, stopSimulation } = useElectricityStore();
+  const [overUsageData, setOverUsageData] = useState<{time: string; usage: number}[]>([]);
 
   useEffect(() => {
-    // This useEffect is now only responsible for starting and stopping the simulation
     startSimulation();
     return () => stopSimulation();
   }, [startSimulation, stopSimulation]);
 
+  useEffect(() => {
+    // Calculate over usage data whenever data changes
+    const overUsage = data.filter(item => item.powerUsage > 2000).map(item => ({
+      time: item.time,
+      usage: item.powerUsage
+    }));
+    setOverUsageData(overUsage);
+  }, [data]);
+
   const displayData = useMemo(() => {
-    // Slice the data based on the current animation step
     return data.slice(0, currentTimeIndex + 1).map(item => ({
       time: item.time,
       usage: item.powerUsage,
     }));
   }, [data, currentTimeIndex]);
 
-  // Calculate max usage for Y axis based on the full data available in the store
   const maxUsage = useMemo(() => {
     if (data.length === 0) return 0;
     return Math.max(...data.map(item => item.powerUsage));
   }, [data]);
 
-  // Calculate max usage for Y axis
-  const yAxisMax = Math.ceil(maxUsage / 100) * 100 + 1000; // Round up to nearest hundred
+  const yAxisMax = Math.ceil(maxUsage / 100) * 100 + 1000;
 
   return (
     <Card className="shadow-lg bg-card text-card-foreground">
-      <CardHeader className="border-b border-border">
-        <CardTitle className="text-xl font-semibold">Daily Electricity Usage</CardTitle>
+      <CardHeader className="border-b border-border flex flex-row items-center justify-between">
+        <CardTitle className="text-xl font-semibold">{t('dailyElectricityUsage')}</CardTitle>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button variant="outline" size="sm" className="gap-2">
+              <AlertTriangle className="h-4 w-4 text-destructive" />
+              {t('overUsage')}
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{t('overUsageRecords')}</DialogTitle>
+              <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
+                <X className="h-4 w-4" />
+                <span className="sr-only">Close</span>
+              </DialogClose>
+            </DialogHeader>
+            <div className="max-h-[400px] overflow-y-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left p-2">{t('time')}</th>
+                    <th className="text-right p-2">{t('usage')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {overUsageData.map((item, index) => (
+                    <tr key={index} className="border-b">
+                      <td className="p-2">{item.time}</td>
+                      <td className="text-right p-2 text-destructive">{item.usage.toLocaleString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </DialogContent>
+        </Dialog>
       </CardHeader>
       <CardContent className="pt-6">
         <div className="h-[250px]">
@@ -64,7 +112,7 @@ export default function ElectricityUsageChart() {
                 tick={{ fill: 'hsl(var(--foreground))', fontSize: 12 }}
                 axisLine={{ stroke: 'hsl(var(--border))' }}
                 tickLine={{ stroke: 'hsl(var(--border))' }}
-                label={{ value: 'Time', position: 'bottom', offset: 15 }}
+                label={{ value: t('time'), position: 'bottom', offset: 15 }}
               />
               <YAxis
                 domain={[0, yAxisMax]}
@@ -73,7 +121,7 @@ export default function ElectricityUsageChart() {
                 axisLine={{ stroke: 'hsl(var(--border))' }}
                 tickLine={{ stroke: 'hsl(var(--border))' }}
                 tickFormatter={(value: number) => `${value.toLocaleString()}`}
-                label={{ value: 'Usage (kWh)', angle: -90, position: 'left', offset: 15 }}
+                label={{ value: t('usage'), angle: -90, position: 'left', offset: 15 }}
               />
               <Tooltip
                 contentStyle={{
@@ -83,15 +131,15 @@ export default function ElectricityUsageChart() {
                   boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                 }}
                 formatter={(value: number) => {
-                  return [`${value.toLocaleString()} kWh`, 'Usage'];
+                  return [`${value.toLocaleString()} kWh`, t('electricityUsage')];
                 }}
               />
               <Legend
                 verticalAlign="top"
                 height={36}
                 payload={[
-                  { value: 'Electricity Usage', type: 'rect', color: 'hsl(var(--chart-1))' },
-                  { value: 'Contract Limit 2000 kW', type: 'line', color: 'hsl(var(--destructive))' },
+                  { value: t('electricityUsage'), type: 'rect', color: 'hsl(var(--chart-1))' },
+                  { value: t('contractLimit'), type: 'line', color: 'hsl(var(--destructive))' },
                 ]}
               />
               <Area
@@ -101,9 +149,9 @@ export default function ElectricityUsageChart() {
                 strokeWidth={2}
                 fill="url(#colorUsage)"
                 fillOpacity={1}
-                name="Electricity Usage"
+                name={t('electricityUsage')}
               />
-              <ReferenceLine y={2000} stroke="hsl(var(--destructive))" strokeDasharray="3 3" name="Contract Limit 2000 kW" />
+              <ReferenceLine y={2000} stroke="hsl(var(--destructive))" strokeDasharray="3 3" name={t('contractLimit')} />
             </AreaChart>
           </ResponsiveContainer>
         </div>

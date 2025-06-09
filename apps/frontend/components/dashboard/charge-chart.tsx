@@ -1,10 +1,11 @@
 'use client'
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
 } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useElectricityStore } from '@/stores/electricityStore';
+import { useTranslations } from 'next-intl';
 
 type ChargeData = {
   time: string;
@@ -12,6 +13,7 @@ type ChargeData = {
 };
 
 export default function ChargeChart() {
+  const t = useTranslations('main.dashboard');
   const { data, currentTimeIndex, timeLabel, startSimulation, stopSimulation } = useElectricityStore();
 
   useEffect(() => {
@@ -29,7 +31,7 @@ export default function ChargeChart() {
   return (
     <Card className="shadow-lg bg-card text-card-foreground">
       <CardHeader className="border-b border-border">
-        <CardTitle className="text-xl font-semibold">Battery Charge/Discharge</CardTitle>
+        <CardTitle className="text-xl font-semibold">{t('batteryChargeDischarge')}</CardTitle>
       </CardHeader>
       <CardContent className="pt-6">
         <div className="h-[250px]">
@@ -53,7 +55,7 @@ export default function ChargeChart() {
                 tick={{ fill: 'hsl(var(--foreground))', fontSize: 12 }}
                 axisLine={{ stroke: 'hsl(var(--border))' }}
                 tickLine={{ stroke: 'hsl(var(--border))' }}
-                label={{ value: 'Time', position: 'bottom', offset: 15 }}
+                label={{ value: t('time'), position: 'bottom', offset: 15 }}
               />
               <YAxis 
                 domain={[-1500, 1500]}
@@ -62,7 +64,7 @@ export default function ChargeChart() {
                 axisLine={{ stroke: 'hsl(var(--border))' }}
                 tickLine={{ stroke: 'hsl(var(--border))' }}
                 tickFormatter={(value: number) => `${value}`}
-                label={{ value: 'Power(kW)', angle: -90, position: 'left', offset: 15 }}
+                label={{ value: t('power'), angle: -90, position: 'left', offset: 15 }}
               />
               <Tooltip 
                 contentStyle={{ 
@@ -72,15 +74,15 @@ export default function ChargeChart() {
                   boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                 }}
                 formatter={(value: number) => {
-                  return [`${value} kW`, value >= 0 ? 'Charging' : 'Discharging'];
+                  return [`${value} kW`, value >= 0 ? t('charging') : t('discharging')];
                 }}
               />
               <Legend 
                 verticalAlign="top" 
                 height={36}
                 payload={[
-                  { value: 'Charging', type: 'rect', color: 'hsl(var(--chart-3))' },
-                  { value: 'Discharging', type: 'rect', color: 'hsl(var(--chart-4))' },
+                  { value: t('charging'), type: 'rect', color: 'hsl(var(--chart-3))' },
+                  { value: t('discharging'), type: 'rect', color: 'hsl(var(--chart-4))' },
                 ]}
               />
               <Area
@@ -90,7 +92,7 @@ export default function ChargeChart() {
                 strokeWidth={2}
                 fill="url(#colorCharge)"
                 fillOpacity={1}
-                name="Charging"
+                name={t('charging')}
                 isAnimationActive={false}
               />
               <Area
@@ -100,7 +102,7 @@ export default function ChargeChart() {
                 strokeWidth={2}
                 fill="url(#colorDischarge)"
                 fillOpacity={1}
-                name="Discharging"
+                name={t('discharging')}
                 isAnimationActive={false}
                 baseValue={0}
               />

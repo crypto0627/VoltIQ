@@ -1,3 +1,5 @@
+import createNextIntlPlugin from 'next-intl/plugin';
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   eslint: {
@@ -8,6 +10,12 @@ const nextConfig = {
   },
   images: {
     unoptimized: true,
+  },
+  experimental: {
+    allowedDevOrigins: [
+      "http://192.168.43.11:3000",
+      "http://localhost:3000"
+    ]
   },
   webpack: (config, { isServer }) => {
     if (!isServer) {
@@ -22,6 +30,6 @@ const nextConfig = {
 
     return config;
   },
-}
-
-export default nextConfig
+};
+const withNextIntl = createNextIntlPlugin();
+export default withNextIntl(nextConfig);

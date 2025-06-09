@@ -5,6 +5,7 @@ import {
 } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useElectricityStore } from '@/stores/electricityStore';
+import { useTranslations } from 'next-intl';
 
 type BatteryData = {
   time: string;
@@ -12,6 +13,7 @@ type BatteryData = {
 };
 
 export default function BatteryStatusChart() {
+  const t = useTranslations('main.dashboard');
   const { data, currentTimeIndex, timeLabel, startSimulation, stopSimulation } = useElectricityStore();
 
   useEffect(() => {
@@ -29,7 +31,7 @@ export default function BatteryStatusChart() {
   return (
     <Card className="shadow-lg bg-card text-card-foreground">
       <CardHeader className="border-b border-border">
-        <CardTitle className="text-xl font-semibold">Battery Status</CardTitle>
+        <CardTitle className="text-xl font-semibold">{t('batteryLevel')}</CardTitle>
       </CardHeader>
       <CardContent className="pt-6">
         <div className="h-[250px]">
@@ -49,7 +51,7 @@ export default function BatteryStatusChart() {
                 tick={{ fill: 'hsl(var(--foreground))', fontSize: 12 }}
                 axisLine={{ stroke: 'hsl(var(--border))' }}
                 tickLine={{ stroke: 'hsl(var(--border))' }}
-                label={{ value: 'Time', position: 'bottom', offset: 15 }}
+                label={{ value: t('time'), position: 'bottom', offset: 15 }}
               />
               <YAxis 
                 domain={[0, 100]}
@@ -58,7 +60,7 @@ export default function BatteryStatusChart() {
                 axisLine={{ stroke: 'hsl(var(--border))' }}
                 tickLine={{ stroke: 'hsl(var(--border))' }}
                 tickFormatter={(value: number) => `${value}%`}
-                label={{ value: 'Battery Level', angle: -90, position: 'left', offset: 15 }}
+                label={{ value: t('batteryLevel'), angle: -90, position: 'left', offset: 15 }}
               />
               <Tooltip 
                 contentStyle={{ 
@@ -68,14 +70,14 @@ export default function BatteryStatusChart() {
                   boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                 }}
                 formatter={(value: number) => {
-                  return [`${value.toFixed(1)}%`, 'Battery Level'];
+                  return [`${value.toFixed(1)}%`, t('batteryLevel')];
                 }}
               />
               <Legend 
                 verticalAlign="top" 
                 height={36}
                 payload={[
-                  { value: 'Battery Level', type: 'rect', color: 'hsl(var(--chart-2))' },
+                  { value: t('batteryLevel'), type: 'rect', color: 'hsl(var(--chart-2))' },
                 ]}
               />
               <Area
@@ -85,7 +87,7 @@ export default function BatteryStatusChart() {
                 strokeWidth={2}
                 fill="url(#colorBattery)"
                 fillOpacity={1}
-                name="Battery Level"
+                name={t('batteryLevel')}
               />
             </AreaChart>
           </ResponsiveContainer>

@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react";
 import { Moon, Sun, Cloud, CloudRain, CloudSun } from "lucide-react";
 import { useTheme } from "next-themes";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import useUserStore from "@/stores/useUserStore";
+import { useTranslations, useLocale } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -18,8 +19,11 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
 
 export function Navbar() {
+  const t = useTranslations("main.navbar");
+  const locale = useLocale();
   const { setTheme, theme } = useTheme();
   const pathname = usePathname();
   const router = useRouter();
@@ -114,9 +118,13 @@ export function Navbar() {
     }
   };
 
-  const routeName = pathname.split("/").pop() || "Dashboard";
-  const formattedRouteName =
-    routeName.charAt(0).toUpperCase() + routeName.slice(1);
+  const handleLanguageSwitch = async () => {
+    const targetLocale = locale === 'en' ? 'zh' : 'en';
+    await router.replace(pathname, { locale: targetLocale });
+  };
+
+  const routeName = pathname.split("/").pop() || "dashboard";
+  const formattedRouteName = t(routeName);
 
   return (
     <header className="flex h-16 shrink-0 items-center gap-2 border-b bg-background px-4">
@@ -146,6 +154,15 @@ export function Navbar() {
             <span className="sr-only">Toggle theme</span>
           </Button>
 
+          <div className="flex items-center gap-2">
+            <span className="text-sm">EN</span>
+            <Switch
+              checked={locale === 'zh'}
+              onCheckedChange={handleLanguageSwitch}
+            />
+            <span className="text-sm">中文</span>
+          </div>
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -166,10 +183,10 @@ export function Navbar() {
                   {isLoading ? (
                     <>
                       <p className="text-sm font-medium leading-none">
-                        Loading...
+                        {t("loading")}
                       </p>
                       <p className="text-xs leading-none text-muted-foreground">
-                        Please wait
+                        {t("pleaseWait")}
                       </p>
                     </>
                   ) : user ? (
@@ -178,26 +195,26 @@ export function Navbar() {
                         {user.email}
                       </p>
                       <p className="text-xs leading-none text-muted-foreground">
-                        Hi, Welcome to VoltIQ!
+                        {t("welcomeMessage")}
                       </p>
                     </>
                   ) : (
                     <>
-                      <p className="text-sm font-medium leading-none">Guest</p>
+                      <p className="text-sm font-medium leading-none">{t("guest")}</p>
                       <p className="text-xs leading-none text-muted-foreground">
-                        Not signed in
+                        {t("notSignedIn")}
                       </p>
                     </>
                   )}
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Profile</DropdownMenuItem>
-              <DropdownMenuItem>Settings</DropdownMenuItem>
-              <DropdownMenuItem>Support</DropdownMenuItem>
+              <DropdownMenuItem>{t("profile")}</DropdownMenuItem>
+              <DropdownMenuItem>{t("settings")}</DropdownMenuItem>
+              <DropdownMenuItem>{t("support")}</DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout}>
-                Log out
+                {t("logout")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
