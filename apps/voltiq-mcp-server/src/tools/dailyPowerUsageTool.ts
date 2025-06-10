@@ -70,9 +70,9 @@ export function registerDailyPowerUsageTool(
         ].join("\n");
 
         // Prepare data for a line chart
-        const chartData = usageInRange.map(entry => ({
-           time: entry.time, // X-axis: Time
-           usage: Math.round(entry.usage * 100) / 100, // Y-axis: Usage
+        const chartData = usageInRange.map((entry) => ({
+          time: entry.time, // X-axis: Time
+          usage: Math.round(entry.usage * 100) / 100, // Y-axis: Usage
         }));
 
         return {
@@ -84,13 +84,14 @@ export function registerDailyPowerUsageTool(
           ],
           chartData: chartData,
           chartType: "LineChart", // Suggest LineChart for time series
-          chartConfig: { // Configuration for the frontend
-             xAxisDataKey: 'time',
-             yAxisDataKey: 'usage',
-             lineDataKey: 'usage',
-             tooltipLabel: '時間',
-             tooltipValueLabel: '用電量'
-          }
+          chartConfig: {
+            // Configuration for the frontend
+            xAxisDataKey: "time",
+            yAxisDataKey: "usage",
+            lineDataKey: "usage",
+            tooltipLabel: "時間",
+            tooltipValueLabel: "用電量",
+          },
         };
       } catch (error) {
         console.error(

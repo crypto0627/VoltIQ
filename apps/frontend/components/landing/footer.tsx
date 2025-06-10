@@ -3,14 +3,29 @@ import { Mail, Phone, MapPin, Linkedin, Globe, Instagram } from "lucide-react";
 import Image from "next/image";
 
 const socialLinks = [
-  { icon: Globe, href: "https://www.fortune-ess.com.tw/", label: "Fortune-ess" },
-  { icon: Instagram, href: "https://www.instagram.com/fortune_electric_co._ltd/", label: "Instagram" },
-  { icon: Linkedin, href: "https://www.linkedin.com/company/%E8%8F%AF%E5%9F%8E%E9%9B%BB%E6%A9%9F%E8%82%A1%E4%BB%BD%E6%9C%89%E9%99%90%E5%85%AC%E5%8F%B8-fortune-electric/", label: "LinkedIn" },
+  {
+    icon: Globe,
+    href: "https://www.fortune-ess.com.tw/",
+    label: "Fortune-ess",
+  },
+  {
+    icon: Instagram,
+    href: "https://www.instagram.com/fortune_electric_co._ltd/",
+    label: "Instagram",
+  },
+  {
+    icon: Linkedin,
+    href: "https://www.linkedin.com/company/%E8%8F%AF%E5%9F%8E%E9%9B%BB%E6%A9%9F%E8%82%A1%E4%BB%BD%E6%9C%89%E9%99%90%E5%85%AC%E5%8F%B8-fortune-electric/",
+    label: "LinkedIn",
+  },
 ];
 
 export function Footer() {
   return (
-    <footer className="bg-black/20 backdrop-blur-lg border-t border-white/10" id="footer">
+    <footer
+      className="bg-black/20 backdrop-blur-lg border-t border-white/10"
+      id="footer"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8">
           {/* Company Info */}

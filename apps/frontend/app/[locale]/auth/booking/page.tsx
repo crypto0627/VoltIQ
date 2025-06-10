@@ -45,13 +45,13 @@ export default function BookingPage() {
     try {
       // Create mailto link with form data
       const mailtoLink = `mailto:jake.kuo@fortune.com.tw?subject=New Demo Booking Request from 表後系統&body=Company Name: ${companyName}%0D%0AJob Title: ${jobTitle}%0D%0AName: ${name}%0D%0AEmail: ${email}%0D%0AInterest: ${interest === "other" ? otherInterest : interest}`;
-      
+
       // Open default email client
       window.location.href = mailtoLink;
-      
+
       // Show success modal
       setShowSuccessModal(true);
-      
+
       // Reset form
       setCompanyName("");
       setJobTitle("");
@@ -120,18 +120,20 @@ export default function BookingPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="interest">Interest</Label>
-                <Select
-                  value={interest}
-                  onValueChange={setInterest}
-                  required
-                >
+                <Select value={interest} onValueChange={setInterest} required>
                   <SelectTrigger>
                     <SelectValue placeholder="Select your interest" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="tech">Interested in Technology</SelectItem>
-                    <SelectItem value="product">Interested in Product</SelectItem>
-                    <SelectItem value="demo">Just Want to See the Product</SelectItem>
+                    <SelectItem value="tech">
+                      Interested in Technology
+                    </SelectItem>
+                    <SelectItem value="product">
+                      Interested in Product
+                    </SelectItem>
+                    <SelectItem value="demo">
+                      Just Want to See the Product
+                    </SelectItem>
                     <SelectItem value="other">Other</SelectItem>
                   </SelectContent>
                 </Select>
@@ -208,7 +210,10 @@ export default function BookingPage() {
           <DialogHeader>
             <DialogTitle>Booking Successful!</DialogTitle>
           </DialogHeader>
-          <p>Your demo request has been sent successfully. We will contact you shortly.</p>
+          <p>
+            Your demo request has been sent successfully. We will contact you
+            shortly.
+          </p>
           <Button onClick={() => setShowSuccessModal(false)}>Close</Button>
         </DialogContent>
       </Dialog>

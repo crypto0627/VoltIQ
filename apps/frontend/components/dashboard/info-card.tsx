@@ -8,7 +8,12 @@ interface InfoCardProps {
   icon: LucideIcon;
 }
 
-export function InfoCard({ title, value, percentage, icon: Icon }: InfoCardProps) {
+export function InfoCard({
+  title,
+  value,
+  percentage,
+  icon: Icon,
+}: InfoCardProps) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -17,10 +22,8 @@ export function InfoCard({ title, value, percentage, icon: Icon }: InfoCardProps
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold">{value}</div>
-        <p className="text-xs text-muted-foreground">
-          {percentage}
-        </p>
+        <p className="text-xs text-muted-foreground">{percentage}</p>
       </CardContent>
     </Card>
   );
-} 
+}

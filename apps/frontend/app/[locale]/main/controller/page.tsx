@@ -4,9 +4,12 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 
 const urls = {
-  meter: "http://60.248.136.217:13000/d/8x2xVJ2nw/meter?orgId=1&refresh=5s&kiosk=tv&kios",
-  powerControl: "http://60.248.136.217:13000/d/5fnBlbXnz/pcs?orgId=1&refresh=5s&kiosk=tv&kiosk",
-  battery: "http://60.248.136.217:13000/d/15odcko7z/battery-monitor?orgId=1&refresh=5s&kiosk=tv&kios",
+  meter:
+    "http://60.248.136.217:13000/d/8x2xVJ2nw/meter?orgId=1&refresh=5s&kiosk=tv&kios",
+  powerControl:
+    "http://60.248.136.217:13000/d/5fnBlbXnz/pcs?orgId=1&refresh=5s&kiosk=tv&kiosk",
+  battery:
+    "http://60.248.136.217:13000/d/15odcko7z/battery-monitor?orgId=1&refresh=5s&kiosk=tv&kios",
 };
 
 export default function ControllerPage() {

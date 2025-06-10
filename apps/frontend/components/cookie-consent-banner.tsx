@@ -7,7 +7,10 @@ interface CookieConsentBannerProps {
   onReject?: () => void;
 }
 
-export function CookieConsentBanner({ onAccept, onReject }: CookieConsentBannerProps) {
+export function CookieConsentBanner({
+  onAccept,
+  onReject,
+}: CookieConsentBannerProps) {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -40,8 +43,9 @@ export function CookieConsentBanner({ onAccept, onReject }: CookieConsentBannerP
           Cookie Consent
         </h3>
         <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
-          This website uses cookies to ensure you get the best experience on our website. 
-          By continuing to use this site, you agree to our use of cookies.
+          This website uses cookies to ensure you get the best experience on our
+          website. By continuing to use this site, you agree to our use of
+          cookies.
         </p>
         <div className="flex justify-end space-x-3">
           <Button

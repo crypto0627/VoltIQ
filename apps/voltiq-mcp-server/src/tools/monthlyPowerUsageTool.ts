@@ -20,7 +20,11 @@ export function registerDailyUsageByMonthTool(
     "get_daily_power_usage_by_month",
     "取得指定月份的每日總用電量。",
     {
-      month: z.string().describe("欲查詢的月份 (兩位數字, e.g., 'January' is '01' , '一月' is '01'...., 或輸入 'this month' 查詢當前月份)"),
+      month: z
+        .string()
+        .describe(
+          "欲查詢的月份 (兩位數字, e.g., 'January' is '01' , '一月' is '01'...., 或輸入 'this month' 查詢當前月份)",
+        ),
     },
     async ({ month }) => {
       try {
@@ -28,9 +32,10 @@ export function registerDailyUsageByMonthTool(
         let docCountInMonth = 0;
 
         // 如果輸入 "this month"，獲取當前月份
-        const targetMonth = month.toLowerCase() === "this month" 
-          ? new Date().getMonth() + 1 
-          : parseInt(month);
+        const targetMonth =
+          month.toLowerCase() === "this month"
+            ? new Date().getMonth() + 1
+            : parseInt(month);
 
         // 確保月份是兩位數格式
         const formattedMonth = targetMonth.toString().padStart(2, "0");
@@ -88,15 +93,11 @@ export function registerDailyUsageByMonthTool(
 
         const dailyUsageSummary = Object.entries(dailyUsageMap)
           .sort(([dateA], [dateB]) => dateA.localeCompare(dateB))
-          .map(
-            ([date, totalUsage]) => ({ date, totalUsage })
-          );
+          .map(([date, totalUsage]) => ({ date, totalUsage }));
 
         const summaryText = [
           `${formattedMonth}月每日用電量：`,
-          ...dailyUsageSummary.map(
-            (e) => `${e.date}: ${e.totalUsage} kW`,
-          ),
+          ...dailyUsageSummary.map((e) => `${e.date}: ${e.totalUsage} kW`),
         ].join("\n");
 
         return {
@@ -109,11 +110,11 @@ export function registerDailyUsageByMonthTool(
           chartData: dailyUsageSummary,
           chartType: "BarChart",
           chartConfig: {
-             xAxisDataKey: 'date',
-             barDataKey: 'totalUsage',
-             tooltipLabel: '日期',
-             tooltipValueLabel: '總用電量'
-          }
+            xAxisDataKey: "date",
+            barDataKey: "totalUsage",
+            tooltipLabel: "日期",
+            tooltipValueLabel: "總用電量",
+          },
         };
       } catch (error) {
         console.error(

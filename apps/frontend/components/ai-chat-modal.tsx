@@ -56,6 +56,7 @@ export function AiChatModal({ open, onOpenChange }: AiChatModalProps) {
     isLoading: isAiChatLoading,
     append,
     setInput,
+    setMessages,
   } = useChat({
     api: `/api/chat/${activeChatId}/message`,
     initialMessages: currentChat?.messages || [],
@@ -119,6 +120,32 @@ export function AiChatModal({ open, onOpenChange }: AiChatModalProps) {
       toolInvocations: msg.toolInvocations || undefined,
     }));
   }, [messages]);
+
+  const handleReloadMessage = useCallback(async (content: string) => {
+    if (!currentChat) return;
+
+    setIsChatActionLoading(true);
+
+    // Remove the last user message from the current chat's messages
+    const updatedMessages = currentChat.messages.filter((msg) => msg.content !== content || msg.role !== "user");
+
+    // Update the local chat state
+    setChats((prevChats) =>
+      prevChats.map((chat) =>
+        chat.id === activeChatId
+          ? { ...chat, messages: updatedMessages as Message[] }
+          : chat,
+      ),
+    );
+
+    // Update the useChat hook's messages state
+    setMessages(updatedMessages);
+
+    // Re-send the message
+    await append({ role: "user", content: content });
+
+    setIsChatActionLoading(false);
+  }, [currentChat, activeChatId, setChats, setMessages, append]);
 
   // Derived state to control visibility of suggested questions
   const showSuggestedQuestions =
@@ -366,7 +393,10 @@ export function AiChatModal({ open, onOpenChange }: AiChatModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="h-[90vh] max-w-full md:max-w-7xl p-0 bg-gradient-to-br from-slate-900/95 via-slate-800/95 to-slate-900/95 backdrop-blur-xl border-2 border-slate-700/50 shadow-2xl" aria-describedby={undefined}>
+      <DialogContent
+        className="h-[90vh] max-w-full md:max-w-7xl p-0 bg-gradient-to-br from-slate-900/95 via-slate-800/95 to-slate-900/95 backdrop-blur-xl border-2 border-slate-700/50 shadow-2xl"
+        aria-describedby={undefined}
+      >
         <div className="flex h-full w-full">
           {/* Sidebar - Mobile & Desktop */}
           <div
@@ -422,7 +452,11 @@ export function AiChatModal({ open, onOpenChange }: AiChatModalProps) {
                 <div className="flex-1 pr-2 sm:pr-4 mt-4 sm:mt-6 overflow-y-auto max-h-[60vh] sm:max-h-[70vh]">
                   <div className="space-y-4">
                     {extendedMessages.map((message) => (
-                      <ChatMessage key={message.id} message={message} />
+                      <ChatMessage
+                        key={message.id}
+                        message={message}
+                        onReload={handleReloadMessage}
+                      />
                     ))}
 
                     {(isUserLoading ||

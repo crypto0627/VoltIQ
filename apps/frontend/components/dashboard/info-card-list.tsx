@@ -1,6 +1,6 @@
 import { InfoCard } from "@/components/dashboard/info-card";
 import { Zap, DollarSign, LucideIcon } from "lucide-react";
-import { useTranslations } from 'next-intl';
+import { useTranslations } from "next-intl";
 
 interface UsageData {
   peakUsage: number;
@@ -22,39 +22,39 @@ interface InfoCardItem {
 }
 
 export function InfoCardList({ usage }: InfoCardListProps) {
-  const t = useTranslations('main.dashboard');
-  
+  const t = useTranslations("main.dashboard");
+
   const infoCards: InfoCardItem[] = [
     {
-      title: t('peakUsage'),
+      title: t("peakUsage"),
       value: `${usage.peakUsage} kWh`,
       percentage: "+15% from last day",
-      icon: Zap
+      icon: Zap,
     },
     {
-      title: t('offPeakUsage'),
+      title: t("offPeakUsage"),
       value: `${usage.offPeakUsage} kWh`,
       percentage: "-5% from last day",
-      icon: Zap
+      icon: Zap,
     },
     {
-      title: t('midPeakUsage'),
+      title: t("midPeakUsage"),
       value: `${usage.midPeakUsage} kWh`,
       percentage: "+8% from last day",
-      icon: Zap
+      icon: Zap,
     },
     {
-      title: t('electricityBill'),
+      title: t("electricityBill"),
       value: `$NT ${usage.totalCost}`,
       percentage: "+12% from last day",
-      icon: DollarSign
+      icon: DollarSign,
     },
     {
-      title: t('todaysElectricityUsage'),
+      title: t("todaysElectricityUsage"),
       value: `${usage.todayUsage} kWh`,
       percentage: "+18% from last day",
-      icon: Zap
-    }
+      icon: Zap,
+    },
   ];
 
   return (

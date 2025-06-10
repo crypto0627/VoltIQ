@@ -29,8 +29,8 @@ export default function DashboardPage() {
         {/* Left section */}
         <div className="xl:w-2/5 space-y-4">
           {/* Electricity Usage Overview Card */}
-            <ElectricityUsageChart />
-            <ChargeChart />
+          <ElectricityUsageChart />
+          <ChargeChart />
         </div>
 
         {/* Middle section */}

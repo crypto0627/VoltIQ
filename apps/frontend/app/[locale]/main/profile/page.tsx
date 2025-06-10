@@ -51,8 +51,13 @@ export default function ProfilePage() {
 
   const handleDelete = async () => {
     if (!user?.id) return;
-    if (!confirm("Are you sure you want to delete your account? This action cannot be undone.")) return;
-    
+    if (
+      !confirm(
+        "Are you sure you want to delete your account? This action cannot be undone.",
+      )
+    )
+      return;
+
     try {
       const response = await fetch("/api/user/delete", {
         method: "POST",
@@ -111,8 +116,8 @@ export default function ProfilePage() {
             <Button onClick={handleUpdate} disabled={isLoading}>
               {isLoading ? "Updating..." : "Update Account"}
             </Button>
-            <Button 
-              variant="destructive" 
+            <Button
+              variant="destructive"
               onClick={handleDelete}
               disabled={isLoading}
             >

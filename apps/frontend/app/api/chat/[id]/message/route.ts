@@ -60,6 +60,7 @@ export async function POST(req: NextRequest, context: Context) {
       `- get_power_usage_by_time_range: 查詢指定日期與時間區間的用電資料。 Requires 'date' (MM/DD), 'startTime' (HH:mm), and 'endTime' (HH:mm) parameters.`,
       `- get_high_power_usage_records: 查詢所有 usage > 2000 的用電紀錄，包含日期與時間。 Takes no parameters.`,
       `- get_yearly_power_usage_summary: 統計所有月份的總用電量（共 12 個月），並顯示全年總和。 Takes no parameters.`,
+      `- compare_power_usage: 比較不同時間區間的用電資料。可以比較兩個月份、兩個日期或兩個時間區間的用電情況。Requires 'comparisonType' (month/date/timeRange), 'firstPeriod' (MM/DD, MM or MM/DD HH:mm-HH:mm), 'secondPeriod' (MM/DD, MM or MM/DD HH:mm-HH:mm) parameters.`,
       ``,
       `When the user asks a question, determine which tool is appropriate based on the keywords and required information in the query.`,
       `Instructions for tool usage:`,
@@ -67,6 +68,7 @@ export async function POST(req: NextRequest, context: Context) {
       `2.  If the user asks for power usage data for a specific date and time range (e.g., "04/01早上8點到10點的用電", "查詢05/15 14:00到16:30的用電量"), use the \`get_power_usage_by_time_range\` tool. Extract the 'date' (MM/DD), 'startTime' (HH:mm), and 'endTime' (HH:mm). Ensure times are in 24-hour format.`,
       `3.  If the user asks to find records with usage greater than 2000 (e.g., "找出高用電紀錄", "哪些時段用電量超過2000?", "查詢異常高用電量"), use the \`get_high_power_usage_records\` tool. This tool requires no parameters.`,
       `4.  If the user asks for a summary of monthly or yearly total power usage (e.g., "今年每月用電量總和", "全年總用電量", "給我用電量統計"), use the \`get_yearly_power_usage_summary\` tool. This tool requires no parameters.`,
+      `5.  If the user asks to compare power usage data between two different periods (e.g., "比較十月和十一月的用電", "比較04/01和04/02的用電量", "比較04/01 08:00-10:00和04/02 09:00-11:00的用電"), use the \`compare_power_usage\` tool. You must determine the 'comparisonType' (month, date, or timeRange) and extract the 'firstPeriod' and 'secondPeriod' accordingly. The period formats should match the 'comparisonType'.`,
       ``,
       `**Data Analysis Instructions:**`,
       `If the user's message contains keywords like "分析", "總結", "建議", "分析數據", "統整", it indicates a request for data analysis.`,
@@ -189,12 +191,15 @@ export async function POST(req: NextRequest, context: Context) {
 
         // Check for 529 error specifically. The error structure might vary, check error.cause or error.status
         // Assuming the error object might have a 'cause' with a 'status' or 'code' property for HTTP errors
-        const isOverloadedError = (error as any)?.cause?.status === 529 || (error as any)?.status === 529 || (error as any)?.code === 529;
+        const isOverloadedError =
+          (error as any)?.cause?.status === 529 ||
+          (error as any)?.status === 529 ||
+          (error as any)?.code === 529;
 
         if (isOverloadedError && retryCount < MAX_RETRIES - 1) {
           const delay = Math.pow(2, retryCount) * 1000; // Exponential backoff: 1s, 2s, 4s
           console.log(`Retrying in ${delay / 1000} seconds...`);
-          await new Promise(resolve => setTimeout(resolve, delay));
+          await new Promise((resolve) => setTimeout(resolve, delay));
           retryCount++;
         } else {
           // If not a 529 error or max retries reached, re-throw the error

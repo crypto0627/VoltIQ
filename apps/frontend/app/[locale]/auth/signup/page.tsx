@@ -14,7 +14,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useTranslations } from 'next-intl';
+import { useTranslations } from "next-intl";
 
 export default function SignUpPage() {
   const [email, setEmail] = useState("");
@@ -22,7 +22,7 @@ export default function SignUpPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
-  const t = useTranslations('Auth.signup');
+  const t = useTranslations("Auth.signup");
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,41 +59,39 @@ export default function SignUpPage() {
       <div className="flex-1 flex items-center justify-center p-8 bg-background">
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle className="text-2xl">{t('welcome')}</CardTitle>
-            <CardDescription>
-              {t('description')}
-            </CardDescription>
+            <CardTitle className="text-2xl">{t("welcome")}</CardTitle>
+            <CardDescription>{t("description")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <form onSubmit={handleSignUp} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">{t('email')}</Label>
+                <Label htmlFor="email">{t("email")}</Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder={t('emailPlaceholder')}
+                  placeholder={t("emailPlaceholder")}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">{t('password')}</Label>
+                <Label htmlFor="password">{t("password")}</Label>
                 <Input
                   id="password"
                   type="password"
-                  placeholder={t('passwordPlaceholder')}
+                  placeholder={t("passwordPlaceholder")}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">{t('confirmPassword')}</Label>
+                <Label htmlFor="confirmPassword">{t("confirmPassword")}</Label>
                 <Input
                   id="confirmPassword"
                   type="password"
-                  placeholder={t('confirmPasswordPlaceholder')}
+                  placeholder={t("confirmPasswordPlaceholder")}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
@@ -101,21 +99,21 @@ export default function SignUpPage() {
               </div>
               {error && <div className="text-red-500 text-sm">{error}</div>}
               <Button type="submit" className="w-full">
-                {t('createAccount')}
+                {t("createAccount")}
               </Button>
             </form>
             <div className="text-center text-sm">
-              {t('hasAccount')}{" "}
+              {t("hasAccount")}{" "}
               <Link
                 href="/auth/signin"
                 className="text-primary hover:underline"
               >
-                {t('signIn')}
+                {t("signIn")}
               </Link>
             </div>
             <div className="text-center">
               <Button asChild variant="link">
-                <Link href="/">{t('backToHome')}</Link>
+                <Link href="/">{t("backToHome")}</Link>
               </Button>
             </div>
           </CardContent>
@@ -129,31 +127,35 @@ export default function SignUpPage() {
             <Image src="/ess-logo.png" alt="Logo" width={400} height={100} />
           </div>
           <p className="text-xl text-muted-foreground max-w-md">
-            {t('platformTitle')}
+            {t("platformTitle")}
           </p>
           <div className="grid grid-cols-2 gap-4 max-w-md text-sm">
             <div className="p-4 rounded-lg bg-card/50 backdrop-blur-sm">
-              <div className="font-semibold">{t('predictiveAnalytics.title')}</div>
+              <div className="font-semibold">
+                {t("predictiveAnalytics.title")}
+              </div>
               <div className="text-muted-foreground">
-                {t('predictiveAnalytics.description')}
+                {t("predictiveAnalytics.description")}
               </div>
             </div>
             <div className="p-4 rounded-lg bg-card/50 backdrop-blur-sm">
-              <div className="font-semibold">{t('carbonFootprint.title')}</div>
+              <div className="font-semibold">{t("carbonFootprint.title")}</div>
               <div className="text-muted-foreground">
-                {t('carbonFootprint.description')}
+                {t("carbonFootprint.description")}
               </div>
             </div>
             <div className="p-4 rounded-lg bg-card/50 backdrop-blur-sm">
-              <div className="font-semibold">{t('smartGrid.title')}</div>
+              <div className="font-semibold">{t("smartGrid.title")}</div>
               <div className="text-muted-foreground">
-                {t('smartGrid.description')}
+                {t("smartGrid.description")}
               </div>
             </div>
             <div className="p-4 rounded-lg bg-card/50 backdrop-blur-sm">
-              <div className="font-semibold">{t('energyOptimization.title')}</div>
+              <div className="font-semibold">
+                {t("energyOptimization.title")}
+              </div>
               <div className="text-muted-foreground">
-                {t('energyOptimization.description')}
+                {t("energyOptimization.description")}
               </div>
             </div>
           </div>

@@ -69,9 +69,9 @@ export async function POST(req: Request) {
 
     // Get dates and sort them by month and day (MM/DD)
     const sortedDates = Object.keys(dailyUsageData).sort((a, b) => {
-      const [monthA, dayA] = a.split('/').map(Number);
-      const [monthB, dayB] = b.split('/').map(Number);
-      
+      const [monthA, dayA] = a.split("/").map(Number);
+      const [monthB, dayB] = b.split("/").map(Number);
+
       if (monthA !== monthB) {
         return monthA - monthB; // Sort by month
       }

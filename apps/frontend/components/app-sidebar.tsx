@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  Calendar,
-  Home,
-  Sliders,
-  User,
-  FileText,
-} from "lucide-react";
+import { Calendar, Home, Sliders, User, FileText } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
@@ -52,7 +46,7 @@ const accountItems = [
     title: "profile",
     url: "/main/profile",
     icon: User,
-  }
+  },
 ];
 
 export function AppSidebar() {
@@ -64,7 +58,12 @@ export function AppSidebar() {
       <SidebarHeader>
         <div className="flex justify-start p-2 rounded-lg">
           <Link href={"/"} className="w-[200px] h-[50px] relative">
-            <Image src="/ess-logo.png" alt="Logo" fill className="object-contain" />
+            <Image
+              src="/ess-logo.png"
+              alt="Logo"
+              fill
+              className="object-contain"
+            />
           </Link>
         </div>
       </SidebarHeader>

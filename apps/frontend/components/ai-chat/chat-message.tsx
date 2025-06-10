@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import Image from "next/image";
 import type { Message } from "@/types/ui/ai-chat-type";
@@ -14,6 +14,8 @@ import {
   LineChart,
   Line,
 } from "recharts";
+import { RefreshCw } from "lucide-react";
+import { CompareChart } from "./compare-chart"; // Import the new component
 
 // 擴展 Message 類型以包含工具調用信息和可能的圖表數據
 interface ExtendedMessage extends Message {
@@ -30,7 +32,12 @@ interface ExtendedMessage extends Message {
   // chartConfig?: any;
 }
 
-export function ChatMessage({ message }: { message: ExtendedMessage }) {
+interface ChatMessageProps {
+  message: ExtendedMessage;
+  onReload?: (content: string) => void;
+}
+
+export function ChatMessage({ message, onReload }: ChatMessageProps) {
   // Helper function to find chart data in tool results
   const getChartData = () => {
     if (message.toolInvocations && message.toolInvocations.length > 0) {
@@ -38,11 +45,14 @@ export function ChatMessage({ message }: { message: ExtendedMessage }) {
         // Check for successful tool calls with results
         if (invocation.state === "result" && invocation.result) {
           // Check if the result has the expected chart data structure
-          if (invocation.result.chartData && Array.isArray(invocation.result.chartData)) {
+          if (
+            invocation.result.chartData &&
+            Array.isArray(invocation.result.chartData)
+          ) {
             return {
               data: invocation.result.chartData,
               type: invocation.result.chartType || "BarChart", // Default to BarChart if type is missing
-              config: invocation.result.chartConfig || {}
+              config: invocation.result.chartConfig || {},
             };
           }
         }
@@ -58,13 +68,13 @@ export function ChatMessage({ message }: { message: ExtendedMessage }) {
     try {
       // If it contains chart data, format only the text content part
       if (result.chartData && Array.isArray(result.chartData)) {
-         if (result.content && Array.isArray(result.content)) {
-            return result.content
-              .filter((item: any) => item.type === "text")
-              .map((item: any) => item.text)
-              .join("\n");
-         }
-         return ""; // If chart data is present but no text content, return empty string for text part
+        if (result.content && Array.isArray(result.content)) {
+          return result.content
+            .filter((item: any) => item.type === "text")
+            .map((item: any) => item.text)
+            .join("\n");
+        }
+        return ""; // If chart data is present but no text content, return empty string for text part
       }
 
       // If result has content array
@@ -176,13 +186,15 @@ export function ChatMessage({ message }: { message: ExtendedMessage }) {
     return lines.map((line, index) => {
       // *** START: Added check for lines starting with "0:" ***
       if (line.trim().startsWith("0:")) {
-         // Remove the "0:" prefix before rendering
-         const formattedLine = line.trim().replace(/^0:\s*/, '');
-         return (
-            <div key={index} className="mb-2 text-slate-100"> {/* Render as normal line without prefix */}
-               {formattedLine}
-            </div>
-         );
+        // Remove the "0:" prefix before rendering
+        const formattedLine = line.trim().replace(/^0:\s*/, "");
+        return (
+          <div key={index} className="mb-2 text-slate-100">
+            {" "}
+            {/* Render as normal line without prefix */}
+            {formattedLine}
+          </div>
+        );
       }
       // *** END: Added check for lines starting with "0:" ***
 
@@ -205,14 +217,6 @@ export function ChatMessage({ message }: { message: ExtendedMessage }) {
         );
       }
 
-      // 處理包含冒号的數據行（key-value 格式） - This was already removed
-
-      // 處理列表項目（以 • - * 开头的行）
-      // REMOVED: List item formatting logic
-
-      // 處理數字編號列表（1. 2. 3. 开头的行）
-      // REMOVED: Numbered list formatting logic
-
       // 空行
       if (!line.trim()) {
         return <div key={index} className="h-2" />;
@@ -220,7 +224,9 @@ export function ChatMessage({ message }: { message: ExtendedMessage }) {
 
       // 普通行
       return (
-        <div key={index} className="mb-2 text-slate-100"> {/* Added text color for clarity */}
+        <div key={index} className="mb-2 text-slate-100">
+          {" "}
+          {/* Added text color for clarity */}
           {line}
         </div>
       );
@@ -255,12 +261,15 @@ export function ChatMessage({ message }: { message: ExtendedMessage }) {
   const content = getFullContent(); // Get text content
 
   // Check if content contains any of the exclusion keywords
-  const shouldExcludeChart = (
-    content.includes('分析') || content.includes('analysis') ||
-    content.includes('總結') || content.includes('summary') ||
-    content.includes('統計') || content.includes('statistics') ||
-    content.includes('建議') || content.includes('recommendation')
-  );
+  const shouldExcludeChart = 
+    content.includes("分析") ||
+    content.includes("analysis") ||
+    content.includes("總結") ||
+    content.includes("summary") ||
+    content.includes("統計") ||
+    content.includes("statistics") ||
+    content.includes("建議") ||
+    content.includes("recommendation");
 
   return (
     <div
@@ -290,66 +299,132 @@ export function ChatMessage({ message }: { message: ExtendedMessage }) {
         `}
       >
         {/* Render chart if data is available and not excluded by keywords */}
-        {chartInfo && chartInfo.data && !shouldExcludeChart && (
-           <div className="w-full h-64 sm:h-80 mb-4 rounded-lg overflow-hidden bg-slate-900/30"> {/* Container for the chart */}
-              <ResponsiveContainer width="100%" height="85%">
-                 {/* Determine and render the correct chart type directly */}
-                 {chartInfo.type === "BarChart" ? (
-                    <BarChart
-                       data={chartInfo.data}
-                       margin={{
-                          top: 20,
-                          right: 30,
-                          left: 40,
-                          bottom: 5,
-                       }}
-                    >
-                       <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
-                       <XAxis dataKey={chartInfo.config.xAxisDataKey || 'date'} stroke="#e2e8f0" />
-                       <YAxis stroke="#e2e8f0" tickFormatter={(value) => `${value.toLocaleString("zh-TW")} kW`} />
-                       <Tooltip
-                          cursor={{ fill: '#475569', opacity: 0.5 }}
-                          contentStyle={{ backgroundColor: '#334155', border: 'none', borderRadius: '4px' }}
-                          labelStyle={{ color: '#e2e8f0' }}
-                          itemStyle={{ color: '#94a3b8' }}
-                          formatter={(value: number, name: string) => [value.toLocaleString("zh-TW"), chartInfo.config.tooltipValueLabel || name]}
-                          labelFormatter={(label: string) => `${chartInfo.config.tooltipLabel || ''}${label}`}
-                       />
-                       <Legend />
-                       <Bar dataKey={chartInfo.config.barDataKey || 'totalUsage'} fill="#34d399" name={chartInfo.config.tooltipValueLabel || "用電量"} />
-                    </BarChart>
-                 ) :
-                 (
-                    <LineChart
-                       data={chartInfo.data}
-                       margin={{
-                          top: 20,
-                          right: 30,
-                          left: 40,
-                          bottom: 5,
-                       }}
-                    >
-                       <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
-                       <XAxis dataKey={chartInfo.config.xAxisDataKey || 'time'} stroke="#e2e8f0" />
-                       <YAxis stroke="#e2e8f0" tickFormatter={(value) => `${value.toLocaleString("zh-TW")} kW`} />
-                       <Tooltip
-                           contentStyle={{ backgroundColor: '#334155', border: 'none', borderRadius: '4px' }}
-                           labelStyle={{ color: '#e2e8f0' }}
-                           itemStyle={{ color: '#94a3b8' }}
-                            formatter={(value: number, name: string) => [value.toLocaleString("zh-TW"), chartInfo.config.tooltipValueLabel || name]}
-                           labelFormatter={(label: string) => `${chartInfo.config.tooltipLabel || ''}${label}`}
-                       />
-                       <Legend />
-                       <Line type="monotone" dataKey={chartInfo.config.lineDataKey || 'usage'} stroke="#34d399" activeDot={{ r: 5, fill: '#34d399', stroke: '#e2e8f0' }} name={chartInfo.config.tooltipValueLabel || "用電量"} />
-                    </LineChart>
-                 )}
-                 {/* Add other chart types here as needed */}
-              </ResponsiveContainer>
-           </div>
+        {chartInfo && chartInfo.data && (
+          <div className="w-full h-64 sm:h-80 mb-4 rounded-lg overflow-hidden bg-slate-900/30">
+            {" "}
+            {/* Container for the chart */}
+            <ResponsiveContainer width="100%" height="85%">
+              {/* Determine and render the correct chart type directly */}
+              {chartInfo.type === "BarChart" ? (
+                <BarChart
+                  data={chartInfo.data}
+                  margin={{
+                    top: 20,
+                    right: 30,
+                    left: 40,
+                    bottom: 0,
+                  }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
+                  <XAxis
+                    dataKey={chartInfo.config.xAxisDataKey || "date"}
+                    stroke="#e2e8f0"
+                  />
+                  <YAxis
+                    stroke="#e2e8f0"
+                    tickFormatter={(value) =>
+                      `${value.toLocaleString("zh-TW")}`
+                    }
+                    label={{
+                      value: "用電量 (kW)",
+                      angle: -90,
+                      position: "insideLeft",
+                      fill: "#e2e8f0",
+                      dx: -20,
+                    }}
+                  />
+                  <Tooltip
+                    cursor={{ fill: "#475569", opacity: 0.5 }}
+                    contentStyle={{
+                      backgroundColor: "#334155",
+                      border: "none",
+                      borderRadius: "4px",
+                    }}
+                    labelStyle={{ color: "#e2e8f0" }}
+                    itemStyle={{ color: "#94a3b8" }}
+                    formatter={(value: number, name: string) => [
+                      value.toLocaleString("zh-TW"),
+                      chartInfo.config.tooltipValueLabel || name,
+                    ]}
+                    labelFormatter={(label: string) =>
+                      `${chartInfo.config.tooltipLabel || ""}${label}`
+                    }
+                  />
+                  <Legend />
+                  <Bar
+                    dataKey={chartInfo.config.barDataKey || "totalUsage"}
+                    fill="#60a5fa"
+                    name={chartInfo.config.tooltipValueLabel || "用電量"}
+                  />
+                </BarChart>
+              ) : chartInfo.type === "LineChart" ? (
+                <LineChart
+                  data={chartInfo.data}
+                  margin={{
+                    top: 20,
+                    right: 30,
+                    left: 40,
+                    bottom: 0,
+                  }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
+                  <XAxis
+                    dataKey={chartInfo.config.xAxisDataKey || "date"}
+                    stroke="#e2e8f0"
+                  />
+                  <YAxis
+                    stroke="#e2e8f0"
+                    tickFormatter={(value) =>
+                      `${value.toLocaleString("zh-TW")}`
+                    }
+                    label={{
+                      value: "用電量 (kW)",
+                      angle: -90,
+                      position: "insideLeft",
+                      fill: "#e2e8f0",
+                      dx: -20,
+                    }}
+                  />
+                  <Tooltip
+                    cursor={{ fill: "#475569", opacity: 0.5 }}
+                    contentStyle={{
+                      backgroundColor: "#334155",
+                      border: "none",
+                      borderRadius: "4px",
+                    }}
+                    labelStyle={{ color: "#e2e8f0" }}
+                    itemStyle={{ color: "#94a3b8" }}
+                    formatter={(value: number, name: string) => [
+                      value.toLocaleString("zh-TW"),
+                      chartInfo.config.tooltipValueLabel || name,
+                    ]}
+                    labelFormatter={(label: string) =>
+                      `${chartInfo.config.tooltipLabel || ""}${label}`
+                    }
+                  />
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey={chartInfo.config.lineDataKey || "totalUsage"}
+                    stroke="#8884d8"
+                    name={chartInfo.config.tooltipValueLabel || "用電量"}
+                    activeDot={{ r: 8 }}
+                  />
+                </LineChart>
+              ) : chartInfo.type === "Compare-LineChart" ? (
+                <CompareChart data={chartInfo.data} chartConfig={chartInfo.config} />
+              ) : (
+                <div>Unknown Chart Type: {chartInfo.type}</div>
+              )}
+              {/* Add other chart types here as needed */}
+            </ResponsiveContainer>
+          </div>
         )}
 
         {/* Render text content below the chart (or alone if no chart) */}
-        {content && <div className="space-y-2">{renderFormattedContent(content)}</div>}
+        {content && (
+          <div className="space-y-2">{renderFormattedContent(content)}</div>
+        )}
 
         {/* 顯示工具調用信息（調試用，可選） */}
         {message.toolInvocations && message.toolInvocations.length > 0 && (
@@ -361,11 +436,33 @@ export function ChatMessage({ message }: { message: ExtendedMessage }) {
           </div>
         )}
 
-        <div className="text-xs text-slate-400 mt-2 opacity-60">
-          {new Date(message.timestamp).toLocaleTimeString("zh-TW", {
-            hour: "2-digit",
-            minute: "2-digit",
-          })}
+        <div className={`text-xs text-white/50 mt-2 ${isUser ? "text-right" : ""}`}>
+          {isUser ? (
+            <div className="flex items-center justify-end w-full">
+              <span className="text-xs text-white/50">
+                {new Date(message.timestamp).toLocaleTimeString("zh-TW", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </span>
+              {onReload && (
+                <button
+                  onClick={() => onReload(message.content as string)}
+                  className="text-white/70 hover:text-white transition-colors duration-200 ml-2"
+                  aria-label="重新傳送訊息"
+                >
+                  <RefreshCw className="h-3 w-3" />
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className="text-xs text-white/50 mt-2">
+              {new Date(message.timestamp).toLocaleTimeString("zh-TW", {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </div>
+          )}
         </div>
       </div>
 
@@ -379,4 +476,3 @@ export function ChatMessage({ message }: { message: ExtendedMessage }) {
     </div>
   );
 }
-

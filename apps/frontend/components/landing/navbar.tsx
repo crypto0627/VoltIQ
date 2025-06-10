@@ -18,7 +18,7 @@ export function Navbar() {
   const navItems = [
     { name: "Product", href: "#features", blank: false },
     { name: "Solution", href: "#tech-stack", blank: false },
-    { name: "About us", href: "https://www.fortune-ess.com.tw/", blank: true},
+    { name: "About us", href: "https://www.fortune-ess.com.tw/", blank: true },
   ];
 
   return (
@@ -56,7 +56,7 @@ export function Navbar() {
                 <Link
                   key={item.name}
                   href={item.href}
-                  target={item.blank ? '_blank' : undefined}
+                  target={item.blank ? "_blank" : undefined}
                   className="text-gray-300 hover:text-emerald-400 transition-all duration-300 font-medium relative group"
                 >
                   {item.name}
@@ -120,7 +120,7 @@ export function Navbar() {
                 <Link
                   key={item.name}
                   href={item.href}
-                  target={item.blank ? '_blank' : undefined}
+                  target={item.blank ? "_blank" : undefined}
                   className="block text-gray-300 hover:text-emerald-400 transition-all duration-300 px-4 py-2 rounded-lg hover:bg-emerald-500/10"
                   onClick={() => setIsMenuOpen(false)}
                 >
@@ -130,7 +130,9 @@ export function Navbar() {
               <div className="pt-4 space-y-2 px-4">
                 {user ? (
                   <>
-                    <span className="block text-gray-300 px-4 py-2">{user.email}</span>
+                    <span className="block text-gray-300 px-4 py-2">
+                      {user.email}
+                    </span>
                     <Button
                       className="w-full bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 transition-all duration-300"
                       asChild

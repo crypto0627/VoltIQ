@@ -28,7 +28,12 @@ export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const [currentDateTime, setCurrentDateTime] = useState("");
-  const [weather, setWeather] = useState<{ temp: number; condition: string; county: string; town: string }>({ temp: 25, condition: "sunny", county: "", town: "" });
+  const [weather, setWeather] = useState<{
+    temp: number;
+    condition: string;
+    county: string;
+    town: string;
+  }>({ temp: 25, condition: "sunny", county: "", town: "" });
 
   const { user, fetchUser, isLoading } = useUserStore();
 
@@ -40,8 +45,8 @@ export function Navbar() {
     const updateDateTime = () => {
       const now = new Date();
       const utc8Time = new Date(now.getTime() + 8 * 60 * 60 * 1000);
-      const date = utc8Time.toISOString().split('T')[0];
-      const time = utc8Time.toISOString().split('T')[1].slice(0, 8);
+      const date = utc8Time.toISOString().split("T")[0];
+      const time = utc8Time.toISOString().split("T")[1].slice(0, 8);
       setCurrentDateTime(`${date} ${time}`);
     };
 
@@ -54,8 +59,10 @@ export function Navbar() {
   useEffect(() => {
     const fetchWeatherData = async () => {
       try {
-        const response = await fetch(`https://opendata.cwa.gov.tw/api/v1/rest/datastore/O-A0003-001?Authorization=${process.env.NEXT_PUBLIC_WEATHER_API_KEY}&format=JSON&StationId=466930&StationName=%E7%AB%B9%E5%AD%90%E6%B9%96`);
-        
+        const response = await fetch(
+          `https://opendata.cwa.gov.tw/api/v1/rest/datastore/O-A0003-001?Authorization=${process.env.NEXT_PUBLIC_WEATHER_API_KEY}&format=JSON&StationId=466930&StationName=%E7%AB%B9%E5%AD%90%E6%B9%96`,
+        );
+
         const data = await response.json();
 
         if (data.success === "true" && data.records.Station.length > 0) {
@@ -66,14 +73,20 @@ export function Navbar() {
           const townName = stationData.GeoInfo.TownName;
 
           let condition = "sunny"; // Default to sunny
-          if (weatherCondition.includes("陰") || weatherCondition.includes("多雲")) {
+          if (
+            weatherCondition.includes("陰") ||
+            weatherCondition.includes("多雲")
+          ) {
             condition = "cloudy";
           } else if (weatherCondition.includes("雨")) {
             condition = "rainy";
-          } else if (weatherCondition.includes("晴") && weatherCondition.includes("雲")) {
+          } else if (
+            weatherCondition.includes("晴") &&
+            weatherCondition.includes("雲")
+          ) {
             condition = "partly-cloudy";
           }
-          
+
           setWeather({ temp, condition, county: countyName, town: townName });
         }
       } catch (error) {
@@ -119,7 +132,7 @@ export function Navbar() {
   };
 
   const handleLanguageSwitch = async () => {
-    const targetLocale = locale === 'en' ? 'zh' : 'en';
+    const targetLocale = locale === "en" ? "zh" : "en";
     await router.replace(pathname, { locale: targetLocale });
   };
 
@@ -139,7 +152,9 @@ export function Navbar() {
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-2 px-3 py-1 rounded-md bg-muted">
             {getWeatherIcon(weather.condition)}
-            <span className="text-sm font-medium">{weather.county} {weather.town} {weather.temp}°C</span>
+            <span className="text-sm font-medium">
+              {weather.county} {weather.town} {weather.temp}°C
+            </span>
           </div>
           <div className="text-sm font-medium w-[180px] text-right font-mono tabular-nums">
             {currentDateTime}
@@ -157,7 +172,7 @@ export function Navbar() {
           <div className="flex items-center gap-2">
             <span className="text-sm">EN</span>
             <Switch
-              checked={locale === 'zh'}
+              checked={locale === "zh"}
               onCheckedChange={handleLanguageSwitch}
             />
             <span className="text-sm">中文</span>
@@ -200,7 +215,9 @@ export function Navbar() {
                     </>
                   ) : (
                     <>
-                      <p className="text-sm font-medium leading-none">{t("guest")}</p>
+                      <p className="text-sm font-medium leading-none">
+                        {t("guest")}
+                      </p>
                       <p className="text-xs leading-none text-muted-foreground">
                         {t("notSignedIn")}
                       </p>

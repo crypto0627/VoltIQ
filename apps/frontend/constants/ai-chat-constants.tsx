@@ -17,14 +17,14 @@ export const SUGGESTED_QUESTIONS: SuggestedQuestion[] = [
   },
   {
     title: "Morning Peak Usage",
-    question: "Show me the electricity usage from 08:00 to 12:00 in January",
+    question: "Show me the electricity usage from 08:00 to 12:00 in 01/01 (timeLabel 00:15/per label)",
     icon: <Calendar className="h-4 w-4 text-white" />,
     gradient: "from-green-500 to-emerald-500",
   },
   {
     title: "Excess Contract Usage",
     question:
-      "Show me the electricity usage exceeding the 2000kW contract capacity",
+      "Show me the electricity usage exceeding the 2000kW contract capacity in October",
     icon: <AlertTriangle className="h-4 w-4 text-white" />,
     gradient: "from-amber-500 to-orange-500",
   },
