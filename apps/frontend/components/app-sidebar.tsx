@@ -2,7 +2,7 @@
 
 import { Calendar, Home, Sliders, User, FileText } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import {
@@ -51,13 +51,21 @@ const accountItems = [
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const theme = searchParams.get("theme") || "light";
   const t = useTranslations("main.sidebar");
+
+  const getUrlWithTheme = (url: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("theme", theme);
+    return `${url}?${params.toString()}`;
+  };
 
   return (
     <Sidebar>
       <SidebarHeader>
         <div className="flex justify-start p-2 rounded-lg">
-          <Link href={"/"} className="w-[200px] h-[50px] relative">
+          <Link href={getUrlWithTheme("/")} className="w-[200px] h-[50px] relative">
             <Image
               src="/ess-logo.png"
               alt="Logo"
@@ -76,7 +84,7 @@ export function AppSidebar() {
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={pathname === item.url}>
-                    <Link href={item.url}>
+                    <Link href={getUrlWithTheme(item.url)}>
                       <item.icon className="size-4" />
                       <span>{t(item.title)}</span>
                     </Link>
@@ -94,7 +102,7 @@ export function AppSidebar() {
               {accountItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={pathname === item.url}>
-                    <Link href={item.url}>
+                    <Link href={getUrlWithTheme(item.url)}>
                       <item.icon className="size-4" />
                       <span>{t(item.title)}</span>
                     </Link>
@@ -110,7 +118,7 @@ export function AppSidebar() {
         <div className="flex flex-row item-center justify-center p-2 gap-4 absolute bottom-0">
           <div className="text-xs text-muted-foreground">© 2025 VoltIQ</div>
           <Link
-            href="/privacy-policy"
+            href={getUrlWithTheme("/privacy-policy")}
             className="text-xs text-muted-foreground hover:underline"
           >
             Privacy Policy
