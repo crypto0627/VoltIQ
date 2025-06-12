@@ -25,23 +25,23 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
+      {/* Info Cards Section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+        <InfoCardList usage={usage} />
+      </div>
+
       <div className="flex flex-col xl:flex-row gap-4">
         {/* Left section */}
-        <div className="xl:w-2/5 space-y-4">
+        <div className="xl:w-1/2 space-y-4">
           {/* Electricity Usage Overview Card */}
           <ElectricityUsageChart />
           <ChargeChart />
         </div>
 
         {/* Middle section */}
-        <div className="xl:w-2/5 space-y-4">
+        <div className="xl:w-1/2 space-y-4">
           <SystemStatus />
           <BatteryStatusChart />
-        </div>
-
-        {/* Right section - Stats Cards */}
-        <div className="xl:w-1/5 space-y-4">
-          <InfoCardList usage={usage} />
         </div>
       </div>
 

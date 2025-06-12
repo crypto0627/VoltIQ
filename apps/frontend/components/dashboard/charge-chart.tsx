@@ -1,23 +1,19 @@
 "use client";
 import { useEffect, useMemo } from "react";
 import {
-  AreaChart,
-  Area,
+  BarChart,
+  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   Legend,
   ResponsiveContainer,
+  ReferenceLine,
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useElectricityStore } from "@/stores/electricityStore";
 import { useTranslations } from "next-intl";
-
-type ChargeData = {
-  time: string;
-  charge: number;
-};
 
 export default function ChargeChart() {
   const t = useTranslations("main.dashboard");
@@ -33,6 +29,8 @@ export default function ChargeChart() {
     return data.slice(0, currentTimeIndex + 1).map((item) => ({
       time: item.time,
       charge: item.batteryUsage,
+      charging: item.batteryUsage > 0 ? item.batteryUsage : 0,
+      discharging: item.batteryUsage < 0 ? item.batteryUsage : 0,
     }));
   }, [data, currentTimeIndex]);
 
@@ -46,36 +44,10 @@ export default function ChargeChart() {
       <CardContent className="pt-6">
         <div className="h-[250px]">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart
+            <BarChart
               data={chargeData}
               margin={{ top: 10, right: 30, left: 30, bottom: 30 }}
             >
-              <defs>
-                <linearGradient id="colorCharge" x1="0" y1="0" x2="0" y2="1">
-                  <stop
-                    offset="5%"
-                    stopColor="hsl(var(--chart-3))"
-                    stopOpacity={0.8}
-                  />
-                  <stop
-                    offset="95%"
-                    stopColor="hsl(var(--chart-3))"
-                    stopOpacity={0.1}
-                  />
-                </linearGradient>
-                <linearGradient id="colorDischarge" x1="0" y1="0" x2="0" y2="1">
-                  <stop
-                    offset="5%"
-                    stopColor="hsl(var(--chart-4))"
-                    stopOpacity={0.8}
-                  />
-                  <stop
-                    offset="95%"
-                    stopColor="hsl(var(--chart-4))"
-                    stopOpacity={0.1}
-                  />
-                </linearGradient>
-              </defs>
               <CartesianGrid
                 strokeDasharray="3 3"
                 stroke="hsl(var(--border))"
@@ -110,10 +82,11 @@ export default function ChargeChart() {
                   borderRadius: "8px",
                   boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
                 }}
-                formatter={(value: number) => {
+                formatter={(value: number, name: string) => {
+                  if (value === 0) return null;
                   return [
-                    `${value} kW`,
-                    value >= 0 ? t("charging") : t("discharging"),
+                    `${Math.abs(value)} kW`,
+                    name === "charging" ? t("charging") : t("discharging"),
                   ];
                 }}
               />
@@ -124,37 +97,31 @@ export default function ChargeChart() {
                   {
                     value: t("charging"),
                     type: "rect",
-                    color: "hsl(var(--chart-3))",
+                    color: "hsl(var(--chart-2))",
                   },
                   {
                     value: t("discharging"),
                     type: "rect",
-                    color: "hsl(var(--chart-4))",
+                    color: "hsl(var(--chart-1))",
                   },
                 ]}
               />
-              <Area
-                type="monotone"
-                dataKey="charge"
-                stroke="hsl(var(--chart-3))"
-                strokeWidth={2}
-                fill="url(#colorCharge)"
-                fillOpacity={1}
+              <ReferenceLine y={0} stroke="hsl(var(--border))" strokeWidth={1} />
+              <Bar
+                dataKey="charging"
+                fill="hsl(var(--chart-2))"
                 name={t("charging")}
                 isAnimationActive={false}
+                radius={[4, 4, 0, 0]}
               />
-              <Area
-                type="monotone"
-                dataKey="charge"
-                stroke="hsl(var(--chart-4))"
-                strokeWidth={2}
-                fill="url(#colorDischarge)"
-                fillOpacity={1}
+              <Bar
+                dataKey="discharging"
+                fill="hsl(var(--chart-1))"
                 name={t("discharging")}
                 isAnimationActive={false}
-                baseValue={0}
+                radius={[0, 0, 4, 4]}
               />
-            </AreaChart>
+            </BarChart>
           </ResponsiveContainer>
         </div>
       </CardContent>

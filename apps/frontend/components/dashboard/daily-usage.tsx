@@ -30,24 +30,39 @@ export default function ElectricityUsageChart() {
   const { data, currentTimeIndex, timeLabel, startSimulation, stopSimulation } =
     useElectricityStore();
   const [overUsageData, setOverUsageData] = useState<
-    { time: string; usage: number }[]
-  >([]);
+    { time: string; usage: number; limit: number }[]
+  >([
+    {
+      time: "2024/10/09 22:00:00",
+      usage: 2500,
+      limit: 2000,
+    },
+    {
+      time: "2024/10/09 20:30:00",
+      usage: 2500,
+      limit: 2000,
+    },
+    {
+      time: "2024/10/08 23:00:00",
+      usage: 2500,
+      limit: 2000,
+    },
+    {
+      time: "2024/10/08 20:00:00",
+      usage: 2500,
+      limit: 2000,
+    },
+    {
+      time: "2024/10/08 17:59:00",
+      usage: 2500,
+      limit: 2000,
+    },
+  ]);
 
   useEffect(() => {
     startSimulation();
     return () => stopSimulation();
   }, [startSimulation, stopSimulation]);
-
-  useEffect(() => {
-    // Calculate over usage data whenever data changes
-    const overUsage = data
-      .filter((item) => item.powerUsage > 2000)
-      .map((item) => ({
-        time: item.time,
-        usage: item.powerUsage,
-      }));
-    setOverUsageData(overUsage);
-  }, [data]);
 
   const displayData = useMemo(() => {
     return data.slice(0, currentTimeIndex + 1).map((item) => ({
@@ -79,10 +94,7 @@ export default function ElectricityUsageChart() {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>{t("overUsageRecords")}</DialogTitle>
-              <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
-                <X className="h-4 w-4" />
-                <span className="sr-only">Close</span>
-              </DialogClose>
+              <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"/>
             </DialogHeader>
             <div className="max-h-[400px] overflow-y-auto">
               <table className="w-full">
@@ -90,6 +102,7 @@ export default function ElectricityUsageChart() {
                   <tr className="border-b">
                     <th className="text-left p-2">{t("time")}</th>
                     <th className="text-right p-2">{t("usage")}</th>
+                    <th className="text-right p-2">{t("limit")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -97,7 +110,10 @@ export default function ElectricityUsageChart() {
                     <tr key={index} className="border-b">
                       <td className="p-2">{item.time}</td>
                       <td className="text-right p-2 text-destructive">
-                        {item.usage.toLocaleString()}
+                        {item.usage.toLocaleString()} kw
+                      </td>
+                      <td className="text-right p-2">
+                        {item.limit.toLocaleString()} kw
                       </td>
                     </tr>
                   ))}
@@ -118,12 +134,12 @@ export default function ElectricityUsageChart() {
                 <linearGradient id="colorUsage" x1="0" y1="0" x2="0" y2="1">
                   <stop
                     offset="5%"
-                    stopColor="hsl(var(--chart-1))"
+                    stopColor="hsl(var(--chart-2))"
                     stopOpacity={0.8}
                   />
                   <stop
                     offset="95%"
-                    stopColor="hsl(var(--chart-1))"
+                    stopColor="hsl(var(--chart-2))"
                     stopOpacity={0.1}
                   />
                 </linearGradient>
@@ -161,7 +177,7 @@ export default function ElectricityUsageChart() {
                 tickLine={{ stroke: "hsl(var(--border))" }}
                 tickFormatter={(value: number) => `${value.toLocaleString()}`}
                 label={{
-                  value: t("usage"),
+                  value: t("power"),
                   angle: -90,
                   position: "left",
                   offset: 15,
@@ -176,7 +192,7 @@ export default function ElectricityUsageChart() {
                 }}
                 formatter={(value: number) => {
                   return [
-                    `${value.toLocaleString()} kWh`,
+                    `${value.toLocaleString()} kW`,
                     t("electricityUsage"),
                   ];
                 }}
@@ -188,7 +204,7 @@ export default function ElectricityUsageChart() {
                   {
                     value: t("electricityUsage"),
                     type: "rect",
-                    color: "hsl(var(--chart-1))",
+                    color: "hsl(var(--chart-2))",
                   },
                   {
                     value: t("contractLimit"),
@@ -200,7 +216,7 @@ export default function ElectricityUsageChart() {
               <Area
                 type="monotone"
                 dataKey="usage"
-                stroke="hsl(var(--chart-1))"
+                stroke="hsl(var(--chart-2))"
                 strokeWidth={2}
                 fill="url(#colorUsage)"
                 fillOpacity={1}

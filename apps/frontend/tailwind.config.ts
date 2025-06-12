@@ -10,7 +10,25 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      keyframes: {
+        "mirror": {
+          "0%, 100%": {
+            transform: "translateY(0) scaleX(1)",
+          },
+          "50%": {
+            transform: "translateY(-10px) scaleX(-1)",
+          },
+        },
+      },
+      animation: {
+        "mirror": "mirror 1200s ease-in-out infinite",
+      },
       colors: {
+        gold: {
+          light: "#facc15",
+          DEFAULT: "#facc15",
+          dark: "#facc15",
+        },
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {

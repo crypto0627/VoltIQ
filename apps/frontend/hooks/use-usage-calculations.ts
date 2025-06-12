@@ -1,6 +1,47 @@
 import { useMemo } from "react";
 import { useElectricityStore } from "@/stores/electricityStore";
 
+// 基礎月累積值
+const BASE_MONTHLY_VALUES = {
+  peakUsage: 25000,
+  offPeakUsage: 15000,
+  midPeakUsage: 20000,
+  totalUsage: 60000,
+};
+
+// 固定電價
+const ELECTRICITY_RATES = {
+  peak: 5.8,      // 尖峰電價
+  midPeak: 3.63,  // 半尖峰電價
+  offPeak: 1.58,  // 離峰電價
+};
+
+// 去年同期數據
+const LAST_YEAR_VALUES = {
+  peakUsage: 27000,
+  offPeakUsage: 16000,
+  midPeakUsage: 22000,
+  totalUsage: 65000,
+  totalCost: 245000,
+  averagePrice: 3.3,
+};
+
+// 節省金額計算
+const calculateSavings = (currentCost: number) => {
+  const lastYearCost = LAST_YEAR_VALUES.totalCost;
+  const savings = lastYearCost - currentCost;
+  const savingsPercentage = ((savings / lastYearCost) * 100).toFixed(1);
+  return {
+    amount: savings,
+    percentage: savingsPercentage,
+  };
+};
+
+// 平均電價計算
+const calculateAveragePrice = (totalCost: number, totalUsage: number) => {
+  return totalUsage > 0 ? (totalCost / totalUsage).toFixed(2) : "0.00";
+};
+
 export const useUsageCalculations = () => {
   const { data, currentTimeIndex } = useElectricityStore();
 
@@ -12,6 +53,23 @@ export const useUsageCalculations = () => {
         midPeakUsage: 0,
         totalCost: 0,
         todayUsage: 0,
+        monthlyPeakUsage: BASE_MONTHLY_VALUES.peakUsage,
+        monthlyOffPeakUsage: BASE_MONTHLY_VALUES.offPeakUsage,
+        monthlyMidPeakUsage: BASE_MONTHLY_VALUES.midPeakUsage,
+        monthlyTotalCost: Math.round(
+          BASE_MONTHLY_VALUES.offPeakUsage * ELECTRICITY_RATES.offPeak +
+          BASE_MONTHLY_VALUES.midPeakUsage * ELECTRICITY_RATES.midPeak +
+          BASE_MONTHLY_VALUES.peakUsage * ELECTRICITY_RATES.peak
+        ),
+        monthlyUsage: BASE_MONTHLY_VALUES.totalUsage,
+        averagePrice: LAST_YEAR_VALUES.averagePrice,
+        savings: calculateSavings(
+          Math.round(
+            BASE_MONTHLY_VALUES.offPeakUsage * ELECTRICITY_RATES.offPeak +
+            BASE_MONTHLY_VALUES.midPeakUsage * ELECTRICITY_RATES.midPeak +
+            BASE_MONTHLY_VALUES.peakUsage * ELECTRICITY_RATES.peak
+          )
+        ),
       };
 
     let peakSum = 0;
@@ -47,9 +105,30 @@ export const useUsageCalculations = () => {
       todaySum += data[i].powerUsage;
     }
 
+    // 計算當日用量
     const totalCost = Math.round(
-      offPeakSum * 1.58 + midPeakSum * 3.63 + peakSum * 5.8,
+      offPeakSum * ELECTRICITY_RATES.offPeak + 
+      midPeakSum * ELECTRICITY_RATES.midPeak + 
+      peakSum * ELECTRICITY_RATES.peak
     );
+
+    // 計算月累積用量 (基礎值 + 當日用量)
+    const monthlyPeakSum = BASE_MONTHLY_VALUES.peakUsage + Math.round(peakSum);
+    const monthlyOffPeakSum = BASE_MONTHLY_VALUES.offPeakUsage + Math.round(offPeakSum);
+    const monthlyMidPeakSum = BASE_MONTHLY_VALUES.midPeakUsage + Math.round(midPeakSum);
+    const monthlyTotalSum = BASE_MONTHLY_VALUES.totalUsage + Math.round(todaySum);
+
+    const monthlyTotalCost = Math.round(
+      monthlyOffPeakSum * ELECTRICITY_RATES.offPeak + 
+      monthlyMidPeakSum * ELECTRICITY_RATES.midPeak + 
+      monthlyPeakSum * ELECTRICITY_RATES.peak
+    );
+
+    // 計算平均電價
+    const averagePrice = calculateAveragePrice(monthlyTotalCost, monthlyTotalSum);
+
+    // 計算節省金額
+    const savings = calculateSavings(monthlyTotalCost);
 
     return {
       peakUsage: Math.round(peakSum),
@@ -57,6 +136,13 @@ export const useUsageCalculations = () => {
       midPeakUsage: Math.round(midPeakSum),
       totalCost,
       todayUsage: Math.round(todaySum),
+      monthlyPeakUsage: monthlyPeakSum,
+      monthlyOffPeakUsage: monthlyOffPeakSum,
+      monthlyMidPeakUsage: monthlyMidPeakSum,
+      monthlyTotalCost,
+      monthlyUsage: monthlyTotalSum,
+      averagePrice,
+      savings,
     };
   }, [data, currentTimeIndex]);
 

@@ -16,8 +16,8 @@ export const SUGGESTED_QUESTIONS: SuggestedQuestion[] = [
     gradient: "from-purple-500 to-pink-500",
   },
   {
-    title: "Morning Peak Usage",
-    question: "Show me the electricity usage from 08:00 to 12:00 in 01/01 (timeLabel 00:15/per label)",
+    title: "Morning Off-Peak Usage",
+    question: "Show me the electricity usage from 00:00 to 09:00 in 01/01 (timeLabel 00:15/per label)",
     icon: <Calendar className="h-4 w-4 text-white" />,
     gradient: "from-green-500 to-emerald-500",
   },

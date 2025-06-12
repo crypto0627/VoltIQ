@@ -13,11 +13,8 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useElectricityStore } from "@/stores/electricityStore";
 import { useTranslations } from "next-intl";
-
-type BatteryData = {
-  time: string;
-  level: number;
-};
+import { cn } from "@/lib/utils";
+import { Battery, BatteryCharging, BatteryWarning } from "lucide-react";
 
 export default function BatteryStatusChart() {
   const t = useTranslations("main.dashboard");
@@ -36,12 +33,54 @@ export default function BatteryStatusChart() {
     }));
   }, [data, currentTimeIndex]);
 
+  const getBatteryStatus = useMemo(() => {
+    if (currentTimeIndex === 0) return {
+      text: t("charging"),
+      className: "text-green-500 animate-pulse",
+      icon: BatteryCharging
+    };
+    
+    const currentLevel = data[currentTimeIndex]?.soc || 0;
+    const prevLevel = data[currentTimeIndex - 1]?.soc || 0;
+    
+    if (currentLevel === 100) return {
+      text: t("standby"),
+      className: "text-blue-500",
+      icon: Battery
+    };
+    if (currentLevel > prevLevel) return {
+      text: t("charging"),
+      className: "text-green-500 animate-pulse",
+      icon: BatteryCharging
+    };
+    if (currentLevel < prevLevel) return {
+      text: t("discharging"),
+      className: "text-orange-500 animate-bounce",
+      icon: BatteryWarning
+    };
+    return {
+      text: t("standby"),
+      className: "text-blue-500",
+      icon: Battery
+    };
+  }, [data, currentTimeIndex, t]);
+
+  const StatusIcon = getBatteryStatus.icon;
+
   return (
     <Card className="shadow-lg bg-card text-card-foreground">
       <CardHeader className="border-b border-border">
-        <CardTitle className="text-xl font-semibold">
-          {t("batteryLevel")}
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-xl font-semibold">
+            {t("batteryLevel")}
+          </CardTitle>
+          <div className="flex items-center gap-2">
+            <StatusIcon className={cn("w-4 h-4", getBatteryStatus.className)} />
+            <span className={cn("text-sm font-medium", getBatteryStatus.className)}>
+              {getBatteryStatus.text}
+            </span>
+          </div>
+        </div>
       </CardHeader>
       <CardContent className="pt-6">
         <div className="h-[250px]">

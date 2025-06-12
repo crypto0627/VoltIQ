@@ -91,14 +91,15 @@
         "overUsage": "Over Usage",
         "overUsageRecords": "Over Usage Records",
         "time": "Time",
-        "usage": "Usage (kWh)",
+        "usage": "Taipower electricity usage (kW)",
+        "limit": "OverUsage limit line",
         "electricityUsage": "Electricity Usage",
         "contractLimit": "Contract Limit 2000 kW",
         "systemStatus": "System Status",
         "solarPanel": "Solar Panel",
         "batteryStatus": "Battery Status",
         "gridPower": "Grid Power",
-        "storageDevice": "Storage Device",
+        "factory": "Factory electricity usage",
         "solarPowerGeneration": "Solar Power Generation",
         "batteryCharging": "Battery Charging",
         "batteryDischarging": "Battery Discharging",
@@ -108,11 +109,107 @@
         "power": "Power (kW)",
         "charging": "Charging",
         "discharging": "Discharging",
-        "peakUsage": "Peak Usage",
-        "offPeakUsage": "Off-Peak Usage",
-        "midPeakUsage": "Mid-Peak Usage",
-        "electricityBill": "Electricity Bill",
-        "todaysElectricityUsage": "Today's Electricity Usage"
+        "standby": "Standby",
+        "peakUsage": "Monthly Peak Usage",
+        "offPeakUsage": "Monthly Off-Peak Usage",
+        "midPeakUsage": "Monthly Mid-Peak Usage",
+        "electricityBill": "Monthly Electricity Bill",
+        "todaysElectricityUsage": "Monthly Electricity Usage",
+        "today": "Today"
+      },
+      "report": {
+        "monthlyUsage": "Monthly Electricity Usage",
+        "totalUsage": "Total Usage Statistics",
+        "averagePrice": "Average Electricity Price",
+        "pricePerUnit": "Price per Unit",
+        "savings": "Savings",
+        "comparedToLastYear": "Compared to Last Year",
+        "monthlyExpense": "Monthly Expense",
+        "totalExpense": "Total Electricity Expense",
+        "quarterlyReports": "Quarterly Reports Download",
+        "quarterlyReports2024": "2024 Quarterly Reports",
+        "q1Report": "2024 Q1 Electricity Report",
+        "q2Report": "2024 Q2 Electricity Report",
+        "q3Report": "2024 Q3 Electricity Report",
+        "q4Report": "2024 Q4 Electricity Report",
+        "generatedOn": "Generated on",
+        "aiSuggestions": "AI Electricity Suggestions",
+        "basedOnAnalysis": "Based on Your Electricity Data Analysis",
+        "peakHours": "Based on analysis, your electricity usage peaks between 2 PM and 6 PM, suggestions:",
+        "suggestions": {
+          "ac": "Consider adjusting AC usage time to avoid peak hours",
+          "charging": "Recommend charging large devices during night hours",
+          "solar": "Consider installing solar panels to reduce daytime electricity costs"
+        }
+      },
+      "schedule": {
+        "title": "Battery Usage Trend",
+        "description": "Real-time battery usage monitoring",
+        "time": "Time",
+        "batteryUsage": "Battery Usage (kW)",
+        "electricityPrice": "Electricity Price (¥/kW)",
+        "electricityCost": "Electricity Cost (¥)",
+        "charging": "Charging",
+        "discharging": "Discharging",
+        "updateInterval": "Updated every 15 minutes"
+      },
+      "controller": {
+        "title": "System Monitor",
+        "meter": "Meter",
+        "pcs": "PCS",
+        "battery": "Battery"
+      }
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "welcome": "Welcome to \"Fortune Energy Storage Solutions\" (hereinafter referred to as this website). To ensure you can use the various services and information on this website with peace of mind, we hereby explain the privacy protection policy of this website to protect your rights. Please read the following content carefully:",
+      "sections": {
+        "scope": {
+          "title": "1. Scope of Privacy Protection Policy",
+          "content": "The privacy protection policy content includes how this website handles personal identification data collected when you use the website services. The privacy protection policy does not apply to related linked websites outside this website, nor does it apply to personnel not commissioned or involved in management by this website."
+        },
+        "dataCollection": {
+          "title": "2. Methods of Collecting, Processing, and Using Personal Data",
+          "content": "When you visit this website or use the functional services provided by this website, we will ask you to provide necessary personal data based on the nature of the service function, and process and use your personal data within the scope of the specific purpose. Without your written consent, this website will not use personal data for other purposes.",
+          "points": [
+            "When you use interactive functions such as service mailboxes and questionnaires, this website will retain the name, email address, contact information, and usage time you provide.",
+            "During general browsing, the server will automatically record related behaviors, including your IP address, usage time, browser used, browsing and click data records, etc., as a reference for improving website services. This record is for internal use and will never be publicly disclosed.",
+            "To provide accurate services, we will conduct statistics and analysis on the collected questionnaire content. The statistical data or explanatory text of the analysis results will be presented. In addition to internal research, we will publish statistical data and explanatory text as needed, but will not involve specific individual data.",
+            "You can request us to correct or delete your incorrect or incomplete personal data collected by this website at any time."
+          ]
+        },
+        "dataProtection": {
+          "title": "3. Data Protection",
+          "content": "The mainframe of this website is equipped with firewalls, anti-virus systems, and other related information security equipment and necessary security protection measures to protect the website and your personal data. Strict protection measures are adopted, and only authorized personnel can access your personal data. All relevant processing personnel have signed confidentiality agreements, and those who violate confidentiality obligations will be subject to relevant legal penalties.",
+          "points": [
+            "When it is necessary to entrust other units to provide services due to business needs, this website will also strictly require them to comply with confidentiality obligations and take necessary inspection procedures to ensure they will indeed comply."
+          ]
+        },
+        "externalLinks": {
+          "title": "4. External Links",
+          "content": "This website provides network links to other websites, and you can also click to enter other websites through the links provided by this website. However, the privacy protection policy of this website does not apply to these linked websites, and you must refer to the privacy protection policy in those linked websites."
+        },
+        "dataSharing": {
+          "title": "5. Policy on Sharing Personal Data with Third Parties",
+          "content": "This website will never provide, exchange, rent, or sell any of your personal data to other individuals, groups, private enterprises, or public agencies, except when there is a legal basis or contractual obligation.",
+          "points": [
+            "With your written consent.",
+            "As required by law.",
+            "To prevent danger to your life, body, freedom, or property.",
+            "When cooperating with public agencies or academic research institutions, based on public interest for statistics or academic research, and the data has been processed by the provider or collected in a way that cannot identify specific individuals.",
+            "When your behavior on the website violates the terms of service or may damage or hinder the rights of the website and other users or cause harm to anyone, and the website management unit determines that disclosing your personal data is necessary for identification, contact, or legal action.",
+            "When it is beneficial to your rights.",
+            "When this website entrusts manufacturers to assist in collecting, processing, or using your personal data, it will properly supervise and manage the outsourced manufacturers or individuals."
+          ]
+        },
+        "cookies": {
+          "title": "6. Use of Cookies",
+          "content": "To provide you with the best service, this website will place and access our Cookies on your computer. If you do not wish to accept the writing of Cookies, you can set the privacy level to high in your browser's function items to reject the writing of Cookies, but this may cause some functions of the website to not work properly."
+        },
+        "policyUpdates": {
+          "title": "7. Privacy Protection Policy Updates",
+          "content": "This website's privacy protection policy will be revised as needed, and the revised terms will be published on the website."
+        }
       }
     }
   }

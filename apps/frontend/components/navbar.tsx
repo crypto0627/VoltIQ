@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Moon, Sun, Cloud, CloudRain, CloudSun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { usePathname, useRouter } from "@/i18n/navigation";
+import { useSearchParams } from "next/navigation";
 import useUserStore from "@/stores/useUserStore";
 import { useTranslations, useLocale } from "next-intl";
 
@@ -27,6 +28,8 @@ export function Navbar() {
   const { setTheme, theme } = useTheme();
   const pathname = usePathname();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const currentTheme = searchParams.get("theme") || "light";
   const [currentDateTime, setCurrentDateTime] = useState("");
   const [weather, setWeather] = useState<{
     temp: number;
@@ -136,6 +139,15 @@ export function Navbar() {
     await router.replace(pathname, { locale: targetLocale });
   };
 
+  const handleThemeChange = () => {
+    const newTheme = currentTheme === "light" ? "dark" : "light";
+    setTheme(newTheme);
+    // 更新 URL 參數
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("theme", newTheme);
+    router.replace(`${pathname}?${params.toString()}`);
+  };
+
   const routeName = pathname.split("/").pop() || "dashboard";
   const formattedRouteName = t(routeName);
 
@@ -149,27 +161,33 @@ export function Navbar() {
           <h1 className="text-lg font-semibold">{formattedRouteName}</h1>
         </div>
 
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-2 px-3 py-1 rounded-md bg-muted">
+        <div className="flex items-center gap-2 flex-wrap md:flex-nowrap">
+          {/* Weather info - hidden on mobile */}
+          <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-md bg-muted">
             {getWeatherIcon(weather.condition)}
             <span className="text-sm font-medium">
               {weather.county} {weather.town} {weather.temp}°C
             </span>
           </div>
-          <div className="text-sm font-medium w-[180px] text-right font-mono tabular-nums">
+
+          {/* DateTime - hidden on mobile */}
+          <div className="hidden md:block text-sm font-medium w-[180px] text-right font-mono tabular-nums">
             {currentDateTime}
           </div>
+
+          {/* Theme toggle - always visible */}
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+            onClick={handleThemeChange}
           >
             <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
             <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
             <span className="sr-only">Toggle theme</span>
           </Button>
 
-          <div className="flex items-center gap-2">
+          {/* Language switch - hidden on mobile */}
+          <div className="hidden md:flex items-center gap-2">
             <span className="text-sm">EN</span>
             <Switch
               checked={locale === "zh"}
@@ -178,12 +196,13 @@ export function Navbar() {
             <span className="text-sm">中文</span>
           </div>
 
+          {/* User menu - always visible */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                 <Avatar className="h-8 w-8">
                   <AvatarImage
-                    src="/placeholder.svg?height=32&width=32"
+                    src="/favicon.ico?height=32&width=32"
                     alt="User"
                   />
                   <AvatarFallback>
