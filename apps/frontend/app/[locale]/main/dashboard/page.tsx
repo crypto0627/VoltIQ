@@ -11,6 +11,7 @@ import SystemStatus from "@/components/dashboard/system-status";
 import { useElectricityStore } from "@/stores/electricityStore";
 import { useUsageCalculations } from "@/hooks/use-usage-calculations";
 import { InfoCardList } from "@/components/dashboard/info-card-list";
+import { SaveMoney } from "@/components/dashboard/save-money";
 
 export default function DashboardPage() {
   const [aiChatOpen, setAiChatOpen] = useState(false);
@@ -24,22 +25,27 @@ export default function DashboardPage() {
   const usage = useUsageCalculations();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-0">
       {/* Info Cards Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-        <InfoCardList usage={usage} />
+      <div className="flex flex-col xl:flex-row gap-0.5">
+        <div className="xl:w-1/2 space-y-0.5">
+          <InfoCardList usage={usage} />
+        </div>
+        <div className="xl:w-1/2 space-y-0.5">
+          <SaveMoney />
+        </div>
       </div>
 
-      <div className="flex flex-col xl:flex-row gap-4">
+      <div className="flex flex-col xl:flex-row gap-0.5">
         {/* Left section */}
-        <div className="xl:w-1/2 space-y-4">
+        <div className="xl:w-1/2 space-y-0.5">
           {/* Electricity Usage Overview Card */}
           <ElectricityUsageChart />
           <ChargeChart />
         </div>
 
         {/* Middle section */}
-        <div className="xl:w-1/2 space-y-4">
+        <div className="xl:w-1/2 space-y-0.5">
           <SystemStatus />
           <BatteryStatusChart />
         </div>
@@ -47,7 +53,7 @@ export default function DashboardPage() {
 
       <Button
         onClick={() => setAiChatOpen(true)}
-        className="fixed bottom-4 right-4 h-16 w-16 rounded-full p-0 border-4 border-blue-500/40"
+        className="fixed bottom-4 right-4 h-14 w-14 rounded-full p-0 border-3 border-blue-500/40"
       >
         <div className="relative h-full w-full">
           <Image

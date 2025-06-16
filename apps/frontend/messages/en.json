@@ -8,6 +8,7 @@
         "password": "Password",
         "passwordPlaceholder": "Enter your password",
         "signIn": "Sign In",
+        "signingIn": "Signing in...",
         "noAccount": "Don't have an account?",
         "signUp": "Sign up",
         "backToHome": "Back to Home",
@@ -115,7 +116,8 @@
         "midPeakUsage": "Monthly Mid-Peak Usage",
         "electricityBill": "Monthly Electricity Bill",
         "todaysElectricityUsage": "Monthly Electricity Usage",
-        "today": "Today"
+        "today": "Today",
+        "drStartCount": "Monthly DR Start Count"
       },
       "report": {
         "monthlyUsage": "Monthly Electricity Usage",
@@ -158,6 +160,17 @@
         "meter": "Meter",
         "pcs": "PCS",
         "battery": "Battery"
+      },
+      "profile": {
+        "title": "Account Settings",
+        "description": "Update your email and password",
+        "email": "Email",
+        "password": "New Password",
+        "passwordPlaceholder": "Leave blank to keep current password",
+        "updateButton": "Update Account",
+        "updating": "Updating...",
+        "deleteButton": "Delete Account",
+        "deleteConfirm": "Are you sure you want to delete your account? This action cannot be undone."
       }
     },
     "privacy": {

@@ -39,7 +39,7 @@ export default function SchedulePage() {
   }));
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-1">
       <Card>
         <CardHeader>
           <CardTitle>{t("title")}</CardTitle>

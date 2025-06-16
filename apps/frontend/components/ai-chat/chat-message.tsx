@@ -273,7 +273,7 @@ export function ChatMessage({ message, onReload }: ChatMessageProps) {
 
   return (
     <div
-      className={`flex gap-3 ${isUser ? "justify-end" : "justify-start"} mb-4`}
+      className={`flex gap-3 ${isUser ? "justify-end" : "justify-start mb-4 w-full"}`}
     >
       {!isUser && (
         <Avatar className="h-8 w-8 sm:h-10 sm:w-10 bg-gradient-to-r from-emerald-500 to-teal-500 shadow-lg flex-shrink-0">
@@ -290,28 +290,28 @@ export function ChatMessage({ message, onReload }: ChatMessageProps) {
 
       <div
         className={`
-          max-w-[95%] rounded-xl p-3 sm:p-4 shadow-xl backdrop-blur-sm
+          rounded-xl p-3 sm:p-4 shadow-xl backdrop-blur-sm
           ${
             isUser
               ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white ml-auto"
-              : "bg-slate-700/80 border border-slate-600/50 text-slate-100"
+              : "bg-slate-700/80 border border-slate-600/50 text-slate-100 w-full"
           }
         `}
       >
-        {/* Render chart if data is available and not excluded by keywords */}
+        {/* Rest of the code remains the same */}
         {chartInfo && chartInfo.data && (
           <div className="w-full h-64 sm:h-80 mb-4 rounded-lg overflow-hidden bg-slate-900/30">
-            {" "}
-            {/* Container for the chart */}
-            <ResponsiveContainer width="100%" height="85%">
+            <ResponsiveContainer width="100%" height="100%">
               {/* Determine and render the correct chart type directly */}
               {chartInfo.type === "BarChart" ? (
                 <BarChart
                   data={chartInfo.data}
+                  width={800}
+                  height={400}
                   margin={{
-                    top: 20,
-                    right: 30,
-                    left: 40,
+                    top: 50,
+                    right: 50,
+                    left: 80,
                     bottom: 0,
                   }}
                 >
@@ -326,11 +326,12 @@ export function ChatMessage({ message, onReload }: ChatMessageProps) {
                       `${value.toLocaleString("zh-TW")}`
                     }
                     label={{
-                      value: "用電量 (kW)",
+                      value: "功率 (kW)",
                       angle: -90,
                       position: "insideLeft",
                       fill: "#e2e8f0",
-                      dx: -20,
+                      dx: -50,
+                      dy: 50,
                     }}
                   />
                   <Tooltip
@@ -360,6 +361,8 @@ export function ChatMessage({ message, onReload }: ChatMessageProps) {
               ) : chartInfo.type === "LineChart" ? (
                 <LineChart
                   data={chartInfo.data}
+                  width={800}
+                  height={400}
                   margin={{
                     top: 20,
                     right: 30,
@@ -378,11 +381,12 @@ export function ChatMessage({ message, onReload }: ChatMessageProps) {
                       `${value.toLocaleString("zh-TW")}`
                     }
                     label={{
-                      value: "用電量 (kW)",
+                      value: "功率 (kW)",
                       angle: -90,
                       position: "insideLeft",
                       fill: "#e2e8f0",
                       dx: -20,
+                      dy: 50,
                     }}
                   />
                   <Tooltip

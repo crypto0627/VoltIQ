@@ -72,7 +72,7 @@ export default function BatteryStatusChart() {
       <CardHeader className="border-b border-border">
         <div className="flex items-center justify-between">
           <CardTitle className="text-xl font-semibold">
-            {t("batteryLevel")}
+            {t("batteryLevel")} {data[currentTimeIndex]?.soc.toFixed(1) || 0}%
           </CardTitle>
           <div className="flex items-center gap-2">
             <StatusIcon className={cn("w-4 h-4", getBatteryStatus.className)} />

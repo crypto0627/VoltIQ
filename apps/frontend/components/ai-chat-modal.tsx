@@ -573,7 +573,7 @@ export function AiChatModal({ open, onOpenChange }: AiChatModalProps) {
                       isAiChatLoading,
                   )}
                   size="icon"
-                  className="bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-600 hover:via-teal-600 to-cyan-600 text-white transition-all duration-300"
+                  className="bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-600 hover:via-teal-600 hover:to-cyan-600 text-white transition-all duration-300"
                 >
                   <Send className="h-3 w-3 sm:h-4 sm:w-4" />
                 </Button>

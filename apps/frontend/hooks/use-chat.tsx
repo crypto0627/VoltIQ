@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import type { Chat, Message } from "@/types/ui/ai-chat-type";
 import useUserStore from "@/stores/useUserStore";
-import { useChat } from "@ai-sdk/react";
 
 export function useChatLogic() {
   const [chats, setChats] = useState<Chat[]>([]);

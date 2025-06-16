@@ -16,11 +16,13 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import useUserStore from "@/stores/useUserStore";
 import { useTranslations } from "next-intl";
+import { Loader2 } from "lucide-react";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { user, fetchUser } = useUserStore();
   const t = useTranslations("Auth.signin");
@@ -38,6 +40,7 @@ export default function SignInPage() {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setIsLoading(true);
 
     try {
       const response = await fetch("/api/auth/signin", {
@@ -57,6 +60,8 @@ export default function SignInPage() {
       router.push("/main/dashboard");
     } catch (err) {
       setError((err as Error).message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -80,6 +85,7 @@ export default function SignInPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
+                  disabled={isLoading}
                 />
               </div>
               <div className="space-y-2">
@@ -91,11 +97,19 @@ export default function SignInPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  disabled={isLoading}
                 />
               </div>
               {error && <div className="text-red-500 text-sm">{error}</div>}
-              <Button type="submit" className="w-full">
-                {t("signIn")}
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    {t("signingIn")}
+                  </>
+                ) : (
+                  t("signIn")
+                )}
               </Button>
             </form>
             <div className="text-center text-sm">
@@ -108,7 +122,7 @@ export default function SignInPage() {
               </Link>
             </div>
             <div className="text-center">
-              <Button asChild variant="link">
+              <Button asChild variant="link" disabled={isLoading}>
                 <Link href="/">{t("backToHome")}</Link>
               </Button>
             </div>

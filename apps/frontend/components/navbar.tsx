@@ -38,7 +38,7 @@ export function Navbar() {
     town: string;
   }>({ temp: 25, condition: "sunny", county: "", town: "" });
 
-  const { user, fetchUser, isLoading } = useUserStore();
+  const { user, fetchUser, isLoading, logout } = useUserStore();
 
   useEffect(() => {
     fetchUser();
@@ -120,14 +120,7 @@ export function Navbar() {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch("/api/auth/logout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) throw new Error("Logout failed");
+      await logout();
       router.push("/auth/signin");
     } catch (error) {
       console.error("Logout error:", error);

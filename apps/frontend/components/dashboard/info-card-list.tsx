@@ -72,10 +72,18 @@ export function InfoCardList({ usage }: InfoCardListProps) {
       monthlyPercentage: "+12% from last month",
       icon: Zap,
     },
+    {
+      title: t("drStartCount"),
+      value: "3 次",
+      percentage: "-2% from last day",
+      monthlyValue: "12 次",
+      monthlyPercentage: "-5% from last month",
+      icon: Zap,
+    },
   ];
 
   return (
-    <>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-0.5">
       {infoCards.map((card, index) => (
         <InfoCard
           key={index}
@@ -87,6 +95,6 @@ export function InfoCardList({ usage }: InfoCardListProps) {
           monthlyPercentage={card.monthlyPercentage}
         />
       ))}
-    </>
+    </div>
   );
 }

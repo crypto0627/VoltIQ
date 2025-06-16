@@ -14,10 +14,12 @@ import { Mail, Lock } from "lucide-react";
 import { useState } from "react";
 import useUserStore from "@/stores/useUserStore";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 export default function ProfilePage() {
   const { user, setUser } = useUserStore();
   const router = useRouter();
+  const t = useTranslations("main.profile");
   const [email, setEmail] = useState(user?.email || "");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -51,12 +53,7 @@ export default function ProfilePage() {
 
   const handleDelete = async () => {
     if (!user?.id) return;
-    if (
-      !confirm(
-        "Are you sure you want to delete your account? This action cannot be undone.",
-      )
-    )
-      return;
+    if (!confirm(t("deleteConfirm"))) return;
 
     try {
       const response = await fetch("/api/user/delete", {
@@ -79,12 +76,12 @@ export default function ProfilePage() {
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle>Account Settings</CardTitle>
-          <CardDescription>Update your email and password</CardDescription>
+          <CardTitle>{t("title")}</CardTitle>
+          <CardDescription>{t("description")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">{t("email")}</Label>
             <div className="relative">
               <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
@@ -98,7 +95,7 @@ export default function ProfilePage() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password">New Password</Label>
+            <Label htmlFor="password">{t("newPassword")}</Label>
             <div className="relative">
               <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
@@ -107,21 +104,21 @@ export default function ProfilePage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="pl-10"
-                placeholder="Leave blank to keep current password"
+                placeholder={t("passwordPlaceholder")}
               />
             </div>
           </div>
 
           <div className="flex gap-2 pt-4">
             <Button onClick={handleUpdate} disabled={isLoading}>
-              {isLoading ? "Updating..." : "Update Account"}
+              {isLoading ? t("updating") : t("updateAccount")}
             </Button>
             <Button
               variant="destructive"
               onClick={handleDelete}
               disabled={isLoading}
             >
-              Delete Account
+              {t("deleteAccount")}
             </Button>
           </div>
         </CardContent>
